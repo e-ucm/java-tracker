@@ -1,0 +1,12 @@
+sudo: true
+language: java
+services:
+  - docker
+addons:
+  apt:
+    packages:
+      - oracle-java8-set-default
+script:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -q
+after_success:
+  - mvn -DrepoToken=$COVERALLS_REPO_TOKEN cobertura:cobertura coveralls:report
