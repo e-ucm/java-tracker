@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.tracker.swing;
+package eu.rageproject.asset.manager;
 
-import es.eucm.tracker.TrackerAsset;
-
-public class Main {
-
-	public static void main(String[] argv) {
-
-	}
+/**
+ * Interface for performing http requests.
+ *
+ * Implemented on a Bridge.
+ * 
+ * @author Wim van der Vegt
+ */
+public interface IWebServiceRequest {
+    /**
+     * Web service request.
+     * 
+     * @param requestSettings Options for controlling the operation.
+     *
+     * @returns A RequestResponse.
+     */
+    RequestResponse WebServiceRequest(RequestSettings requestSettings);
 }

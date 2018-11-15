@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.tracker.swing;
+package eu.rageproject.asset.manager;
 
-import es.eucm.tracker.TrackerAsset;
+ /**
+ * Interface for bridge, used to enforcing type safety.
+ *
+ * @author Ivan Martinez-Ortiz
+ */
+public interface IBridge {
 
-public class Main {
-
-	public static void main(String[] argv) {
-
-	}
 }

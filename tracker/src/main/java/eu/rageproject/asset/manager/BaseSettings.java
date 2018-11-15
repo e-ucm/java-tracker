@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.tracker.swing;
+package eu.rageproject.asset.manager;
 
-import es.eucm.tracker.TrackerAsset;
+import javax.xml.bind.annotation.XmlRootElement;
 
-public class Main {
+/**
+ * A base settings class.
+ * 
+ * @author Ivan Martinez-Ortiz
+ *
+ */
+@XmlRootElement(name="settings")
+public class BaseSettings implements ISettings {
 
-	public static void main(String[] argv) {
-
-	}
+	public BaseSettings() {
+    }
 }

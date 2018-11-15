@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.tracker.swing;
+package es.eucm.tracker.Utils;
 
-import es.eucm.tracker.TrackerAsset;
-
-public class Main {
-
-	public static void main(String[] argv) {
-
-	}
+public enum ReturnPreOrPostValue {
+    PRE, POST
 }

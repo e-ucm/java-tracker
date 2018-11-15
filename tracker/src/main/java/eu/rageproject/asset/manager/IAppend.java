@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.tracker.swing;
-
-import es.eucm.tracker.TrackerAsset;
-
-public class Main {
-
-	public static void main(String[] argv) {
-
-	}
+package eu.rageproject.asset.manager;
+/**
+ * Interface for Append method.
+ * 
+ * @author Ivan Martinez-Ortiz (e-ucm)
+ * @author Wim van der Vegt (ounl)
+ */
+public interface IAppend
+{
+    /**
+     * Append text to a file
+     * 
+     * @param fileId The file identifier to append to.	
+     * @param fileData	The  data to append to the file.
+     */
+    public void Append(String fileId, String fileData);
 }

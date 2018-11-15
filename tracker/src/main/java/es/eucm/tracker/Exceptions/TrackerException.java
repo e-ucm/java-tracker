@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.tracker.swing;
+//
+// Translated by CS2J (http://www.cs2j.com): 05/11/2018 15:29:15
+//
 
-import es.eucm.tracker.TrackerAsset;
+package es.eucm.tracker.Exceptions;
 
-public class Main {
 
-	public static void main(String[] argv) {
+public class TrackerException  extends Exception 
+{
+    public TrackerException(String message) {
+        super(message);
+    }
 
-	}
 }
+
+
