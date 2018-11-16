@@ -24,43 +24,50 @@ package eu.rageproject.asset.manager;
  * <li>Check if an asset has default (application) settings that override
  * build-in default settings.</li>
  * <li>Load these settings from the game environment.</li>
- * <li>In certain environments write the actual settings as application defaults. This
- * could for instance be Unity in editor mode.&lt;</li>
+ * <li>In certain environments write the actual settings as application
+ * defaults. This could for instance be Unity in editor mode.&lt;</li>
  * </ul>
  * 
- * Default settings and application default settings are read-only at run-time. If modification
- * and storage is needed at run-time, the {@link #IDataStorage}
+ * Default settings and application default settings are read-only at run-time.
+ * If modification and storage is needed at run-time, the {@link #IDataStorage}
  * interface could be used i.c.m. {@link #ISettings} methods.
  */
 public interface IDefaultSettings {
 
 	/**
 	 * Check if a {@code clazz} with {@code id} has default settings.
-	 *
-	 * @param clazz	The classname.
-	 * @param id   	The identifier.
-	 *
-	 * @return {@code true} if default settings, {@code false}
-	 * otherwise.
+	 * 
+	 * @param clazz
+	 *            The classname.
+	 * @param id
+	 *            The identifier.
+	 * 
+	 * @return {@code true} if default settings, {@code false} otherwise.
 	 */
 	boolean hasDefaultSettings(final String clazz, final String id);
 
 	/**
 	 * Loads default settings for a {@code clazz} with {@code id}.
-	 *
-	 * @param clazz	The classname.
-	 * @param id   	The identifier.
-	 *
+	 * 
+	 * @param clazz
+	 *            The classname.
+	 * @param id
+	 *            The identifier.
+	 * 
 	 * @return The default settings.
 	 */
 	String loadDefaultSettings(final String clazz, final String id);
 
 	/**
 	 * Saves a default settings for a {@code clazz} with {@code id}.
-	 *
-	 * @param Class   	The classname.
-	 * @param Id	  	The identifier.
-	 * @param fileData	Data to save.
+	 * 
+	 * @param Class
+	 *            The classname.
+	 * @param Id
+	 *            The identifier.
+	 * @param fileData
+	 *            Data to save.
 	 */
-	void saveDefaultSettings(final String Class, final String Id, final String fileData);
+	void saveDefaultSettings(final String Class, final String Id,
+			final String fileData);
 }

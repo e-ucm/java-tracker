@@ -19,12 +19,9 @@
 
 package es.eucm.tracker.Exceptions;
 
-public class TargetXApiException  extends XApiException
-{
-    public TargetXApiException(String message) {
-        super(message);
-    }
+public class TargetXApiException extends XApiException {
+	public TargetXApiException(String message) {
+		super(message);
+	}
 
 }
-
-

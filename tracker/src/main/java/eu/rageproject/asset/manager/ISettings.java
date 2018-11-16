@@ -17,7 +17,7 @@ package eu.rageproject.asset.manager;
 
 /**
  * Interface for settings, used to enforce type safety.
- *
+ * 
  * @author Ivan Martinez-Ortiz
  */
 public interface ISettings {

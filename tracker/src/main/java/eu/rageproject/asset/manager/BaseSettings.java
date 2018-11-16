@@ -21,11 +21,11 @@ import javax.xml.bind.annotation.XmlRootElement;
  * A base settings class.
  * 
  * @author Ivan Martinez-Ortiz
- *
+ * 
  */
-@XmlRootElement(name="settings")
+@XmlRootElement(name = "settings")
 public class BaseSettings implements ISettings {
 
 	public BaseSettings() {
-    }
+	}
 }

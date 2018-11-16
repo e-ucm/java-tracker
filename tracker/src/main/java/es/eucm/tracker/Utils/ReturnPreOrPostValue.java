@@ -16,5 +16,5 @@
 package es.eucm.tracker.Utils;
 
 public enum ReturnPreOrPostValue {
-    PRE, POST
+	PRE, POST
 }

@@ -18,92 +18,112 @@ package es.eucm.tracker;
 
 import es.eucm.tracker.Exceptions.TargetXApiException;
 
+public class GameObjectTracker implements TrackerAsset.IGameObjectTracker {
+	private TrackerAsset tracker;
 
-public class GameObjectTracker implements TrackerAsset.IGameObjectTracker
-{
-    private TrackerAsset tracker;
-    public void setTracker(TrackerAsset tracker) {
-        this.tracker = tracker;
-    }
+	public void setTracker(TrackerAsset tracker) {
+		this.tracker = tracker;
+	}
 
-    public enum TrackedGameObject
-    {
-        /* GAMEOBJECT */
-        Enemy,
-        Npc,
-        Item,
-        GameObject
-    }
-    /**
-    * Player interacted with a game object.
-    * Type = GameObject
-    * 
-    *  @param gameobjectId Reachable identifier.
-    */
-    public void interacted(String gameobjectId) throws Exception {
-        if (tracker.getUtils().check(gameobjectId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+	public enum TrackedGameObject {
+		/* GAMEOBJECT */
+		Enemy, Npc, Item, GameObject
+	}
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Interacted));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(TrackedGameObject.GameObject.toString().toLowerCase(), gameobjectId));
+	/**
+	 * Player interacted with a game object. Type = GameObject
+	 * 
+	 * @param gameobjectId
+	 *            Reachable identifier.
+	 */
+	public void interacted(String gameobjectId) throws Exception {
+		if (tracker.getUtils().check(gameobjectId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
 
-            tracker.trace(trace);
-        }
-    }
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Interacted));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+					TrackedGameObject.GameObject.toString().toLowerCase(),
+					gameobjectId));
 
-    /**
-    * Player interacted with a game object.
-    * 
-    *  @param gameobjectId TrackedGameObject identifier.
-    */
-    public void interacted(String gameobjectId, TrackedGameObject type) throws Exception {
-        if (tracker.getUtils().check(gameobjectId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+			tracker.trace(trace);
+		}
+	}
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Interacted));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type.toString().toLowerCase(), gameobjectId));
+	/**
+	 * Player interacted with a game object.
+	 * 
+	 * @param gameobjectId
+	 *            TrackedGameObject identifier.
+	 */
+	public void interacted(String gameobjectId, TrackedGameObject type)
+			throws Exception {
+		if (tracker.getUtils().check(gameobjectId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
 
-            tracker.trace(trace);
-        }
-    }
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Interacted));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+					.toString().toLowerCase(), gameobjectId));
 
-    /**
-    * Player interacted with a game object.
-    * Type = GameObject
-    * 
-    *  @param gameobjectId Reachable identifier.
-    */
-    public void used(String gameobjectId) throws Exception {
-        if (tracker.getUtils().check(gameobjectId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+			tracker.trace(trace);
+		}
+	}
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Interacted));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(TrackedGameObject.GameObject.toString().toLowerCase(), gameobjectId));
+	/**
+	 * Player interacted with a game object. Type = GameObject
+	 * 
+	 * @param gameobjectId
+	 *            Reachable identifier.
+	 */
+	public void used(String gameobjectId) throws Exception {
+		if (tracker.getUtils().check(gameobjectId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
 
-            tracker.trace(trace);
-        }
-    }
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Interacted));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+					TrackedGameObject.GameObject.toString().toLowerCase(),
+					gameobjectId));
 
-    /**
-    * Player interacted with a game object.
-    * 
-    *  @param gameobjectId TrackedGameObject identifier.
-    */
-    public void used(String gameobjectId, TrackedGameObject type) throws Exception {
-        if (tracker.getUtils().check(gameobjectId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+			tracker.trace(trace);
+		}
+	}
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Used));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type.toString().toLowerCase(), gameobjectId));
+	/**
+	 * Player interacted with a game object.
+	 * 
+	 * @param gameobjectId
+	 *            TrackedGameObject identifier.
+	 */
+	public void used(String gameobjectId, TrackedGameObject type)
+			throws Exception {
+		if (tracker.getUtils().check(gameobjectId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
 
-            tracker.trace(trace);
-        }
-    }
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Used));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+					.toString().toLowerCase(), gameobjectId));
+
+			tracker.trace(trace);
+		}
+	}
 
 }
-
-

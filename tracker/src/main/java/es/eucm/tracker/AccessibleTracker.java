@@ -18,94 +18,112 @@ package es.eucm.tracker;
 
 import es.eucm.tracker.Exceptions.TargetXApiException;
 
-public class AccessibleTracker   implements TrackerAsset.IGameObjectTracker
-{
-    private TrackerAsset tracker;
-    public void setTracker(TrackerAsset tracker) {
-        this.tracker = tracker;
-    }
+public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
+	private TrackerAsset tracker;
 
-    public enum Accessible
-    {
-        /* ACCESSIBLES */
-        Screen,
-        Area,
-        Zone,
-        Cutscene,
-        Accessible
-    }
-    /**
-    * Player accessed a reachable.
-    * Type = Accessible
-    *
-    *  @param reachableId Reachable identifier.
-    */
-    public void accessed(String reachableId) throws Exception {
-        if (tracker.getUtils().check(reachableId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+	public void setTracker(TrackerAsset tracker) {
+		this.tracker = tracker;
+	}
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Accessed));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(Accessible.Accessible.toString().toLowerCase(), reachableId));
+	public enum Accessible {
+		/* ACCESSIBLES */
+		Screen, Area, Zone, Cutscene, Accessible
+	}
 
-            tracker.trace(trace);
-        }
-    }
+	/**
+	 * Player accessed a reachable. Type = Accessible
+	 * 
+	 * @param reachableId
+	 *            Reachable identifier.
+	 */
+	public void accessed(String reachableId) throws Exception {
+		if (tracker.getUtils().check(reachableId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
 
-    /**
-    * Player accessed a reachable.
-    *
-    *  @param reachableId Reachable identifier.
-    *  @param type Reachable type.
-    */
-    public void accessed(String reachableId, Accessible type) throws Exception {
-        if (tracker.getUtils().check(reachableId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Accessed));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+					Accessible.Accessible.toString().toLowerCase(), reachableId));
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Accessed));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type.toString().toLowerCase(), reachableId));
+			tracker.trace(trace);
+		}
+	}
 
-            tracker.trace(trace);
-        }
-    }
+	/**
+	 * Player accessed a reachable.
+	 * 
+	 * @param reachableId
+	 *            Reachable identifier.
+	 * @param type
+	 *            Reachable type.
+	 */
+	public void accessed(String reachableId, Accessible type) throws Exception {
+		if (tracker.getUtils().check(reachableId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
 
-    /**
-    * Player skipped a reachable.
-    * Type = Accessible
-    *
-    *  @param reachableId Reachable identifier.
-    */
-    public void skipped(String reachableId) throws Exception {
-        if (tracker.getUtils().check(reachableId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Accessed));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+					.toString().toLowerCase(), reachableId));
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Skipped));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(Accessible.Accessible.toString().toLowerCase(), reachableId));
+			tracker.trace(trace);
+		}
+	}
 
-            tracker.trace(trace);
-        }
-    }
+	/**
+	 * Player skipped a reachable. Type = Accessible
+	 * 
+	 * @param reachableId
+	 *            Reachable identifier.
+	 */
+	public void skipped(String reachableId) throws Exception {
+		if (tracker.getUtils().check(reachableId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
 
-    /**
-    * Player skipped a reachable.
-    *
-    *  @param reachableId Reachable identifier.
-    *  @param type Reachable type.
-    */
-    public void skipped(String reachableId, Accessible type) throws Exception {
-        if (tracker.getUtils().check(reachableId,"xAPI Exception: Target ID is null or empty. Ignoring.","xAPI Exception: Target ID can't be null or empty.", TargetXApiException.class))
-        {
-            TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Skipped));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+					Accessible.Accessible.toString().toLowerCase(), reachableId));
 
-            trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Skipped));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type.toString().toLowerCase(), reachableId));
+			tracker.trace(trace);
+		}
+	}
 
-            tracker.trace(trace);
-        }
-    }
+	/**
+	 * Player skipped a reachable.
+	 * 
+	 * @param reachableId
+	 *            Reachable identifier.
+	 * @param type
+	 *            Reachable type.
+	 */
+	public void skipped(String reachableId, Accessible type) throws Exception {
+		if (tracker.getUtils().check(reachableId,
+				"xAPI Exception: Target ID is null or empty. Ignoring.",
+				"xAPI Exception: Target ID can't be null or empty.",
+				TargetXApiException.class)) {
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
+					tracker);
+
+			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+					TrackerAsset.Verb.Skipped));
+			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+					.toString().toLowerCase(), reachableId));
+
+			tracker.trace(trace);
+		}
+	}
 
 }
-
-

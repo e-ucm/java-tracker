@@ -15,9 +15,9 @@
  */
 package eu.rageproject.asset.manager;
 
- /**
+/**
  * Interface for bridge, used to enforcing type safety.
- *
+ * 
  * @author Ivan Martinez-Ortiz
  */
 public interface IBridge {

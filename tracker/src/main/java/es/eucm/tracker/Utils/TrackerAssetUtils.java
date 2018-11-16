@@ -28,133 +28,136 @@ import eu.rageproject.asset.manager.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrackerAssetUtils   
-{
-    private TrackerAsset __Tracker;
-    TrackerAsset getTracker() {
-        return __Tracker;
-    }
+public class TrackerAssetUtils {
+	private TrackerAsset __Tracker;
 
-    void setTracker(TrackerAsset value) {
-        __Tracker = value;
-    }
+	TrackerAsset getTracker() {
+		return __Tracker;
+	}
 
-    public TrackerAssetUtils(TrackerAsset tracker) {
-        this.setTracker(tracker);
-    }
+	void setTracker(TrackerAsset value) {
+		__Tracker = value;
+	}
 
-    public static List<String> parseCSV(String trace) throws TrackerException {
-        ArrayList<String> p = new ArrayList<String>();
-        boolean escape = false;
-        int start = 0;
-        for (int i = 0;i < trace.length();i++)
-        {
-            char c = trace.charAt(i);
-            if (c == '\\')
-            {
-                escape = true;
-            }
-            else if (c == ',')
-            {
-                if (!escape)
-                {
-                    p.add(trace.substring(start, i).replace("\\,", ","));
-                    start = i + 1;
-                }
-                else
-                    escape = false; 
-            }
-        }
-        p.add(trace.substring(start).replace("\\,", ","));
-        return p;
-    }
+	public TrackerAssetUtils(TrackerAsset tracker) {
+		this.setTracker(tracker);
+	}
 
-    public static boolean quickCheckExtension(String key, Object value) throws Exception {
-        return quickCheck(key) && quickCheck(value);
-    }
+	public static List<String> parseCSV(String trace) throws TrackerException {
+		ArrayList<String> p = new ArrayList<String>();
+		boolean escape = false;
+		int start = 0;
+		for (int i = 0; i < trace.length(); i++) {
+			char c = trace.charAt(i);
+			if (c == '\\') {
+				escape = true;
+			} else if (c == ',') {
+				if (!escape) {
+					p.add(trace.substring(start, i).replace("\\,", ","));
+					start = i + 1;
+				} else
+					escape = false;
+			}
+		}
+		p.add(trace.substring(start).replace("\\,", ","));
+		return p;
+	}
 
-    public boolean checkExtension(String key, Object value) throws Exception {
-        return check(key,"Tracker: Extension key is null or empty. Ignored extension.","Tracker: Extension key is null or empty.", KeyExtensionException.class)
-                &&
-                check(value,"Tracker: Extension value is null or empty. Ignored extension.","Tracker: Extension value is null or empty.", ValueExtensionException.class);
-    }
+	public static boolean quickCheckExtension(String key, Object value)
+			throws Exception {
+		return quickCheck(key) && quickCheck(value);
+	}
 
-    public static boolean quickCheck(Object value) throws Exception {
-        return !(value == null || (value.getClass() == String.class && "".equals(((String)value))) || (value.getClass() == float.class && Float.isNaN((Float)value)));
-    }
+	public boolean checkExtension(String key, Object value) throws Exception {
+		return check(key,
+				"Tracker: Extension key is null or empty. Ignored extension.",
+				"Tracker: Extension key is null or empty.",
+				KeyExtensionException.class)
+				&& check(
+						value,
+						"Tracker: Extension value is null or empty. Ignored extension.",
+						"Tracker: Extension value is null or empty.",
+						ValueExtensionException.class);
+	}
 
-    public boolean check(Object value, String message, String strict_message, Class<? extends TrackerException> c) throws Exception {
-        boolean r = quickCheck(value);
-        if (!r)
-            notify(message,strict_message, c);
-         
-        return r;
-    }
+	public static boolean quickCheck(Object value) throws Exception {
+		return !(value == null
+				|| (value.getClass() == String.class && ""
+						.equals(((String) value))) || (value.getClass() == float.class && Float
+				.isNaN((Float) value)));
+	}
 
-    public boolean isFloat(String value, String message, String strict_message, RefSupport<Float> result, Class<? extends TrackerException> c) throws TrackerException {
-        try{
-            result.setValue(Float.parseFloat(value));
-        }catch(Exception ex){
-            notify(message,strict_message, c);
-            return false;
-        }
-        return true;
-    }
+	public boolean check(Object value, String message, String strict_message,
+			Class<? extends TrackerException> c) throws Exception {
+		boolean r = quickCheck(value);
+		if (!r)
+			notify(message, strict_message, c);
 
-    public boolean isBool(String value, String message, String strict_message, RefSupport<Boolean> result, Class<? extends TrackerException> c) throws TrackerException {
-        RefSupport<Boolean> res = new RefSupport<Boolean>();
-        try{
-            result.setValue(Boolean.parseBoolean(value));
-        }catch(Exception ex){
-            notify(message,strict_message, c);
-            return false;
-        }
-        return true;
-    }
+		return r;
+	}
 
-    public void notify(String message, String strict_message, Class<? extends TrackerException> c) throws TrackerException {
-        if (getTracker().getStrictMode())
-        {
-            TrackerException ex;
-            try {
-                ex = c.getConstructor(String.class).newInstance(strict_message);
-            } catch (Exception e) {
-                getTracker().Log(Severity.Warning, "Class not found");
-                ex = new TrackerException(strict_message);
-            }
+	public boolean isFloat(String value, String message, String strict_message,
+			RefSupport<Float> result, Class<? extends TrackerException> c)
+			throws TrackerException {
+		try {
+			result.setValue(Float.parseFloat(value));
+		} catch (Exception ex) {
+			notify(message, strict_message, c);
+			return false;
+		}
+		return true;
+	}
 
-            throw ex;
-        }
-        else
-        {
-            getTracker().Log(Severity.Warning, message);
-        } 
-    }
+	public boolean isBool(String value, String message, String strict_message,
+			RefSupport<Boolean> result, Class<? extends TrackerException> c)
+			throws TrackerException {
+		RefSupport<Boolean> res = new RefSupport<Boolean>();
+		try {
+			result.setValue(Boolean.parseBoolean(value));
+		} catch (Exception ex) {
+			notify(message, strict_message, c);
+			return false;
+		}
+		return true;
+	}
 
-    public static <T extends Enum<T>> boolean ParseEnum(String text, RefSupport<T> value, Class<T> enumType) throws TrackerException {
-        boolean ret = true;
-        value.setValue(enumType.getEnumConstants()[0]);
-        try
-        {
-            boolean found = false;
-            for (T each : enumType.getEnumConstants()) {
-                if (each.name().compareToIgnoreCase(text) == 0) {
-                    value.setValue(each);
-                    found = true;
-                }
-            }
-            if(!found){
-                ret = false;
-            }
-        }
-        catch (Exception e)
-        {
-            ret = false;
-        }
+	public void notify(String message, String strict_message,
+			Class<? extends TrackerException> c) throws TrackerException {
+		if (getTracker().getStrictMode()) {
+			TrackerException ex;
+			try {
+				ex = c.getConstructor(String.class).newInstance(strict_message);
+			} catch (Exception e) {
+				getTracker().Log(Severity.Warning, "Class not found");
+				ex = new TrackerException(strict_message);
+			}
 
-        return ret;
-    }
+			throw ex;
+		} else {
+			getTracker().Log(Severity.Warning, message);
+		}
+	}
+
+	public static <T extends Enum<T>> boolean ParseEnum(String text,
+			RefSupport<T> value, Class<T> enumType) throws TrackerException {
+		boolean ret = true;
+		value.setValue(enumType.getEnumConstants()[0]);
+		try {
+			boolean found = false;
+			for (T each : enumType.getEnumConstants()) {
+				if (each.name().compareToIgnoreCase(text) == 0) {
+					value.setValue(each);
+					found = true;
+				}
+			}
+			if (!found) {
+				ret = false;
+			}
+		} catch (Exception e) {
+			ret = false;
+		}
+
+		return ret;
+	}
 
 }
-
-

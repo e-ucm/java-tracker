@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlValue;
  * <strong>VERSION INFO EXAMPLE</strong>
  * </p>
  * {@code
-   <version>
+ * <version>
      <id>asset</id>
      <major>1</major>
      <minor>2</minor>
@@ -67,7 +67,7 @@ public class RageVersionInfo {
 	@XmlElement(name = "build")
 	private int build;
 
-	@XmlElement(name = "revision", required=false)
+	@XmlElement(name = "revision", required = false)
 	private int revision;
 
 	@XmlElement(name = "maturity")
@@ -92,7 +92,7 @@ public class RageVersionInfo {
 
 	/**
 	 * Gets the identifier
-	 *
+	 * 
 	 * @return The identifier.
 	 */
 	public String getId() {
@@ -101,8 +101,9 @@ public class RageVersionInfo {
 
 	/**
 	 * Sets an identifier
-	 *
-	 * @param id	The identifier.
+	 * 
+	 * @param id
+	 *            The identifier.
 	 */
 	public void setId(final String id) {
 		this.id = id;
@@ -110,7 +111,7 @@ public class RageVersionInfo {
 
 	/**
 	 * Gets the major
-	 *
+	 * 
 	 * @return The major.
 	 */
 	public int getMajor() {
@@ -123,7 +124,7 @@ public class RageVersionInfo {
 
 	/**
 	 * Gets the minor
-	 *
+	 * 
 	 * @return The minor.
 	 */
 	public int getMinor() {
@@ -132,8 +133,9 @@ public class RageVersionInfo {
 
 	/**
 	 * Sets a minor
-	 *
-	 * @param minor	The minor.
+	 * 
+	 * @param minor
+	 *            The minor.
 	 */
 	public void setMinor(final int minor) {
 		this.minor = minor;
@@ -141,7 +143,7 @@ public class RageVersionInfo {
 
 	/**
 	 * Gets the build
-	 *
+	 * 
 	 * @return The build.
 	 */
 	public int getBuild() {
@@ -150,8 +152,9 @@ public class RageVersionInfo {
 
 	/**
 	 * Sets a build
-	 *
-	 * @param build	The build.
+	 * 
+	 * @param build
+	 *            The build.
 	 */
 	public void setBuild(final int build) {
 		this.build = build;
@@ -159,7 +162,7 @@ public class RageVersionInfo {
 
 	/**
 	 * Gets the revision
-	 *
+	 * 
 	 * @return The revision.
 	 */
 	public int getRevision() {
@@ -168,8 +171,9 @@ public class RageVersionInfo {
 
 	/**
 	 * Sets a revision
-	 *
-	 * @param revision	The revision.
+	 * 
+	 * @param revision
+	 *            The revision.
 	 */
 	public void setRevision(final int revision) {
 		this.revision = revision;
@@ -177,7 +181,7 @@ public class RageVersionInfo {
 
 	/**
 	 * Gets the maturity
-	 *
+	 * 
 	 * @return The maturity.
 	 */
 	public String getMaturity() {
@@ -190,7 +194,7 @@ public class RageVersionInfo {
 
 	/**
 	 * Gets the dependencies
-	 *
+	 * 
 	 * @return The dependencies.
 	 */
 	public List<Dependency> getDependencies() {
@@ -199,8 +203,9 @@ public class RageVersionInfo {
 
 	/**
 	 * Sets the dependencies
-	 *
-	 * @param dependencies	The dependencies.
+	 * 
+	 * @param dependencies
+	 *            The dependencies.
 	 */
 	public void setDependencies(final List<Dependency> dependencies) {
 		this.dependencies = dependencies;
@@ -208,19 +213,21 @@ public class RageVersionInfo {
 
 	/**
 	 * Loads version information..
-	 *
-	 * @param xml	The XML version representation.
-	 *
+	 * 
+	 * @param xml
+	 *            The XML version representation.
+	 * 
 	 * @return the loaded version info.
 	 */
 	public static RageVersionInfo loadVersionInfo(final String xml) {
-		RageVersionInfo info = JAXB.unmarshal(new StringReader(xml), RageVersionInfo.class);
+		RageVersionInfo info = JAXB.unmarshal(new StringReader(xml),
+				RageVersionInfo.class);
 		return info;
 	}
 
 	/**
 	 * Saves the version information.
-	 *
+	 * 
 	 * @return the XML version info.
 	 */
 	public String saveVersionInfo() {
@@ -236,7 +243,7 @@ public class RageVersionInfo {
 	 * <strong>DEPENDENCY EXAMPLE</strong>
 	 * </p>
 	 * {@code
-	   <depends minVersion = "1.2.3" > Logger </ depends >
+	 * pends minVersion = "1.2.3" > Logger </ depends >
 	    }
 	 * 
 	 * @author Ivan Martinez-Ortiz
@@ -244,13 +251,13 @@ public class RageVersionInfo {
 	@XmlAccessorType(XmlAccessType.FIELD)
 	@XmlRootElement(name = "depends")
 	public static class Dependency {
-		
-		@XmlAttribute(name="minVersion", required=true)
+
+		@XmlAttribute(name = "minVersion", required = true)
 		private String minVersion;
-		
-		@XmlAttribute(name="maxVersion", required=false)
+
+		@XmlAttribute(name = "maxVersion", required = false)
 		private String maxVersion;
-		
+
 		@XmlValue
 		private String name;
 
@@ -262,7 +269,7 @@ public class RageVersionInfo {
 
 		/**
 		 * Gets minimum version
-		 *
+		 * 
 		 * @return The minimum version.
 		 */
 		public String getMinVersion() {
@@ -271,8 +278,9 @@ public class RageVersionInfo {
 
 		/**
 		 * Sets minimum version
-		 *
-		 * @param minVersion	The minimum version.
+		 * 
+		 * @param minVersion
+		 *            The minimum version.
 		 */
 		public void setMinVersion(final String minVersion) {
 			this.minVersion = minVersion;
@@ -280,7 +288,7 @@ public class RageVersionInfo {
 
 		/**
 		 * Gets maximum version
-		 *
+		 * 
 		 * @return The maximum version.
 		 */
 		public String getMaxVersion() {
@@ -289,8 +297,9 @@ public class RageVersionInfo {
 
 		/**
 		 * Sets maximum version
-		 *
-		 * @param maxVersion	The maximum version.
+		 * 
+		 * @param maxVersion
+		 *            The maximum version.
 		 */
 		public void setMaxVersion(final String maxVersion) {
 			this.maxVersion = maxVersion;
@@ -298,7 +307,7 @@ public class RageVersionInfo {
 
 		/**
 		 * Gets the name
-		 *
+		 * 
 		 * @return The name.
 		 */
 		public String getName() {
@@ -307,23 +316,25 @@ public class RageVersionInfo {
 
 		/**
 		 * Sets a name
-		 *
-		 * @param name	The name.
+		 * 
+		 * @param name
+		 *            The name.
 		 */
 		public void setName(final String name) {
 			this.name = name;
 		}
 	}
-	
+
 	/**
 	 * Convert this object into a string representation
-	 *
+	 * 
 	 * @return A String that represents this object.
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(this.major).append(".").append(this.minor).append(".").append(this.build);
+		builder.append(this.major).append(".").append(this.minor).append(".")
+				.append(this.build);
 		if (this.revision >= 0) {
 			builder.append(".").append(this.revision);
 		}

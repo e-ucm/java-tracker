@@ -21,13 +21,12 @@ import java.util.Map;
 
 /**
  * Values that represent messages
- *
+ * 
  * @author Ivan Martinez-Ortiz
  */
 public enum Messages {
 
 	INSTANCE;
-
 
 	/** Interface for messages event callback. */
 	public static interface MessagesEventCallback {
@@ -36,13 +35,13 @@ public enum Messages {
 
 	/**
 	 * Gets the instance
-	 *
+	 * 
 	 * @return The instance.
 	 */
 	public static final Messages getInstance() {
 		return Messages.INSTANCE;
 	}
-	
+
 	private int subUid;
 
 	private Map<String, Map<String, MessagesEventCallback>> messages;
@@ -57,14 +56,15 @@ public enum Messages {
 
 	/**
 	 * Defines a Message.
-	 *
-	 * @param message	The message.
-	 *
+	 * 
+	 * @param message
+	 *            The message.
+	 * 
 	 * @return True if it succeeds, false if it fails.
 	 */
 	public boolean define(String message) {
-		if (! messages.containsKey(message)) {
-			messages.put(message,  new HashMap<String, MessagesEventCallback>());
+		if (!messages.containsKey(message)) {
+			messages.put(message, new HashMap<String, MessagesEventCallback>());
 			return true;
 		}
 		return false;
@@ -72,54 +72,65 @@ public enum Messages {
 
 	/**
 	 * Broadcasts a Message.
-	 *
-	 * @param message	The message.
-	 * @param params 	Variable arguments providing options for controlling the operation.
-	 *
+	 * 
+	 * @param message
+	 *            The message.
+	 * @param params
+	 *            Variable arguments providing options for controlling the
+	 *            operation.
+	 * 
 	 * @return True if it succeeds, false if it fails.
 	 */
 	public boolean broadcast(final String message, final Object... params) {
-		if ( ! messages.containsKey(message)) {
+		if (!messages.containsKey(message)) {
 			return false;
 		}
-		
-		for(Map.Entry<String, MessagesEventCallback> entry : messages.get(message).entrySet()) {
+
+		for (Map.Entry<String, MessagesEventCallback> entry : messages.get(
+				message).entrySet()) {
 			entry.getValue().messageUpdated(message, params);
 		}
-		
+
 		return true;
 	}
 
 	/**
 	 * Subscribes to a Message.
-	 *
-	 * @param message 	The message.
-	 * @param callback	The callback.
-	 *
+	 * 
+	 * @param message
+	 *            The message.
+	 * @param callback
+	 *            The callback.
+	 * 
 	 * @return A String.
 	 */
-	public String subscribe(final String message, final MessagesEventCallback callback) {
+	public String subscribe(final String message,
+			final MessagesEventCallback callback) {
 		define(message);
-		
+
 		String subscriptionId = Integer.toString(++this.subUid);
 		messages.get(message).put(subscriptionId, callback);
-		
+
 		return subscriptionId;
 	}
 
 	/**
 	 * Unsubscribes from a Message given the subscription identifier
-	 *
-	 * @param subscriptionId	Identifier for the subscription.
-	 *
+	 * 
+	 * @param subscriptionId
+	 *            Identifier for the subscription.
+	 * 
 	 * @return True if it succeeds, false if it fails.
 	 */
 	public boolean unsubscribe(final String subscriptionId) {
-		for (Map.Entry<String, Map<String, MessagesEventCallback>> message: messages.entrySet() ) {
-			Iterator<Map.Entry<String, MessagesEventCallback>> subscribers = message.getValue().entrySet().iterator();
-			
+		for (Map.Entry<String, Map<String, MessagesEventCallback>> message : messages
+				.entrySet()) {
+			Iterator<Map.Entry<String, MessagesEventCallback>> subscribers = message
+					.getValue().entrySet().iterator();
+
 			while (subscribers.hasNext()) {
-				Map.Entry<String, MessagesEventCallback> subscriber = subscribers.next();
+				Map.Entry<String, MessagesEventCallback> subscriber = subscribers
+						.next();
 				if (subscriber.getKey().equals(subscriptionId)) {
 					subscribers.remove();
 					return true;

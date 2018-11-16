@@ -19,12 +19,9 @@
 
 package es.eucm.tracker.Exceptions;
 
-public class ValueExtensionException  extends ExtensionException
-{
-    public ValueExtensionException(String message) {
-        super(message);
-    }
+public class ValueExtensionException extends ExtensionException {
+	public ValueExtensionException(String message) {
+		super(message);
+	}
 
 }
-
-

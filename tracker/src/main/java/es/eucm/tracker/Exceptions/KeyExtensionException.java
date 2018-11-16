@@ -19,12 +19,9 @@
 
 package es.eucm.tracker.Exceptions;
 
-public class KeyExtensionException  extends ExtensionException
-{
-    public KeyExtensionException(String message) {
-        super(message);
-    }
+public class KeyExtensionException extends ExtensionException {
+	public KeyExtensionException(String message) {
+		super(message);
+	}
 
 }
-
-

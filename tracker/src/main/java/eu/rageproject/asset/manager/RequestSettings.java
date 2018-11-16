@@ -23,49 +23,49 @@ import java.util.Map;
 
 /**
  * Http Request class.
- *
+ * 
  * @author Wim van der Vegt
  */
 public class RequestSettings {
-    /**
-     * The method.
-     */
-    public String method;
+	/**
+	 * The method.
+	 */
+	public String method;
 
-    /**
-     * URI of the document.
-     */
-    public URI uri;
+	/**
+	 * URI of the document.
+	 */
+	public URI uri;
 
-    /**
-     * The request headers.
-     */
-    public Map<String, String> requestHeaders;
+	/**
+	 * The request headers.
+	 */
+	public Map<String, String> requestHeaders;
 
-    /**
-     * The body.
-     */
-    public String body;
+	/**
+	 * The body.
+	 */
+	public String body;
 
-    /**
-     * The allowed responses.
-     */
-    public List<Integer> allowedResponsCodes;
+	/**
+	 * The allowed responses.
+	 */
+	public List<Integer> allowedResponsCodes;
 
-    /**
-     * True to binary response.
-     */
-    public Boolean hasBinaryResponse;
+	/**
+	 * True to binary response.
+	 */
+	public Boolean hasBinaryResponse;
 
-    /**
-     * Initializes a new instance of the AssetPackage.requestParameters class.
-     */
-    public RequestSettings() {
-        method = "GET";
-        requestHeaders = new HashMap<String, String>();
-        body = "";
-        allowedResponsCodes = new ArrayList<Integer>();
-        allowedResponsCodes.add(200);
-        hasBinaryResponse = false;
-    }
+	/**
+	 * Initializes a new instance of the AssetPackage.requestParameters class.
+	 */
+	public RequestSettings() {
+		method = "GET";
+		requestHeaders = new HashMap<String, String>();
+		body = "";
+		allowedResponsCodes = new ArrayList<Integer>();
+		allowedResponsCodes.add(200);
+		hasBinaryResponse = false;
+	}
 }

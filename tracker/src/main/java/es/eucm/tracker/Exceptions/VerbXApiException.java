@@ -19,12 +19,9 @@
 
 package es.eucm.tracker.Exceptions;
 
-public class VerbXApiException  extends XApiException
-{
-    public VerbXApiException(String message) {
-        super(message);
-    }
+public class VerbXApiException extends XApiException {
+	public VerbXApiException(String message) {
+		super(message);
+	}
 
 }
-
-

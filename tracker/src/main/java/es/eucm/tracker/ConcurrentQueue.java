@@ -24,97 +24,87 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ConcurrentQueue <T>
-{
-    private final Object syncLock = new Object();
-    private LinkedList<T> queue = new LinkedList<T>();
-    public int getCount() {
-        synchronized (syncLock)
-        {
-            {
-                return queue.size();
-            }
-        }
-    }
+public class ConcurrentQueue<T> {
+	private final Object syncLock = new Object();
+	private LinkedList<T> queue = new LinkedList<T>();
 
-    public ConcurrentQueue() {
-        this.queue = new LinkedList<T>();
-    }
+	public int getCount() {
+		synchronized (syncLock) {
+			{
+				return queue.size();
+			}
+		}
+	}
 
-    public T[] peek(Integer n) {
-        synchronized (syncLock)
-        {
-            {
-                n = Math.min((Integer)queue.size(), n);
-                ArrayList<T> tmp = new ArrayList<T>();
-                Iterator<T> it = queue.iterator();
-                while(it.hasNext()){
-                    tmp.add(it.next());
-                }
+	public ConcurrentQueue() {
+		this.queue = new LinkedList<T>();
+	}
 
-                //puede fallar
-                return (T[]) tmp.toArray();
-            }
-        }
-    }
+	public T[] peek(Integer n) {
+		synchronized (syncLock) {
+			{
+				n = Math.min((Integer) queue.size(), n);
+				ArrayList<T> tmp = new ArrayList<T>();
+				Iterator<T> it = queue.iterator();
+				while (it.hasNext()) {
+					tmp.add(it.next());
+				}
 
-    public void enqueue(T obj) {
-        synchronized (syncLock)
-        {
-            {
-                queue.addLast(obj);
-            }
-        }
-    }
+				// puede fallar
+				return (T[]) tmp.toArray();
+			}
+		}
+	}
 
-    public T dequeue() {
-        synchronized (syncLock)
-        {
-            {
-                T tmp = queue.getFirst();
-                queue.removeFirst();
-                return tmp;
-            }
-        }
-    }
+	public void enqueue(T obj) {
+		synchronized (syncLock) {
+			{
+				queue.addLast(obj);
+			}
+		}
+	}
 
-    public void dequeue(int n) {
-        synchronized (syncLock)
-        {
-            {
-                for (int i = 0;i < n;i++)
-                {
-                    queue.removeFirst();
-                }
-            }
-        }
-    }
+	public T dequeue() {
+		synchronized (syncLock) {
+			{
+				T tmp = queue.getFirst();
+				queue.removeFirst();
+				return tmp;
+			}
+		}
+	}
 
-    public void clear() {
-        synchronized (syncLock)
-        {
-            {
-                queue.clear();
-            }
-        }
-    }
+	public void dequeue(int n) {
+		synchronized (syncLock) {
+			{
+				for (int i = 0; i < n; i++) {
+					queue.removeFirst();
+				}
+			}
+		}
+	}
 
-    public T[] copyToArray() {
-        synchronized (syncLock)
-        {
-            {
-                return (T[]) queue.toArray();
-            }
-        }
-    }
+	public void clear() {
+		synchronized (syncLock) {
+			{
+				queue.clear();
+			}
+		}
+	}
 
-    public ConcurrentQueue<T> initFromArray(List<T> initValues) {
-        this.queue = new LinkedList<T>();
-        this.queue.addAll(initValues);
+	public T[] copyToArray() {
+		synchronized (syncLock) {
+			{
+				return (T[]) queue.toArray();
+			}
+		}
+	}
 
-        return this;
-    }
+	public ConcurrentQueue<T> initFromArray(List<T> initValues) {
+		this.queue = new LinkedList<T>();
+		this.queue.addAll(initValues);
+
+		return this;
+	}
 
 }
-
-

@@ -19,13 +19,9 @@
 
 package es.eucm.tracker.Exceptions;
 
-
-public class TrackerException  extends Exception 
-{
-    public TrackerException(String message) {
-        super(message);
-    }
+public class TrackerException extends Exception {
+	public TrackerException(String message) {
+		super(message);
+	}
 
 }
-
-

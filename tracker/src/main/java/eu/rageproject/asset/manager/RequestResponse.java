@@ -20,67 +20,68 @@ import java.util.Map;
 
 /**
  * Http Response class.
- *
+ * 
  * @author Wim van der Vegt
  */
 public class RequestResponse extends RequestSettings {
-    /**
-     * The response code.
-     */
-    public int responseCode;
+	/**
+	 * The response code.
+	 */
+	public int responseCode;
 
-    /**
-     * Message describing the respons.
-     */
-    public String responsMessage;
+	/**
+	 * Message describing the respons.
+	 */
+	public String responsMessage;
 
-    /**
-     * The response headers.
-     */
-    public Map<String, String> responseHeaders;
+	/**
+	 * The response headers.
+	 */
+	public Map<String, String> responseHeaders;
 
-    public byte[] binaryResponse;
+	public byte[] binaryResponse;
 
-    /**
-     * Initializes a new instance of the AssetPackage.RequestResponse class.
-     */
-    public RequestResponse() {
-        hasBinaryResponse = false;
+	/**
+	 * Initializes a new instance of the AssetPackage.RequestResponse class.
+	 */
+	public RequestResponse() {
+		hasBinaryResponse = false;
 
-        binaryResponse = new byte[0];
+		binaryResponse = new byte[0];
 
-        responseCode = 0;
-        responsMessage = "";
+		responseCode = 0;
+		responsMessage = "";
 
-        responseHeaders = new HashMap<String, String>();
-    }
+		responseHeaders = new HashMap<String, String>();
+	}
 
-    /**
-     * Initializes a new instance of the AssetPackage.RequestResponse class.
-     *
-     * The body is not copied as it will contain thee response body instead.
-     *
-     * @param settings Options for controlling the operation.
-     */
-    public RequestResponse(RequestSettings settings) {
-        super();
+	/**
+	 * Initializes a new instance of the AssetPackage.RequestResponse class.
+	 * 
+	 * The body is not copied as it will contain thee response body instead.
+	 * 
+	 * @param settings
+	 *            Options for controlling the operation.
+	 */
+	public RequestResponse(RequestSettings settings) {
+		super();
 
-        method = settings.method;
-        requestHeaders = settings.requestHeaders;
-        uri = settings.uri;
-        body = "";
+		method = settings.method;
+		requestHeaders = settings.requestHeaders;
+		uri = settings.uri;
+		body = "";
 
-        allowedResponsCodes = settings.allowedResponsCodes;
+		allowedResponsCodes = settings.allowedResponsCodes;
 
-        hasBinaryResponse = settings.hasBinaryResponse;
-    }
+		hasBinaryResponse = settings.hasBinaryResponse;
+	}
 
-    /**
-     * Gets a value indicating whether result is allowed.
-     * 
-     * @ returns true if result allowed, false if not.
-     */
-    public boolean GetResultAllowed() {
-        return allowedResponsCodes.contains(responseCode);
-    }
+	/**
+	 * Gets a value indicating whether result is allowed.
+	 * 
+	 * @ returns true if result allowed, false if not.
+	 */
+	public boolean GetResultAllowed() {
+		return allowedResponsCodes.contains(responseCode);
+	}
 }

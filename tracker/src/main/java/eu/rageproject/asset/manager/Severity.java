@@ -16,56 +16,55 @@
 package eu.rageproject.asset.manager;
 
 /**
- * Values that represent log severity.
- * <br/>
- *      See
- * <a href="https://msdn.microsoft.com/en-us/library/office/ff604025(v=office.14).aspx">Trace
- * and Event Log Severity Levels</a>
+ * Values that represent log severity. <br/>
+ * See <a href=
+ * "https://msdn.microsoft.com/en-us/library/office/ff604025(v=office.14).aspx"
+ * >Trace and Event Log Severity Levels</a>
  */
-public enum Severity
-{
-    /**
-     * An enum constant representing the critical option.
-     */
-    Critical (1),
+public enum Severity {
+	/**
+	 * An enum constant representing the critical option.
+	 */
+	Critical(1),
 
-    /**
-     * An enum constant representing the error option.
-     */
-    Error (2),
+	/**
+	 * An enum constant representing the error option.
+	 */
+	Error(2),
 
-    /**
-     * An enum constant representing the warning option.
-     */
-    Warning (4),
+	/**
+	 * An enum constant representing the warning option.
+	 */
+	Warning(4),
 
-    /**
-     * An enum constant representing the information option.
-     */
-    Information(8),
+	/**
+	 * An enum constant representing the information option.
+	 */
+	Information(8),
 
-    /**
-     * An enum constant representing the verbose option.
-     */
-    Verbose (16);
+	/**
+	 * An enum constant representing the verbose option.
+	 */
+	Verbose(16);
 
-    private final int value;
+	private final int value;
 
-    /**
-     * Constructor
-     *
-     * @param value	The value.
-     */
-    Severity(final int value) {
-        this.value=value;
-    }
+	/**
+	 * Constructor
+	 * 
+	 * @param value
+	 *            The value.
+	 */
+	Severity(final int value) {
+		this.value = value;
+	}
 
-    /**
-     * Gets the value
-     *
-     * @return The value.
-     */
-    public int getValue() {
-            return value; 
-    }
+	/**
+	 * Gets the value
+	 * 
+	 * @return The value.
+	 */
+	public int getValue() {
+		return value;
+	}
 }

@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 package eu.rageproject.asset.manager;
+
 /**
  * Interface for Append method.
  * 
  * @author Ivan Martinez-Ortiz (e-ucm)
  * @author Wim van der Vegt (ounl)
  */
-public interface IAppend
-{
-    /**
-     * Append text to a file
-     * 
-     * @param fileId The file identifier to append to.	
-     * @param fileData	The  data to append to the file.
-     */
-    public void Append(String fileId, String fileData);
+public interface IAppend {
+	/**
+	 * Append text to a file
+	 * 
+	 * @param fileId
+	 *            The file identifier to append to.
+	 * @param fileData
+	 *            The data to append to the file.
+	 */
+	public void Append(String fileId, String fileData);
 }

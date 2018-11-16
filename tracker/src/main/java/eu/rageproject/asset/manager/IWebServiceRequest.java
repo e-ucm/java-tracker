@@ -17,18 +17,19 @@ package eu.rageproject.asset.manager;
 
 /**
  * Interface for performing http requests.
- *
+ * 
  * Implemented on a Bridge.
  * 
  * @author Wim van der Vegt
  */
 public interface IWebServiceRequest {
-    /**
-     * Web service request.
-     * 
-     * @param requestSettings Options for controlling the operation.
-     *
-     * @returns A RequestResponse.
-     */
-    RequestResponse WebServiceRequest(RequestSettings requestSettings);
+	/**
+	 * Web service request.
+	 * 
+	 * @param requestSettings
+	 *            Options for controlling the operation.
+	 * 
+	 * @returns A RequestResponse.
+	 */
+	RequestResponse WebServiceRequest(RequestSettings requestSettings);
 }

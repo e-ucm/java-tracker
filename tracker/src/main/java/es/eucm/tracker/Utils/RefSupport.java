@@ -18,31 +18,33 @@ package es.eucm.tracker.Utils;
 // Wraps a parameter so that it can be used as a ref or out param.
 public class RefSupport<T> {
 
-    private T value;
+	private T value;
 
-    public RefSupport(T inValue) {
-        value = inValue;
-    }
-    public RefSupport() {
-    }
+	public RefSupport(T inValue) {
+		value = inValue;
+	}
 
-    /**
-     * @param value the value to set
-     */
-    public void setValue(T value) {
-        this.value = value;
-    }
+	public RefSupport() {
+	}
 
-    public T setValue(T value, ReturnPreOrPostValue preOrPost) {
-        T preValue = this.value;
-        this.value = value;
-        return (preOrPost == ReturnPreOrPostValue.POST ? this.value : preValue);
-    }
+	/**
+	 * @param value
+	 *            the value to set
+	 */
+	public void setValue(T value) {
+		this.value = value;
+	}
 
-    /**
-     * @return the value
-     */
-    public T getValue() {
-        return this.value;
-    }
+	public T setValue(T value, ReturnPreOrPostValue preOrPost) {
+		T preValue = this.value;
+		this.value = value;
+		return (preOrPost == ReturnPreOrPostValue.POST ? this.value : preValue);
+	}
+
+	/**
+	 * @return the value
+	 */
+	public T getValue() {
+		return this.value;
+	}
 }

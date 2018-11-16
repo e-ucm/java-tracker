@@ -19,12 +19,9 @@
 
 package es.eucm.tracker.Exceptions;
 
-public class ActorXApiException  extends XApiException
-{
-    public ActorXApiException(String message) {
-        super(message);
-    }
+public class ActorXApiException extends XApiException {
+	public ActorXApiException(String message) {
+		super(message);
+	}
 
 }
-
-

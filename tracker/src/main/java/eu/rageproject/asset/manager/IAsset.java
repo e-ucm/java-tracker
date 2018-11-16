@@ -19,71 +19,73 @@ import java.util.Map;
 
 /**
  * Interface for asset, used to enforce type safety.
- *
+ * 
  * @author Ivan Martinez-Ortiz
  */
 public interface IAsset {
 
 	/**
 	 * Gets class name
-	 *
+	 * 
 	 * @return The class name.
 	 */
 	public String getClassName();
 
 	/**
 	 * Gets the identifier
-	 *
+	 * 
 	 * @return The identifier.
 	 */
 	public String getId();
 
 	/**
 	 * Gets the dependencies
-	 *
+	 * 
 	 * @return The dependencies.
 	 */
 	public Map<String, String> getDependencies();
 
 	/**
 	 * Gets the maturity
-	 *
+	 * 
 	 * @return The maturity.
 	 */
 	public String getMaturity();
 
 	/**
 	 * Gets the settings
-	 *
+	 * 
 	 * @return The settings.
 	 */
 	public ISettings getSettings();
 
 	/**
 	 * Sets the settings
-	 *
-	 * @param settings	Options for controlling the operation.
+	 * 
+	 * @param settings
+	 *            Options for controlling the operation.
 	 */
 	public void setSettings(final ISettings settings);
 
 	/**
 	 * Gets the version
-	 *
+	 * 
 	 * @return The version.
 	 */
 	public String getVersion();
 
 	/**
 	 * Gets the bridge
-	 *
+	 * 
 	 * @return The bridge.
 	 */
 	public IBridge getBridge();
 
 	/**
 	 * Sets a bridge
-	 *
-	 * @param bridge	The bridge.
+	 * 
+	 * @param bridge
+	 *            The bridge.
 	 */
 	public void setBridge(final IBridge bridge);
 }
