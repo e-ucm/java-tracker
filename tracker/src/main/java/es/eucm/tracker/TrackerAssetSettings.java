@@ -52,6 +52,7 @@ public class TrackerAssetSettings extends BaseSettings
         super();
         // Apply 'Factory' defaults.
         //
+        setHost("localhost");
         setPort(3000);
         setSecure(false);
         setBatchSize(2);

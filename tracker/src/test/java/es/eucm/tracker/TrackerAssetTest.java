@@ -21,6 +21,7 @@ import es.eucm.tracker.Exceptions.*;
 import es.eucm.tracker.Utils.RefSupport;
 import es.eucm.tracker.Utils.TrackerAssetUtils;
 import eu.rageproject.asset.manager.*;
+import org.apache.commons.lang3.builder.ToStringSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,28 +34,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Tests the {@link es.eucm.tracker.TrackerAsset}
  */
 public class TrackerAssetTest {
-
-	@Test
-	public void test() throws IOException {
-
-		TrackerAsset tracker = new TrackerAsset();
-
-		// TODO Tests with junit
-		int expected = 5;
-		int actual = 5;
-
-		assertEquals("Value should be equal", expected, actual);
-	}
-
-	// asdsa
 	private static final Gson gson = new Gson();
 	private static final ArrayList<HashMap<String, Object>> arraymap = new ArrayList<>();
 	TrackerAssetSettings settings = new TrackerAssetSettings();
@@ -373,7 +358,8 @@ public class TrackerAssetTest {
 		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("extension3"), 3);
 		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("extension4"), 4.56);
 	}
- /*
+
+	@Test
 	public void testTrace_Generic_XApi_All() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
@@ -382,49 +368,51 @@ public class TrackerAssetTest {
 		enqueueTrace03();
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		Assert.AreEqual((new List<JSONNode>(file.getChildren())).Count, 3);
-		JSONNode tracejson = file.get___idx(0);
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "ObjectID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/seriousgames/verbs/accessed");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "ObjectID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/seriousgames/verbs/accessed");
 		//CHECK THE 2ND TRACE
-		tracejson = file.get___idx(1);
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 5);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "ObjectID2");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/serious-game");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "http://adlnet.gov/expapi/verbs/initialized");
-		Assert.AreEqual((new List<JSONNode>(tracejson.get___idx("result").getChildren())).Count, 2);
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("response").getValue(), "TheResponse");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("score").get___idx("raw").getAsFloat(), 0.123f);
+		tracejson = (Map) file.get(1);
+		assertEquals(tracejson.entrySet().size(), 5);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "ObjectID2");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/serious-game");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "http://adlnet.gov/expapi/verbs/initialized");
+		assertEquals(((Map) tracejson.get("result")).size(), 2);
+		assertEquals(((Map) tracejson.get("result")).get("response"), "TheResponse");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("score")).get("raw"), 0.123);
 		//CHECK THE 3RD TRACE
-		tracejson = file.get___idx(2);
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 5);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "ObjectID3");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/zone");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/adb/verbs/selected");
-		Assert.AreEqual((new List<JSONNode>(tracejson.get___idx("result").getChildren())).Count, 5);
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("response").getValue(), "AnotherResponse");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("score").get___idx("raw").getAsFloat(), 123.456f);
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("completion").getAsBool(), true);
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("success").getAsBool(), false);
-		Assert.AreEqual((new List<JSONNode>(tracejson.get___idx("result").get___idx("extensions").getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("extensions").get___idx("extension1").getValue(), "value1");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("extensions").get___idx("extension2").getValue(), "value2");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("extensions").get___idx("extension3").getAsInt(), 3);
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("extensions").get___idx("extension4").getAsFloat(), 4.56f);
+		tracejson = (Map) file.get(2);
+		assertEquals(tracejson.entrySet().size(), 5);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "ObjectID3");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/zone");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/adb/verbs/selected");
+		assertEquals(((Map) tracejson.get("result")).size(), 5);
+		assertEquals(((Map) tracejson.get("result")).get("response"), "AnotherResponse");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("score")).get("raw"), 123.456);
+		assertEquals(((Map) tracejson.get("result")).get("completion"), true);
+		assertEquals(((Map) tracejson.get("result")).get("success"), false);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).entrySet().size(), 4);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("extension1"), "value1");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("extension2"), "value2");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("extension3"), 3);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("extension4"), 4.56);
 	}
 
+	@Test
 	public void testAccesible_Csv_01() throws Exception {
 		initTracker("csv");
 		TrackerAsset.getInstance().getAccessible().accessed("AccesibleID",AccessibleTracker.Accessible.Cutscene);
 		checkCSVTrace("accessed,cutscene,AccesibleID");
 	}
 
+	@Test
 	public void testAccesible_Csv_02_WithExtensions() throws Exception {
 		initTracker("csv");
 		TrackerAsset.getInstance().setVar("extension1","value1");
@@ -432,23 +420,26 @@ public class TrackerAssetTest {
 		checkCSVTrace("skipped,screen,AccesibleID2,extension1,value1");
 	}
 
+	@Test
 	public void testAccesible_XApi_01() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
 		TrackerAsset.getInstance().getAccessible().accessed("AccesibleID",AccessibleTracker.Accessible.Cutscene);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "AccesibleID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/cutscene");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/seriousgames/verbs/accessed");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "AccesibleID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/cutscene");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/seriousgames/verbs/accessed");
 	}
 
+	@Test
 	public void testAccesible_XApi_02_WithExtensions() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
@@ -456,24 +447,27 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().getAccessible().skipped("AccesibleID2",AccessibleTracker.Accessible.Screen);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 5);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "AccesibleID2");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/screen");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "http://id.tincanapi.com/verb/skipped");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("extensions").get___idx("extension1").getValue(), "value1");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 5);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "AccesibleID2");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/screen");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "http://id.tincanapi.com/verb/skipped");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("extension1"), "value1");
 	}
 
+	@Test
 	public void testAlternative_Csv_01() throws Exception {
 		initTracker("csv");
 		TrackerAsset.getInstance().getAlternative().selected("AlternativeID","SelectedOption",AlternativeTracker.Alternative.Path);
 		checkCSVTrace("selected,path,AlternativeID,response,SelectedOption");
 	}
 
+	@Test
 	public void testAlternative_Csv_02_WithExtensions() throws Exception {
 		initTracker("csv");
 		TrackerAsset.getInstance().setVar("SubCompletableScore",0.8);
@@ -487,18 +481,20 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().getAlternative().selected("AlternativeID","SelectedOption",AlternativeTracker.Alternative.Path);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 5);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "AlternativeID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/path");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/adb/verbs/selected");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("response").getValue(), "SelectedOption");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 5);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "AlternativeID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/path");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/adb/verbs/selected");
+		assertEquals(((Map) tracejson.get("result")).get("response"), "SelectedOption");
 	}
 
+	@Test
 	public void testAlternative_XApi_02_WithExtensions() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
@@ -506,138 +502,151 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().getAlternative().unlocked("AlternativeID2","Answer number 3",AlternativeTracker.Alternative.Question);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 5);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "AlternativeID2");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "http://adlnet.gov/expapi/activities/question");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/seriousgames/verbs/unlocked");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("response").getValue(), "Answer number 3");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("extensions").get___idx("SubCompletableScore").getAsFloat(), 0.8f);
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 5);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "AlternativeID2");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "http://adlnet.gov/expapi/activities/question");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/seriousgames/verbs/unlocked");
+		assertEquals(((Map) tracejson.get("result")).get("response"), "Answer number 3");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("SubCompletableScore"), 0.8);
 	}
 
+	@Test
 	public void testCompletable_Csv_01() throws Exception {
 		initTracker("csv");
 		TrackerAsset.getInstance().getCompletable().initialized("CompletableID",CompletableTracker.Completable.Quest);
 		checkCSVTrace("initialized,quest,CompletableID");
 	}
 
+	@Test
 	public void testCompletable_Csv_02() throws Exception {
 		initTracker("csv");
-		TrackerAsset.getInstance().getCompletable().Progressed("CompletableID2", CompletableTracker.Completable.Stage, 0.34f);
+		TrackerAsset.getInstance().getCompletable().progressed("CompletableID2", CompletableTracker.Completable.Stage, 0.34f);
 		checkCSVTrace("progressed,stage,CompletableID2,progress,0.34");
 	}
 
+	@Test
 	public void testCompletable_Csv_03() throws Exception {
 		initTracker("csv");
-		TrackerAsset.getInstance().getCompletable().Completed("CompletableID3", CompletableTracker.Completable.Race, true, 0.54f);
+		TrackerAsset.getInstance().getCompletable().completed("CompletableID3", CompletableTracker.Completable.Race, true, 0.54f);
 		checkCSVTrace("completed,race,CompletableID3,success,true,score,0.54");
 	}
 
+	@Test
 	public void testCompletable_XApi_01() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
 		TrackerAsset.getInstance().getCompletable().initialized("CompletableID",CompletableTracker.Completable.Quest);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "CompletableID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/quest");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "http://adlnet.gov/expapi/verbs/initialized");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "CompletableID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/quest");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "http://adlnet.gov/expapi/verbs/initialized");
 	}
 
+	@Test
 	public void testCompletable_XApi_02() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
-		TrackerAsset.getInstance().getCompletable().Progressed("CompletableID2", CompletableTracker.Completable.Stage, 0.34f);
+		TrackerAsset.getInstance().getCompletable().progressed("CompletableID2", CompletableTracker.Completable.Stage, 0.34f);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 5);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "CompletableID2");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/stage");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "http://adlnet.gov/expapi/verbs/progressed");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("extensions").get___idx("https://w3id.org/xapi/seriousgames/extensions/progress").getAsFloat(), 0.34f);
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 5);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "CompletableID2");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/stage");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "http://adlnet.gov/expapi/verbs/progressed");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions")).get("https://w3id.org/xapi/seriousgames/extensions/progress"), 0.34);
 	}
 
 	public void testCompletable_XApi_03() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
-		TrackerAsset.getInstance().getCompletable().Completed("CompletableID3", CompletableTracker.Completable.Race, true, 0.54f);
+		TrackerAsset.getInstance().getCompletable().completed("CompletableID3", CompletableTracker.Completable.Race, true, 0.54f);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual(tracejson.getCount(), 5);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "CompletableID3");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/race");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "http://adlnet.gov/expapi/verbs/completed");
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("success").getAsBool(), true);
-		Assert.AreEqual(tracejson.get___idx("result").get___idx("score").get___idx("raw").getAsFloat(), 0.54f);
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 5);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "CompletableID3");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/race");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "http://adlnet.gov/expapi/verbs/completed");
+		assertEquals(((Map) tracejson.get("result")).get("success"), true);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("score")).get("raw"), 0.54);
 	}
 
+	@Test
 	public void testGameObject_Csv_01() throws Exception {
 		initTracker("csv");
 		TrackerAsset.getInstance().getGameObject().interacted("GameObjectID",GameObjectTracker.TrackedGameObject.Npc);
 		checkCSVTrace("interacted,npc,GameObjectID");
 	}
 
+	@Test
 	public void testGameObject_Csv_02() throws Exception {
 		initTracker("csv");
 		TrackerAsset.getInstance().getGameObject().used("GameObjectID2",GameObjectTracker.TrackedGameObject.Item);
 		checkCSVTrace("used,item,GameObjectID2");
 	}
 
+	@Test
 	public void testGameObject_XApi_01() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
 		TrackerAsset.getInstance().getGameObject().interacted("GameObjectID",GameObjectTracker.TrackedGameObject.Npc);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "GameObjectID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/non-player-character");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "http://adlnet.gov/expapi/verbs/interacted");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "GameObjectID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/non-player-character");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "http://adlnet.gov/expapi/verbs/interacted");
 	}
 
+	@Test
 	public void testGameObject_XApi_02() throws Exception {
 		cleanStorage();
 		initTracker("xapi");
 		TrackerAsset.getInstance().getGameObject().used("GameObjectID2",GameObjectTracker.TrackedGameObject.Item);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "GameObjectID2");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/item");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/seriousgames/verbs/used");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "GameObjectID2");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/item");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/seriousgames/verbs/used");
 	}
-
-*/
 
 	private void enqueueTrace01() throws Exception {
 		TrackerAsset.getInstance().actionTrace("accessed","gameobject","ObjectID");
@@ -716,169 +725,185 @@ public class TrackerAssetTest {
 
 	}
 
-	/*
+	@Test
 	public void testTraceSendingSync() throws Exception {
-		initTracker("xapi", AssetPackage.TrackerAsset.StorageTypes.net);
-		storage.Delete("netstorage");
+		initTracker("xapi", TrackerAsset.StorageTypes.net, null);
+		storage.delete("netstorage");
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
-		String text = storage.Load("netstorage");
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
+		String text = storage.load("netstorage");
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/seriousgames/verbs/accessed");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/seriousgames/verbs/accessed");
+
 		append("netstorage",",");
 		enqueueTrace02();
 		enqueueTrace03();
 		TrackerAsset.getInstance().flush();
-		text = storage.Load("netstorage");
+		text = storage.load("netstorage");
 		text = "[" + text + "]";
-		file = JSON.parse(text);
-		Assert.AreEqual((new List<JSONNode>(file.getChildren())).Count, 2);
-		Assert.AreEqual(file.get___idx(0).getCount(), 1);
-		Assert.AreEqual(file.get___idx(1).getCount(), 2);
+		file = gson.fromJson(text, arraymap.getClass());
+		assertEquals(file.size(), 2);
+		assertEquals(((ArrayList) file.get(0)).size(), 1);
+		assertEquals(((ArrayList) file.get(1)).size(), 2);
 	}
 
+	@Test
 	public void testBackupSync() throws Exception {
 		if (storage != null)
 			storage.delete(settings.getBackupFile());
 
 		testTraceSendingSync();
 		String text = storage.load(settings.getBackupFile());
-		String[] file = text.Split('\n');
-		Assert.AreEqual(file.Length, 4);
+		String[] file = text.split("\n");
+		assertEquals(file.length, 3);
 	}
 
+	@Test
 	public void testTraceSending_IntermitentConnection() throws Exception {
-		initTracker("xapi", AssetPackage.TrackerAsset.StorageTypes.net);
-		storage.Delete("netstorage");
+		initTracker("xapi", TrackerAsset.StorageTypes.net, null);
+		storage.delete("netstorage");
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
-		String text = storage.Load("netstorage");
-		if (text.IndexOf("M\n") != -1)
-			text = text.Substring(text.IndexOf("M\n") + 2);
+		String text = storage.load("netstorage");
+		if (text.indexOf("M\n") != -1)
+			text = text.substring(text.indexOf("M\n") + 2);
 
-		JSONNode file = JSON.parse(text);
-		JSONNode tracejson = file[(new List<JSONNode>(file.getChildren())).Count - 1];
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/seriousgames/verbs/accessed");
-		bridge.setConnnected(false);
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		Map tracejson = (Map) file.get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/seriousgames/verbs/accessed");
+		bridge.setConnected(false);
 		enqueueTrace02();
 		enqueueTrace03();
 		TrackerAsset.getInstance().flush();
-		text = storage.Load("netstorage");
-		file = JSON.parse(text);
-		Assert.AreEqual((new List<JSONNode>(file.getChildren())).Count, 1);
-		Assert.AreEqual(file.getCount(), 1);
-		bridge.setConnnected(true);
+		text = storage.load("netstorage");
+		file = gson.fromJson(text, arraymap.getClass());
+		assertEquals(file.size(), 1);
+		bridge.setConnected(true);
 		append("netstorage",",");
 		TrackerAsset.getInstance().flush();
-		text = storage.Load("netstorage");
+		text = storage.load("netstorage");
 		text = "[" + text + "]";
-		file = JSON.parse(text);
-		Assert.AreEqual((new List<JSONNode>(file.getChildren())).Count, 2);
-		Assert.AreEqual(file.get___idx(0).getCount(), 1);
-		Assert.AreEqual(file.get___idx(1).getCount(), 2);
+		file = gson.fromJson(text, arraymap.getClass());
+		assertEquals(file.size(), 2);
+		assertEquals(((ArrayList) file.get(0)).size(), 1);
+		assertEquals(((ArrayList) file.get(1)).size(), 2);
 	}
 
+	@Test
 	public void testBackupSync_IntermitentConnection() throws Exception {
-		initTracker("xapi", AssetPackage.TrackerAsset.StorageTypes.net);
-		storage.Delete("netstorage");
+		initTracker("xapi", TrackerAsset.StorageTypes.net, null);
+		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getBackupFile());
-		String[] file = text.Split('\n');
-		Assert.AreEqual(file.Length, 2);
-		bridge.setConnnected(false);
+		String[] file = text.split("\n");
+		assertEquals(file.length, 1);
+		bridge.setConnected(false);
 		enqueueTrace02();
 		enqueueTrace03();
 		TrackerAsset.getInstance().flush();
 		text = storage.load(settings.getBackupFile());
-		file = text.Split('\n');
-		Assert.AreEqual(file.Length, 4);
-		bridge.setConnnected(true);
+		file = text.split("\n");
+		assertEquals(file.length, 3);
+		bridge.setConnected(true);
 		TrackerAsset.getInstance().flush();
 		text = storage.load(settings.getBackupFile());
-		file = text.Split('\n');
-		Assert.AreEqual(file.Length, 4);
+		file = text.split("\n");
+		assertEquals(file.length, 3);
 	}
 
+	@Test
 	public void testTraceSending_WithoutStart() throws Exception {
 		TrackerAsset.getInstance().stop();
-		Assert.Throws(TrackerException.class);
+
+		Exception exception = null;
+		try{ TrackerAsset.getInstance().getAccessible().accessed("Exception"); } catch(TrackerException e){ exception = e; };
+		assertNotNull(exception);
 	}
 
+	@Test
 	public void testTraceSendingStartFailed() throws Exception {
 		TrackerAsset.getInstance().stop();
 		bridge = new TesterBridge();
-		bridge.setConnnected(false);
-		initTracker("xapi",AssetPackage.TrackerAsset.StorageTypes.net,bridge);
-		storage.Delete("netstorage");
+		bridge.setConnected(false);
+		initTracker("xapi", TrackerAsset.StorageTypes.net, bridge);
+		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
-		Assert.DoesNotThrow();
+
+		Exception exception = null;
+		try{ enqueueTrace01(); } catch(Exception e){ exception = e; };
+		assertNull(exception);
+
 		TrackerAsset.getInstance().flush();
-		Assert.AreEqual(storage.Load("netstorage"), String.Empty);
-		Assert.AreNotEqual(storage.load(settings.getBackupFile()), String.Empty);
-		bridge.setConnnected(true);
+		assertEquals(storage.load("netstorage"), "");
+		assertNotEquals(storage.load(settings.getBackupFile()), "");
+		bridge.setConnected(true);
 		enqueueTrace02();
 		enqueueTrace03();
-		append("netstorage",",");
 		TrackerAsset.getInstance().flush();
-		String text = storage.Load("netstorage");
+		String text = storage.load("netstorage");
+		text = text.replace("][", "],[");
 		text = "[" + text + "]";
-		JSONNode file = JSON.parse(text);
-		Assert.AreEqual((new List<JSONNode>(file.getChildren())).Count, 2);
-		Assert.AreEqual(file.get___idx(0).getCount(), 1);
-		Assert.AreEqual(file.get___idx(1).getCount(), 2);
-		JSONNode tracejson = file.get___idx(0).get___idx(0);
-		Assert.AreEqual((new List<JSONNode>(tracejson.getChildren())).Count, 4);
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("id").getValue(), "http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
-		Assert.AreEqual(tracejson.get___idx("object").get___idx("definition").get___idx("type").getValue(), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
-		Assert.AreEqual(tracejson.get___idx("verb").get___idx("id").getValue(), "https://w3id.org/xapi/seriousgames/verbs/accessed");
+
+		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		file = gson.fromJson(text, arraymap.getClass());
+		assertEquals(file.size(), 2);
+		assertEquals(((ArrayList) file.get(0)).size(), 1);
+		assertEquals(((ArrayList) file.get(1)).size(), 2);
+
+		Map<String, Object> tracejson = (Map) ((ArrayList) file.get(0)).get(0);
+		assertEquals(tracejson.entrySet().size(), 4);
+		assertEquals(((Map) tracejson.get("object")).get("id"), "http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
+		assertEquals(((Map) ((Map) tracejson.get("object")).get("definition")).get("type"), "https://w3id.org/xapi/seriousgames/activity-types/game-object");
+		assertEquals(((Map) tracejson.get("verb")).get("id"), "https://w3id.org/xapi/seriousgames/verbs/accessed");
 		text = storage.load(settings.getBackupFile());
-		String[] backup = text.Split('\n');
-		Assert.AreEqual(backup.Length, 4);
+		String[] backup = text.split("\n");
+		assertEquals(backup.length, 3);
 	}
 
+	@Test
 	public void testEmptyQueueFlush() throws Exception {
 		TrackerAsset.getInstance().stop();
 		bridge = new TesterBridge();
-		bridge.setConnnected(false);
-		initTracker("csv",AssetPackage.TrackerAsset.StorageTypes.net,bridge);
-		storage.Delete("netstorage");
+		bridge.setConnected(false);
+		initTracker("csv", TrackerAsset.StorageTypes.net,bridge);
+		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 		//Flush sin connected
 		TrackerAsset.getInstance().flush();
-		Assert.AreEqual(storage.Load("netstorage"), String.Empty);
+		assertEquals(storage.load("netstorage"), "");
 		//Flush porque si
 		TrackerAsset.getInstance().flush();
-		Assert.AreEqual(storage.Load("netstorage"), String.Empty);
+		assertEquals(storage.load("netstorage"), "");
 		//Flush tras conectar
-		bridge.setConnnected(true);
+		bridge.setConnected(true);
 		TrackerAsset.getInstance().flush();
-		String net = storage.Load("netstorage");
-		Assert.AreEqual(storage.Load("netstorage"), String.Empty);
-		bridge.setConnnected(false);
+		String net = storage.load("netstorage");
+		assertEquals(storage.load("netstorage"), "");
+		bridge.setConnected(false);
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
 		TrackerAsset.getInstance().flush();
-		bridge.setConnnected(true);
+		bridge.setConnected(true);
 		TrackerAsset.getInstance().flush();
 		TrackerAsset.getInstance().flush();
-		String[] text = storage.Load("netstorage").Split('\n');
-		Assert.AreEqual(text.Length, 2);
-		String[] backup = storage.load(settings.getBackupFile()).Split('\n');
-		Assert.AreEqual(backup.Length, 2);
+		String[] text = storage.load("netstorage").split("\n");
+		assertEquals(text.length, 1);
+		String[] backup = storage.load(settings.getBackupFile()).split("\n");
+		assertEquals(backup.length, 1);
 	}
-	*/
 
 	private void append(String file, String text) throws Exception {
 		if (append_storage != null)

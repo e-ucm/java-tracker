@@ -49,6 +49,11 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.netflix.feign</groupId>
+            <artifactId>feign-core</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
 

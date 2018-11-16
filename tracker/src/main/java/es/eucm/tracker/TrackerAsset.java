@@ -25,6 +25,8 @@ import es.eucm.tracker.Utils.RefSupport;
 import es.eucm.tracker.Utils.TrackerAssetUtils;
 import eu.rageproject.asset.manager.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -51,8 +53,9 @@ public class TrackerAsset extends BaseAsset {
      * NOTE: {} brackets must be escaped as {{ and }} for String.Format statements.
      * NOTE: \ must be escaped as \\ in strings.
      */
-    private static final String ObjectRegEx =
-            "\"{0}\":(" +                   // {0} is replaced by the proprty name, capture only its value in {} brackets.
+
+    /*private static final String ObjectRegEx =
+            "\"%s\":(" +                   // {0} is replaced by the proprty name, capture only its value in {} brackets.
                     "\\{" +                        // Start with a opening brackets.
                     "(?>" +
                     "    [^{{}}]+" +                // Capture each non bracket chracter.
@@ -60,7 +63,7 @@ public class TrackerAsset extends BaseAsset {
                     //"    |    \\} (?<m>)" +  // -1 for closing bracket.
                     ")*" +
                     //"(?(n)(?!))" +             // Handle unaccounted left brackets with a fail.
-                    "\\})"; // Stop at matching bracket.
+                    "\\})"; // Stop at matching bracket.*/
 
     //private const string ObjectRegEx = "\"{0}\":(\\{{(?:.+?)\\}},)";
     /**
@@ -74,7 +77,7 @@ public class TrackerAsset extends BaseAsset {
     /**
      * The RegEx to extract a plain quoted JSON Value. Used to extract 'token'.
      */
-    private static final String TokenRegEx = "\"{0}\":\"(.+?)\"";
+    private static final String TokenRegEx = "\"%s\":\"(.+?)\"";
     /**
      * The instance.
      */
@@ -117,7 +120,7 @@ public class TrackerAsset extends BaseAsset {
     /**
      * A Regex to extact the actor object from JSON.
      */
-    private Pattern jsonActor = Pattern.compile(String.format(ObjectRegEx.replaceAll("\\s+", ""), "actor"));
+    //private Pattern jsonActor = Pattern.compile(String.format(ObjectRegEx.replaceAll("\\s+", ""), "actor"));
     /**
      * A Regex to extact the authentication token value from JSON.
      */
@@ -500,13 +503,13 @@ public class TrackerAsset extends BaseAsset {
         RequestResponse response = issueRequest("health", "GET");
         if (response.GetResultAllowed()) {
             Matcher m = jsonHealth.matcher(response.body);
-            if (m.matches()) {
+            if (m.find()) {
                 setHealth(m.group(1));
-                Log(Severity.Information, "Health Status={0}", getHealth());
+                Log(Severity.Information, "Health Status=%s", getHealth());
             }
 
         } else {
-            Log(Severity.Error, "Request Error: {0}-{1}", response.responseCode, response.responsMessage);
+            Log(Severity.Error, "Request Error: %s-%2$s", response.responseCode, response.responsMessage);
         }
         return response.GetResultAllowed();
     }
@@ -540,22 +543,22 @@ public class TrackerAsset extends BaseAsset {
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
-        RequestResponse response = this.issueRequest("login", "POST", headers, String.format("{{\r\n \"username\": \"{0}\",\r\n \"password\": \"{1}\"\r\n}}", username, password));
+        RequestResponse response = this.issueRequest("login", "POST", headers, String.format("{{\r\n \"username\": \"%s\",\r\n \"password\": \"%2$s\"\r\n}}", username, password));
         if (response.GetResultAllowed()) {
             Matcher m = jsonToken.matcher(response.body);
-            if (m.matches()) {
+            if (m.find()) {
                 settings.setUserToken(m.group(1));
                 if (settings.getUserToken().startsWith("Bearer ")) {
                     settings.setUserToken(settings.getUserToken().substring("Bearer ".length()));
                 }
 
-                Log(Severity.Information, "Token= {0}", settings.getUserToken());
+                Log(Severity.Information, "Token= %s", settings.getUserToken());
                 logged = true;
             }
 
         } else {
             logged = false;
-            Log(Severity.Error, "Request Error: {0}-{1}", response.responseCode, response.responsMessage);
+            Log(Severity.Error, "Request Error: %s-%2$s", response.responseCode, response.responsMessage);
         }
         return logged;
     }
@@ -622,63 +625,62 @@ public class TrackerAsset extends BaseAsset {
         //! The UserToken might get swapped for a better one during response
         //! processing.
         if (!(settings.getUserToken() == null || settings.getUserToken().isEmpty()))
-            headers.put("Authorization", String.format("Bearer {0}", settings.getUserToken()));
+            headers.put("Authorization", String.format("Bearer %s", settings.getUserToken()));
         else if (!(settings.getPlayerId() == null || settings.getPlayerId().isEmpty())) {
             headers.put("Content-Type", "application/json");
             headers.put("Accept", "application/json");
             body = "{\"anonymous\" : \"" + settings.getPlayerId() + "\"}";
         }
 
-        RequestResponse response = issueRequest(String.format("proxy/gleaner/collector/start/{0}", settings.getTrackingCode()), "POST", headers, body);
+        RequestResponse response = issueRequest(String.format("proxy/gleaner/collector/start/%s", settings.getTrackingCode()), "POST", headers, body);
         if (response.GetResultAllowed()) {
             Log(Severity.Information, "");
             // Extract AuthToken.
             //
             Matcher m = jsonAuthToken.matcher(response.body);
-            if (m.matches()) {
+            if (m.find()) {
                 settings.setUserToken(m.group(1));
-                Log(Severity.Information, "AuthToken= {0}", settings.getUserToken());
+                Log(Severity.Information, "AuthToken= $s", settings.getUserToken());
                 setConnected(true);
             }
 
             // Extract PlayerId.
             //
             m = jsonPlayerId.matcher(response.body);
-            if (m.matches()) {
+            if (m.find()) {
                 settings.setPlayerId(m.group(1));
-                Log(Severity.Information, "PlayerId= {0}", settings.getPlayerId());
+                Log(Severity.Information, "PlayerId= $s", settings.getPlayerId());
             }
 
             // Extract Session number.
             //
             m = jsonSession.matcher(response.body);
-            if (m.matches()) {
-                Log(Severity.Information, "Session= {0}", m.group());
+            if (m.find()) {
+                Log(Severity.Information, "Session= %s", m.group());
             }
 
             // Extract ObjectID.
             //
             m = jsonObjectId.matcher(response.body);
-            if (m.matches()) {
+            if (m.find()) {
                 ObjectId = m.group(1);
                 if (!ObjectId.endsWith("/")) {
                     ObjectId += "/";
                 }
 
-                Log(Severity.Information, "ObjectId= {0}", ObjectId);
+                Log(Severity.Information, "ObjectId= %s", ObjectId);
             }
 
             // Extract Actor Json Object.
-            //
-            m = jsonActor.matcher(response.body);
-            if (m.matches()) {
-                setActorObject(gson.fromJson(m.group(1), Map.class));
-                Log(Severity.Information, "Actor= {0}", getActorObject());
+            Map<String, Object> jbody = gson.fromJson(response.body, Map.class);
+            if (jbody.containsKey("actor")) {
+                setActorObject((Map) jbody.get("actor"));
+                Log(Severity.Information, "Actor= %s", getActorObject());
                 setActive(true);
             }
 
         } else {
-            Log(Severity.Error, "Request Error: {0}-{1}", response.responseCode, response.responsMessage);
+            Log(Severity.Error, "Request Error: %s-%s", response.responseCode, response.responsMessage);
             setActive(false);
             setConnected(false);
         }
@@ -830,7 +832,26 @@ public class TrackerAsset extends BaseAsset {
             ds.WebServiceRequest(new RequestSettings(),refVar___0);
             response = refVar___0.getValue();*/
 
-            response = ds.WebServiceRequest(new RequestSettings());
+
+            RequestSettings request = new RequestSettings();
+            try {
+                String url = String.format("http%s://%2$s%3$s%4$s/%5$s",
+                        settings.getSecure() ? "s" : "",
+                        settings.getHost(),
+                        port == 80 ? "" : String.format(":%d", port),
+                        IsNullOrEmpty(settings.getBasePath().replaceAll("[/]+$", "")) ? "" : settings.getBasePath().replaceAll("[/]+$", ""),
+                        path.replaceAll("^/", "")
+                );
+                request.uri = new URI(url);
+            } catch (URISyntaxException ex){
+                System.out.println("Invalid URI");
+                return response;
+            }
+
+            request.method = method;
+            request.requestHeaders = headers;
+            request.body = body;
+            response = ds.WebServiceRequest(request);
         }
 
         return response;
@@ -942,7 +963,7 @@ public class TrackerAsset extends BaseAsset {
     boolean sendPendingTraces() {
         while (tracesPending.size() > 0) {
             // Try to send old traces
-            Log(Severity.Information, "Enqueued trace-blocks detected: {0}. Processing...", tracesPending.size());
+            Log(Severity.Information, "Enqueued trace-blocks detected: %s. Processing...", tracesPending.size());
             String data = tracesPending.get(0);
             if (!sendTraces(data)) {
                 Log(Severity.Information, "Error sending enqueued traces");
@@ -988,14 +1009,14 @@ public class TrackerAsset extends BaseAsset {
             case net:
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json");
-                headers.put("Authorization", String.format("{0}", settings.getUserToken()));
+                headers.put("Authorization", String.format("%s", settings.getUserToken()));
                 Log(Severity.Information, "\r\n" + data);
                 RequestResponse response = issueRequest("proxy/gleaner/collector/track", "POST", headers, data);
                 if (response.GetResultAllowed()) {
-                    Log(Severity.Information, "Track= {0}", response.body);
+                    Log(Severity.Information, "Track= %s", response.body);
                     setConnected(true);
                 } else {
-                    Log(Severity.Error, "Request Error: {0}-{1}", response.responseCode, response.responsMessage);
+                    Log(Severity.Error, "Request Error: %s-%s", response.responseCode, response.responsMessage);
                     Log(Severity.Warning, "Error flushing, connection disabled temporaly");
                     setConnected(false);
                     return false;
@@ -1438,10 +1459,10 @@ public class TrackerAsset extends BaseAsset {
          */
         private String enquote(String value) {
             if (value.contains("\"")) {
-                return String.format("\"{0}\"", value.replace("\"", "\"\""));
+                return String.format("\"%s\"", value.replace("\"", "\"\""));
             } else //1) Replace one quote by two quotes and enquote the whole string.
                 if (value.contains("\r\n") || value.contains(",")) {
-                    return String.format("\"{0}\"", value);
+                    return String.format("\"%s\"", value);
                 }
 
             return value;
@@ -1741,8 +1762,10 @@ public class TrackerAsset extends BaseAsset {
                                 result += extension.getValue().toString().replace(",", "\\,");
                             } else if ((extension.getValue() instanceof Float)) {
                                 result += Float.toString((Float) extension.getValue()).replace(',', '.');
-                            } else if ((extension.getValue() instanceof Float)) {
+                            } else if ((extension.getValue() instanceof Double)) {
                                 result += Double.toString((Double) extension.getValue()).replace(',', '.');
+                            } else if ((extension.getValue() instanceof Integer)) {
+                                result += Integer.toString((Integer) extension.getValue()).replace(',', '.');
                             } else if (extension.getValue().getClass() == HashMap.class) {
                                 Map<String, Object> map = (HashMap<String, Object>) extension.getValue();
                                 String smap = "";
@@ -1782,8 +1805,21 @@ public class TrackerAsset extends BaseAsset {
                     result.put("score", s);
                 }
 
-                if (getExtensions().size() > 0)
-                    result.put("extensions", getExtensions());
+                Map<String, Object> extensions = new HashMap<>();
+                if (getExtensions().size() > 0){
+                    Iterator it = getExtensions().entrySet().iterator();
+
+                    while (it.hasNext()){
+                        Map.Entry<String, Object> extension = (Map.Entry<String, Object>) it.next();
+
+                        if(getExtensionIDs().containsKey(extension.getKey())){
+                            extensions.put(getExtensionIDs().get(extension.getKey()), extension.getValue());
+                        }else{
+                            extensions.put(extension.getKey(), extension.getValue());
+                        }
+                    }
+                    result.put("extensions", extensions);
+                }
 
                 return result;
             }

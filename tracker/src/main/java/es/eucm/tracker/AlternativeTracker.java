@@ -80,7 +80,7 @@ public class AlternativeTracker implements TrackerAsset.IGameObjectTracker
             TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(tracker);
 
             trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(TrackerAsset.Verb.Selected));
-            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(Alternative.Alternative.toString().toLowerCase(), alternativeId));
+            trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type.toString().toLowerCase(), alternativeId));
 
             TrackerAsset.TrackerEvent.TraceResult result = new TrackerAsset.TrackerEvent.TraceResult();
             result.setResponse(optionId);

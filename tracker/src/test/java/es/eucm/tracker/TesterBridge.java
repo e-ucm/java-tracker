@@ -77,7 +77,7 @@ public class TesterBridge implements IBridge, ILog, IDataStorage, IAppend, IWebS
             if (msg == null || msg.isEmpty()) {
                 System.out.println("");
             } else {
-                System.out.println(String.format("{0}: {1}", severity, msg));
+                System.out.println(String.format("%s: %2$s", severity, msg));
             }
         }
     }
