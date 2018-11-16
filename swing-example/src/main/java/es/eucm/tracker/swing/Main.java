@@ -17,6 +17,7 @@ package es.eucm.tracker.swing;
 
 import es.eucm.tracker.*;
 import es.eucm.tracker.Exceptions.XApiException;
+import eu.rageproject.asset.manager.Severity;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,9 +30,20 @@ public class Main extends JFrame {
 	public Main() {
 		super("Tracker GUI");
 
+		final JPanel panelTextArea = new JPanel();
+		final JTextArea textArea = new JTextArea(60, 90);
 		final TrackerAsset tracker = new TrackerAsset();
+		textArea.setLineWrap(true);
 
-		setSize(800, 600);
+		tracker.setBridge(new JavaBridge(){
+			@Override
+			public void Log(Severity severity, String msg) {
+				super.Log(severity, msg);
+				textArea.setText(textArea.getText() + "\n\n" + severity + ": " + msg);
+			}
+		});
+
+		setSize(900, 600);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Data panel
@@ -41,7 +53,7 @@ public class Main extends JFrame {
 		panelData.add(new JLabel("Host:"));
 		final JTextField hostField = new JTextField(10);
 		hostField
-				.setText("https://analytics-test.e-ucm.es/api/proxy/gleaner/collector/");
+				.setText("analytics-test.e-ucm.es");
 		panelData.add(hostField);
 		panelData.add(new JLabel("Tracking Code:"));
 		final JTextField trackingCodeButton = new JTextField(10);
@@ -56,14 +68,16 @@ public class Main extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				TrackerAssetSettings settings = new TrackerAssetSettings();
-				String host = hostField.getText();
-				String trackingCode = trackingCodeButton.getText();
 
-				settings.setHost(host);
+				settings.setHost(hostField.getText());
+				settings.setPort(443);
+				settings.setSecure(true);
+				settings.setTraceFormat(TrackerAsset.TraceFormats.xapi);
+				settings.setBasePath("/api/");
 
 				tracker.setSettings(settings);
 
-				tracker.start(trackingCode);
+				tracker.start(trackingCodeButton.getText());
 			}
 		});
 		panelStart.add(startButton);
@@ -74,9 +88,8 @@ public class Main extends JFrame {
 		JButton sendButton = new JButton("Send");
 		panelButtons.add(sendButton);
 
-		JPanel panelTextArea = new JPanel();
+
 		panelTextArea.setLayout(new FlowLayout());
-		final JTextArea textArea = new JTextArea(60, 90);
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		textArea.setEditable(false);
 		panelTextArea.add(scrollPane);

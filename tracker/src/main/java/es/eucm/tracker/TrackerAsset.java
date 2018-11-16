@@ -76,7 +76,7 @@ public class TrackerAsset extends BaseAsset {
 	/**
 	 * The TimeStamp Format.
 	 */
-	private static final String TimeFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+	private static final String TimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSz";
 	/**
 	 * The RegEx to extract a plain quoted JSON Value. Used to extract 'token'.
 	 */
@@ -1604,7 +1604,7 @@ public class TrackerAsset extends BaseAsset {
 
 			Date date = new Date(System.currentTimeMillis());
 			DateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-ddTHH:mm:ss.fffZ");
+					"yyyy-MM-dd'T'HH:mm:ss.SSSz");
 			formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String dateFormatted = formatter.format(date);
 
