@@ -15,14 +15,14 @@
  */
 package es.eucm.tracker.swing;
 
+import es.eucm.tracker.*;
 import es.eucm.tracker.Exceptions.XApiException;
-import es.eucm.tracker.TrackerAsset;
-import es.eucm.tracker.TrackerAssetSettings;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 public class Main extends JFrame {
 
@@ -34,7 +34,6 @@ public class Main extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
         // Data panel
         JPanel panelData = new JPanel();
         GridLayout gl = new GridLayout(2, 2, 0, 5);
@@ -45,6 +44,7 @@ public class Main extends JFrame {
         panelData.add(hostField);
         panelData.add(new JLabel("Tracking Code:"));
         final JTextField trackingCodeButton = new JTextField(10);
+        trackingCodeButton.setText("5bef140d35d17e0082ae3279a1z1noomz1");
         panelData.add(trackingCodeButton);
 
         // Buttons panel
@@ -63,9 +63,6 @@ public class Main extends JFrame {
                 tracker.setSettings(settings);
 
                 tracker.start(trackingCode);
-                //tracker.setHost(host);
-                //tracker.setTrackingCode(trackingCode);
-                //tracker.start();
             }
         });
         panelStart.add(startButton);
@@ -74,17 +71,6 @@ public class Main extends JFrame {
         JPanel panelButtons = new JPanel();
         panelButtons.setLayout(new FlowLayout());
         JButton sendButton = new JButton("Send");
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                try {
-                    tracker.requestFlush();
-                } catch (XApiException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
         panelButtons.add(sendButton);
 
         JPanel panelTextArea = new JPanel();
@@ -105,6 +91,7 @@ public class Main extends JFrame {
 
         panelOpts.setLayout(new FlowLayout());
 
+        final JPanel panelOptsCAS = new JPanel();
         ButtonGroup optsGroup = new ButtonGroup();
 
         panelOpts.add(new JLabel("Random"));
@@ -133,7 +120,47 @@ public class Main extends JFrame {
         panelOpts.add(checkManual);
         optsGroup.setSelected(checkRand.getModel(), true);
 
-        JPanel panelOptsCAS = new JPanel();
+        checkRand.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+
+                // do something when the button is being selected...
+                panelOptsCAS.setVisible(false);
+            }
+        });
+
+        checkSelected.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+
+                // do something when the button is being selected...
+                panelOptsCAS.setVisible(false);
+            }
+        });
+
+        checkAccessed.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+
+                // do something when the button is being selected...
+                panelOptsCAS.setVisible(false);
+            }
+        });
+
+
+        checkManual.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent event) {
+
+                // do something when the button is being selected...
+                panelOptsCAS.setVisible(true);
+            }
+        });
+
         GridLayout glOptsCAS = new GridLayout(3, 2, 5, 5);
         panelOptsCAS.setLayout(glOptsCAS);
         panelOptsTop.add(panelOptsCAS);
@@ -150,6 +177,7 @@ public class Main extends JFrame {
         final JTextField objectIdField = new JTextField(10);
         objectIdField.setText("mainMenu");
         panelOptsCAS.add(objectIdField);
+        panelOptsCAS.setVisible(false);
 
         Container northCont = new Container();
         northCont.setLayout(new BorderLayout());
@@ -162,9 +190,37 @@ public class Main extends JFrame {
         cp.add(northCont, BorderLayout.NORTH);
         cp.add(panelTextArea, BorderLayout.CENTER);
         cp.add(panelButtons, BorderLayout.SOUTH);
+
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                try {
+                    if (checkRand.isSelected()) {
+                        randomTrace(tracker);
+                    } else if (checkSelected.isSelected()) {
+                        selected(tracker);
+                    } else if (checkAccessed.isSelected()) {
+                        accessed(tracker);
+                    } else if (checkCompleted.isSelected()) {
+                        completed(tracker);
+                    } else {
+                        // Manual
+                        String verb = verbField.getText();
+                        String objectType = objectTypeField.getText();
+                        String objectId = objectIdField.getText();
+                        tracker.actionTrace(verb, objectType, objectId);
+                    }
+
+                    tracker.requestFlush();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
     }
 
-    private void randomTrace(TrackerAsset tracker) {
+    private void randomTrace(TrackerAsset tracker) throws Exception {
         int rand9 = (int) (Math.random() * 9) + 1;
 
         if (rand9 <= 3) {
@@ -176,16 +232,20 @@ public class Main extends JFrame {
         }
     }
 
-    private void selected(TrackerAsset tracker) {
-
+    private void selected(TrackerAsset tracker) throws Exception {
+        AlternativeTracker.Alternative[] values = AlternativeTracker.Alternative.values();
+        tracker.getAlternative().selected("alternativeId_" + (int) Math.random(),
+                "alternativeOptionId_" + (int) Math.random(), values[new Random().nextInt(values.length)]);
     }
 
-    private void accessed(TrackerAsset tracker) {
-
+    private void accessed(TrackerAsset tracker) throws Exception {
+        AccessibleTracker.Accessible[] values = AccessibleTracker.Accessible.values();
+        tracker.getAccessible().accessed("accessedId_" + (int) Math.random(), values[new Random().nextInt(values.length)]);
     }
 
-    private void completed(TrackerAsset tracker) {
-
+    private void completed(TrackerAsset tracker) throws Exception {
+        CompletableTracker.Completable[] values = CompletableTracker.Completable.values();
+        tracker.getCompletable().completed("completableId_" + (int) Math.random(), values[new Random().nextInt(values.length)]);
     }
 
 
