@@ -84,13 +84,13 @@ public class Main extends JFrame {
 				settings.setTraceFormat(TrackerAsset.TraceFormats.xapi);
 				settings.setBasePath("/api/");
 
+				tracker.setSettings(settings);
+
 				String username = studentField.getText();
 				String password = passwordField.getText();
 				if (!username.isEmpty() && !password.isEmpty()) {
 					tracker.login(username, password);
 				}
-
-				tracker.setSettings(settings);
 
 				tracker.start(trackingCodeButton.getText());
 			}

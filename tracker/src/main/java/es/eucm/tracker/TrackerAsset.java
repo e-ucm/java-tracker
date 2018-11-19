@@ -539,7 +539,7 @@ public class TrackerAsset extends BaseAsset {
 						"POST",
 						headers,
 						String.format(
-								"{{\r\n \"username\": \"%s\",\r\n \"password\": \"%2$s\"\r\n}}",
+								"{\"username\":\"%s\",\"password\":\"%2$s\"}",
 								username, password));
 		if (response.GetResultAllowed()) {
 			Matcher m = jsonToken.matcher(response.body);
