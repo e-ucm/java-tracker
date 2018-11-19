@@ -38,15 +38,11 @@ import eu.rageproject.asset.manager.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Map;
 
 public class JavaBridge implements IBridge, ILog, IWebServiceRequest {
-	private static final String StorageDir = String.format(".{0}TestStorage",
-			'/');
-	private static final Gson gson = new Gson();
-
 	public JavaBridge() {
 	}
 
@@ -60,34 +56,16 @@ public class JavaBridge implements IBridge, ILog, IWebServiceRequest {
 		}
 	}
 
-	boolean connected = true;
-
-	public boolean getConnnected() {
-		return this.connected;
-	}
-
-	public void setConnected(boolean connected) {
-		this.connected = connected;
-	}
-
 	public RequestResponse WebServiceRequest(RequestSettings requestSettings) {
-		RequestResponse result = new RequestResponse(requestSettings);
-
-		String body = executePost(requestSettings);
-
-		if (body == null) {
-			result.responseCode = 0;
-			result.body = "{\"bridge_msg\" : \"Error on the request\"}";
-		} else {
-			result.responseCode = 200;
-			result.body = body;
-		}
-
-		return result;
+		return executePost(requestSettings);
 	}
 
-	public static String executePost(RequestSettings settings) {
+	public static RequestResponse executePost(RequestSettings settings) {
 		HttpURLConnection connection = null;
+		RequestResponse response = new RequestResponse();
+		response.requestHeaders = settings.requestHeaders;
+		response.method = settings.method;
+		response.uri = settings.uri;
 
 		try {
 			// Create connection
@@ -115,40 +93,48 @@ public class JavaBridge implements IBridge, ILog, IWebServiceRequest {
 				wr.close();
 			}
 
-			// Get Response
 			InputStream is = connection.getInputStream();
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-			StringBuilder response = new StringBuilder(); // or StringBuffer if
-															// Java version 5+
+			StringBuilder sb = new StringBuilder();
 			String line;
 			while ((line = rd.readLine()) != null) {
-				response.append(line);
-				response.append('\r');
+				sb.append(line);
+				sb.append('\r');
 			}
 			rd.close();
-			return response.toString();
+
+			response.responseCode = connection.getResponseCode();
+			response.body = sb.toString();
+		} catch (UnknownHostException uhe){
+			response.responseCode = -1;
+			response.responsMessage = "Unknown host: " + response.uri.getHost();
 		} catch (Exception e) {
-			e.printStackTrace();
-			// Get Response
-			InputStream is = connection.getErrorStream();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-			StringBuilder response = new StringBuilder(); // or StringBuffer if
-															// Java version 5+
-			String line;
-			try {
+
+			try{
+				InputStream is = connection.getErrorStream();
+				BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+				StringBuilder sb = new StringBuilder();
+				String line;
 				while ((line = rd.readLine()) != null) {
-					response.append(line);
-					response.append('\r');
+					sb.append(line);
+					sb.append('\r');
 				}
 				rd.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+
+				response.responseCode = connection.getResponseCode();
+				response.responsMessage = sb.toString();
+				response.body = sb.toString();
+			}catch (Exception e2){
+				response.responseCode = -1;
+				response.responsMessage = e2.getMessage();
+				response.body = "{\"bridge_msg\":\"" + e2.getMessage() + "\"}";
 			}
-			return response.toString();
 		} finally {
 			if (connection != null) {
 				connection.disconnect();
 			}
 		}
+
+		return response;
 	}
 }

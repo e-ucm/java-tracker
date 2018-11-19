@@ -76,7 +76,7 @@ public class TrackerAsset extends BaseAsset {
 	/**
 	 * The TimeStamp Format.
 	 */
-	private static final String TimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSz";
+	private static final String TimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 	/**
 	 * The RegEx to extract a plain quoted JSON Value. Used to extract 'token'.
 	 */
@@ -647,7 +647,7 @@ public class TrackerAsset extends BaseAsset {
 			Matcher m = jsonAuthToken.matcher(response.body);
 			if (m.find()) {
 				settings.setUserToken(m.group(1));
-				Log(Severity.Information, "AuthToken= $s",
+				Log(Severity.Information, "AuthToken= %s",
 						settings.getUserToken());
 				setConnected(true);
 			}
@@ -657,7 +657,7 @@ public class TrackerAsset extends BaseAsset {
 			m = jsonPlayerId.matcher(response.body);
 			if (m.find()) {
 				settings.setPlayerId(m.group(1));
-				Log(Severity.Information, "PlayerId= $s",
+				Log(Severity.Information, "PlayerId= %s",
 						settings.getPlayerId());
 			}
 
@@ -689,7 +689,7 @@ public class TrackerAsset extends BaseAsset {
 			}
 
 		} else {
-			Log(Severity.Error, "Request Error: %s-%s", response.responseCode,
+			Log(Severity.Error, "Request Error: %s-%2$s", response.responseCode,
 					response.responsMessage);
 			setActive(false);
 			setConnected(false);
@@ -1604,7 +1604,7 @@ public class TrackerAsset extends BaseAsset {
 
 			Date date = new Date(System.currentTimeMillis());
 			DateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-dd'T'HH:mm:ss.SSSz");
+					"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 			formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String dateFormatted = formatter.format(date);
 
@@ -1647,7 +1647,7 @@ public class TrackerAsset extends BaseAsset {
 
 			Date date = new Date(System.currentTimeMillis());
 			DateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-dd'T'HH:mm:ss.SSSz");
+					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 			formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String dateFormatted = formatter.format(date);
 
