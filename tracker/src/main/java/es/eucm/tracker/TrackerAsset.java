@@ -689,8 +689,8 @@ public class TrackerAsset extends BaseAsset {
 			}
 
 		} else {
-			Log(Severity.Error, "Request Error: %s-%2$s", response.responseCode,
-					response.responsMessage);
+			Log(Severity.Error, "Request Error: %s-%2$s",
+					response.responseCode, response.responsMessage);
 			setActive(false);
 			setConnected(false);
 		}

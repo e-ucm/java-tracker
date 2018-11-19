@@ -105,14 +105,15 @@ public class JavaBridge implements IBridge, ILog, IWebServiceRequest {
 
 			response.responseCode = connection.getResponseCode();
 			response.body = sb.toString();
-		} catch (UnknownHostException uhe){
+		} catch (UnknownHostException uhe) {
 			response.responseCode = -1;
 			response.responsMessage = "Unknown host: " + response.uri.getHost();
 		} catch (Exception e) {
 
-			try{
+			try {
 				InputStream is = connection.getErrorStream();
-				BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+				BufferedReader rd = new BufferedReader(
+						new InputStreamReader(is));
 				StringBuilder sb = new StringBuilder();
 				String line;
 				while ((line = rd.readLine()) != null) {
@@ -124,7 +125,7 @@ public class JavaBridge implements IBridge, ILog, IWebServiceRequest {
 				response.responseCode = connection.getResponseCode();
 				response.responsMessage = sb.toString();
 				response.body = sb.toString();
-			}catch (Exception e2){
+			} catch (Exception e2) {
 				response.responseCode = -1;
 				response.responsMessage = e2.getMessage();
 				response.body = "{\"bridge_msg\":\"" + e2.getMessage() + "\"}";
