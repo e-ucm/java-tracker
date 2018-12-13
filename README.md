@@ -33,32 +33,91 @@ A **gameplay** is the flow of interactions that a player performs over these gam
 
 The main typed of game objects supported are:
 
-* [Completable](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/CompletableTracker.cs) - for Game, Session, Level, Quest, Stage, Combat, StoryNode, Race or any other generic Completable. Methods: `Initialized`, `Progressed` and `Completed`.
-* [Accessible](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/AccessibleTracker.cs) - for Screen, Area, Zone, Cutscene or any other generic Accessible. Methods: `Accessed` and `Skipped`.
-* [Alternative](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/AlternativeTracker.cs) - for Question, Menu, Dialog, Path, Arena or any other generic Alternative. Methods: `Selected` and `Unlocked`.
-* [TrackedGameObject](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/GameObjectTracker.cs) for Enemy, Npc, Item or any other generic GameObject. Methods: `Interacted` and `Used`.
+* [Completable](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/CompletableTracker.java) - for Game, Session, Level, Quest, Stage, Combat, StoryNode, Race or any other generic Completable. Methods: `Initialized`, `Progressed` and `Completed`.
+* [Accessible](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/AccessibleTracker.java) - for Screen, Area, Zone, Cutscene or any other generic Accessible. Methods: `Accessed` and `Skipped`.
+* [Alternative](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/AlternativeTracker.java) - for Question, Menu, Dialog, Path, Arena or any other generic Alternative. Methods: `Selected` and `Unlocked`.
+* [GameObject](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/GameObjectTracker.java) for Enemy, Npc, Item or any other generic GameObject. Methods: `Interacted` and `Used`.
 
 #### Completable
 
-Usage example for the tracking of an in-game quest. We decided to use a [Completable](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/CompletableTracker.cs) game object for this use-case as the most suitable option:
+Usage example for the tracking of an in-game quest. We decided to use a [Completable](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/CompletableTracker.java) game object for this use-case as the most suitable option:
 
+```java
+// Completable
+
+// Initialized
+TrackerAsset.getInstance().getCompletable().initialized("MyGameQuestId", CompletableTracker.Completable.Quest);
+
+// Progressed
+float progress = 0.5f;
+TrackerAsset.getInstance().getCompletable().progressed("MyGameQuestId", CompletableTracker.Completable.Quest, progress);
+
+// Completed
+TrackerAsset.getInstance().getCompletable().completed("MyGameQuestId", CompletableTracker.Completable.Quest);
+
+// Completed with success and score
+boolean success = true;
+float score = 08f;
+TrackerAsset.getInstance().getCompletable().completed("MyGameQuestId", CompletableTracker.Completable.Quest, success, score);
+
+```
 #### Accessible
 
-Usage example for the tracking the player's movement through some in-game screens and skipping the `Intro` cutscene:
+Usage example for the tracking the player's movement through some in-game screens and skipping the 'Intro' cutscene:
+
+```java
+// Accessible
+
+// Accessed
+// The player accessed the 'MainMenu' screen
+TrackerAsset.getInstance().getAccessible().accessed("MainMenu", AccessibleTracker.Accessible.Screen);
+
+// Skipped
+// The player skipped the 'Intro' cutscene
+TrackerAsset.getInstance().getAccessible().skipped("Intro", AccessibleTracker.Accessible.Cutscene);
+
+```
 
 #### Alternative
 
-Usage example for the tracking the player's choices during a conversation:
+Usage example for the tracking the player's choices during a conversation and unlocking an option in a menu:
+
+```java
+// Alternative
+
+// Selected 
+// The player selected the 'Ivan' answer for the question 'What's his name?'
+TrackerAsset.getInstance().getAlternative().selected("what's his name?", "Ivan", AlternativeTracker.Alternative.Question);
+
+// Unlocked
+// The player unlocked 'Combat Mode' for the menu 'Menus/Start'
+TrackerAsset.getInstance().getAlternative().unlocked("Menus/Start", "Combat Mode", AlternativeTracker.Alternative.Menu);
+
+```
 
 #### Tracked Game Object
 
 Usage example for the tracking the player's with a NPC villager and using a health potion (item):
 
-Note that in order to track other type of user interactions it is required to perform a previous analysis to identify the most suitable game objects ([Completable](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/CompletableTracker.cs), [Accessible](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/AccessibleTracker.cs), [Alternative](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/AlternativeTracker.cs), [TrackedGameObject](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/GameObjectTracker.cs)) for the given case. For instance, in order to track conversations [alternatives](https://github.com/e-ucm/csharp-tracker/blob/3c56f43a53e69c10b031887419113ac2817afd96/TrackerAsset/Interfaces/AlternativeTracker.cs) are the best choice.
+```java
+// GameObject
+
+// Interacted 
+// The player interacted with an NPC
+TrackerAsset.getInstance().getGameObject().interacted("GameObjectID", GameObjectTracker.TrackedGameObject.Npc);
+
+// Used
+// The player used an item
+TrackerAsset.getInstance().getGameObject().used("GameObjectID", GameObjectTracker.TrackedGameObject.Item);
+
+```
+
+
+Note that in order to track other type of user interactions it is required to perform a previous analysis to identify the most suitable game objects ([Completable](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/CompletableTracker.java), [Accessible](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/AccessibleTracker.java), [Alternative](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/AlternativeTracker.java), [GameObject](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/GameObjectTracker.java)) for the given case. For instance, in order to track conversations alternatives are the best choice.
 
 ## Tracker Tester App
 
-swing-example..
+An app to test the tracker by sending traces is available in the swing-example folder.
 
 ## Useful Maven goals
 
