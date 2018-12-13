@@ -43,15 +43,25 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
   tracker.setSettings(settings);
 
   ```
-6. Start the tracker by using either
+6. Optionally, login with user
+1. Start the tracker by using `tracker.start()`
+1. You can start sending traces now.
+   
+## Tracker Login and Start
+
+For tracker to send traces to the server, `tracker.start()` has to be called. If you want to use an authenticated user, you can login before starting the tracker.
+
+You can login with a username and password by calling the method `tracker.login(username, password);`. 
+
+Then, you can start the tracker with either:
    * `tracker.start(userToken, trakingCode)`
-   * `tracker.start(trakingCode)` with the already extracted usertoken
-   * `tracker.start()` with an already extracted userToken and trackingCode
+   * `tracker.start(trackingCode)` with the already extracted usertoken (from login).
+   * `tracker.start()` with an already extracted userToken (from login) and trackingCode (shown at game on A2 server).
    
 ## Sending Traces to the Analytics Server
 
 There are two possible ways for sending traces:
-1. **Recommended**: Using the xAPI for serious games interfaces (Accessible, Alternative, Completable and GameObject) (more info below).
+1. **Recommended**: Using the xAPI for serious games interfaces (Accessible, Alternative, Completable and GameObject) (more info in the [user guide](https://github.com/crisal24/java-tracker#user-guide) below).
 1. Using `TrackerAsset.ActionTrace(verb,target_type,target_id)` method. This is **not recomended unless you have clear in mind what you're doing**. Remember that xAPI traces are focused on sending actions, not purely variable changes. If you want to track variables, you can add them as extensions using `TrackerAsset.setVar(key, value)`. See below an example of use:
 
 ```java
