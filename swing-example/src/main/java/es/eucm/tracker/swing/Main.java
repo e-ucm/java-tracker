@@ -15,279 +15,399 @@
  */
 package es.eucm.tracker.swing;
 
-import es.eucm.tracker.*;
-import eu.rageproject.asset.manager.Severity;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
-public class Main extends JFrame {
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
+import es.eucm.tracker.AccessibleTracker;
+import es.eucm.tracker.AlternativeTracker;
+import es.eucm.tracker.CompletableTracker;
+import es.eucm.tracker.TrackerAsset;
+import es.eucm.tracker.TrackerAssetSettings;
+import eu.rageproject.asset.manager.Severity;
+
+public class Main {
+
+	private static final float SETTING_LABEL_WIDTH = 0.5f;
+	
+	private static final float SETTING_FIELD_WIDTH = 1.0f;
+	
+	private static final int SETTING_PADDING_X = 10;
+	
+	public static void main(String[] args) {
+		Main app = new Main();
+		app.launch();
+	}
+	
+	private TrackerAsset tracker;
+	
 	private int infoCount = 0;
 
+	private JFrame window;
+
+	private JTextArea log;
+
+	private JTextField hostField;
+
+	private JTextField trackingCodeField;
+
+	private JTextField usernameField;
+
+	private JTextField passwordField;
+
+	private JRadioButton checkRand;
+
+	private JRadioButton checkSelected;
+
+	private JRadioButton checkAccessed;
+
+	private JRadioButton checkCompleted;
+
+	private JRadioButton checkManual; 
+
+	private JTextField verbField;
+
+	private JTextField objectTypeField;
+
+	private JTextField objectIdField;
+
+	private JPanel customTraceOptionsPanel;
+	
 	public Main() {
-		super("Tracker GUI");
-
-		final JPanel panelTextArea = new JPanel();
-		final JTextArea textArea = new JTextArea(60, 90);
-		final TrackerAsset tracker = TrackerAsset.getInstance();
-		textArea.setLineWrap(true);
-
+		tracker = TrackerAsset.getInstance();
 		tracker.setBridge(new JavaBridge() {
 			@Override
 			public void log(Severity severity, String msg) {
 				super.log(severity, msg);
-				textArea.setText(textArea.getText() + "\n\n " + (++infoCount)
-						+ " -> " + severity + ": " + msg);
+				appendLogMessage(severity, msg);
 			}
 		});
 
-		setSize(900, 600);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	private void launch() {
+		SwingUtilities.invokeLater(()->{
+			createAndShowGUI();
+		});
+	}
+	
+	private void appendLogMessage(Severity severity, String msg) {
+		SwingUtilities.invokeLater(()->{
+			log.setText(log.getText() + "\n\n " + (++infoCount)
+					+ " -> " + severity + ": " + msg);
+		});		
+	}
 
-		// Data panel
-		JPanel panelData = new JPanel();
-		GridLayout gl = new GridLayout(4, 2, 0, 5);
-		panelData.setLayout(gl);
-		panelData.add(new JLabel("Host:"));
-		final JTextField hostField = new JTextField(10);
+	public void createAndShowGUI() {
+		window = new JFrame();
+		window.setTitle("Tracker GUI Example");
+
+		Container root = window.getContentPane();
+		
+		root.setLayout(new BorderLayout());
+
+		JPanel mainNorthPanel = new JPanel();
+		mainNorthPanel.setLayout(new BoxLayout(mainNorthPanel, BoxLayout.PAGE_AXIS));
+		
+		// Settings and Login & Start panel
+		JPanel settingsAndStartPanel = new JPanel(new FlowLayout());
+		settingsAndStartPanel.setBorder(BorderFactory.createTitledBorder("1.- Settings & Start"));
+		settingsAndStartPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		mainNorthPanel.add(settingsAndStartPanel);
+		
+		hostField = new JTextField(30);
 		hostField.setText("analytics-test.e-ucm.es");
-		panelData.add(hostField);
-		panelData.add(new JLabel("Tracking Code:"));
-		final JTextField trackingCodeButton = new JTextField(10);
-		trackingCodeButton.setText("5bef140d35d17e0082ae3279a1z1noomz1");
-		panelData.add(trackingCodeButton);
 
-		panelData.add(new JLabel("Username:"));
-		final JTextField studentField = new JTextField(10);
-		panelData.add(studentField);
-		panelData.add(new JLabel("Password:"));
-		final JTextField passwordField = new JTextField(10);
-		panelData.add(passwordField);
+		trackingCodeField = new JTextField(30);
+		trackingCodeField.setText("5bef140d35d17e0082ae3279a1z1noomz1");
+		
+		usernameField = new JTextField(20);
+		passwordField = new JTextField(20);
+		
+		settingsAndStartPanel.add(createSettingsPanel(new Component[][] {
+				new Component[] {new JLabel("Host:"), hostField},
+				new Component[] {new JLabel("Tracking Code:"), trackingCodeField},
+				new Component[] {new JLabel("Username:"), usernameField},
+				new Component[] {new JLabel("Password:"), passwordField}
+		}));
+		
 
 		// Buttons panel
-		JPanel panelStart = new JPanel();
-		panelStart.setLayout(new FlowLayout());
-		JButton startButton = new JButton("Start");
-		startButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				TrackerAssetSettings settings = new TrackerAssetSettings();
+		JButton startButton = new JButton("Login & Start");
+		startButton.addActionListener(new LoginAndStartAction());
+		settingsAndStartPanel.add(startButton);
+		
+		
+		// Other options
+		
+		JPanel verbPanel = new JPanel(new BorderLayout());
+		verbPanel.setBorder(BorderFactory.createTitledBorder("2.- Verb"));
+		verbPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		mainNorthPanel.add(verbPanel);
+		
 
-				settings.setHost(hostField.getText());
-				settings.setPort(443);
-				settings.setSecure(true);
-				settings.setTraceFormat(TrackerAssetSettings.TraceFormats.xapi);
-				settings.setBasePath("/api/");
+		
+		JPanel verbOptionsPanel = new JPanel(new FlowLayout());
+		verbOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		verbPanel.add(verbOptionsPanel, BorderLayout.NORTH);
 
-				tracker.setSettings(settings);
+		
+		ButtonGroup optsGroup = new ButtonGroup();
 
-				String username = studentField.getText();
-				String password = passwordField.getText();
-				if (!username.isEmpty() && !password.isEmpty()) {
-					tracker.login(username, password);
-				}
+		checkSelected = new JRadioButton("Selected");
+		checkSelected.addActionListener(new EnableCustomPanelAction(false));
+		optsGroup.add(checkSelected);
+		verbOptionsPanel.add(checkSelected);
 
-				tracker.start(trackingCodeButton.getText());
-			}
+		checkAccessed = new JRadioButton("Accessed");
+		checkAccessed.addActionListener(new EnableCustomPanelAction(false));
+		optsGroup.add(checkAccessed);
+		verbOptionsPanel.add(checkAccessed);
+
+		checkCompleted = new JRadioButton("Completed");
+		checkCompleted.addActionListener(new EnableCustomPanelAction(false));
+		optsGroup.add(checkCompleted);
+		verbOptionsPanel.add(checkCompleted);
+
+		checkRand = new JRadioButton("Random");
+		checkRand.addActionListener(new EnableCustomPanelAction(false));
+		checkRand.setSelected(true);
+		optsGroup.add(checkRand);
+		verbOptionsPanel.add(checkRand);
+
+		checkManual = new JRadioButton("Custom");
+		checkManual.addActionListener(new EnableCustomPanelAction(true));
+		optsGroup.add(checkManual);
+		verbOptionsPanel.add(checkManual);
+
+		verbField = new JTextField(30);
+		verbField.setText("accessed");
+		verbField.setEnabled(false);
+
+		objectTypeField = new JTextField(30);
+		objectTypeField.setText("scene");
+		objectTypeField.setEnabled(false);
+
+		objectIdField = new JTextField(30);
+		objectIdField.setText("mainMenu");
+		objectIdField.setEnabled(false);
+		
+		customTraceOptionsPanel = createSettingsPanel(new Component[][] {
+			new Component[] {new JLabel("Verb:"), verbField},
+			new Component[] {new JLabel("Object Type:"), objectTypeField},
+			new Component[] {new JLabel("Object Id:"), objectIdField}
 		});
-		panelStart.add(startButton);
+		customTraceOptionsPanel.setBorder(BorderFactory.createTitledBorder("Custom trace"));
+		customTraceOptionsPanel.setEnabled(false);
+		verbPanel.add(customTraceOptionsPanel, BorderLayout.CENTER);
 
-		// Buttons panel
-		JPanel panelButtons = new JPanel();
-		panelButtons.setLayout(new FlowLayout());
-		JButton sendButton = new JButton("Send");
-		panelButtons.add(sendButton);
+		root.add(mainNorthPanel, BorderLayout.NORTH);
+		root.add(createLogPanel(), BorderLayout.CENTER);
+		root.add(createSendPanel(), BorderLayout.SOUTH);
+		
+		// Recalculate mininum / preferred size
+		window.pack();
+		
+		// Center
+		
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+    int x = (int) ((dimension.getWidth() - window.getWidth()) / 2);
+    int y = (int) ((dimension.getHeight() - window.getHeight()) / 2);
+    window.setLocation(x, y);
+    
+    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+    window.setVisible(true);
+    
+	}
+	
+	private JPanel createSettingsPanel(Component[][] settings) {
+		
+		JPanel settingsPanel =	new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
 
-		panelTextArea.setLayout(new FlowLayout());
-		JScrollPane scrollPane = new JScrollPane(textArea);
+		for (int i = 0; i < settings.length; i++) {
+			c.weightx = SETTING_LABEL_WIDTH;
+			c.gridx = 0;
+			c.gridy = i;
+			c.ipadx = SETTING_PADDING_X;
+			c.anchor = GridBagConstraints.LINE_END;
+			c.insets = new Insets(0, 0, 0, 10);
+			settingsPanel.add(settings[i][0], c);
+	
+			c.weightx = SETTING_FIELD_WIDTH;
+			c.gridx = 1;
+			c.gridy = i;
+			c.ipadx = SETTING_PADDING_X;
+			c.anchor = GridBagConstraints.LINE_START;
+			c.insets = new Insets(0, 0, 0, 10);
+			settingsPanel.add(settings[i][1], c);
+		}
+		
+		return settingsPanel;
+	}
+	
+	private JComponent createLogPanel() {
+		log = new JTextArea(60, 90);
+		log.setEditable(false);
+		log.setLineWrap(true);
+		
+		JScrollPane scrollPane = new JScrollPane(log);
 		scrollPane.setPreferredSize(new Dimension(880, 250));
 		scrollPane
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		textArea.setEditable(false);
-		panelTextArea.add(scrollPane);
-
-		// Other options
-
-		JPanel panelOptsTop = new JPanel();
-		GridLayout glOpts = new GridLayout(2, 1, 5, 5);
-		panelOptsTop.setLayout(glOpts);
-
-		JPanel panelOpts = new JPanel();
-		panelOptsTop.add(panelOpts);
-
-		panelOpts.setLayout(new FlowLayout());
-
-		final JPanel panelOptsCAS = new JPanel();
-		ButtonGroup optsGroup = new ButtonGroup();
-
-		panelOpts.add(new JLabel("Random"));
-		JRadioButton checkRand = new JRadioButton();
-		optsGroup.add(checkRand);
-		panelOpts.add(checkRand);
-
-		panelOpts.add(new JLabel("Selected"));
-		JRadioButton checkSelected = new JRadioButton();
-		optsGroup.add(checkSelected);
-		panelOpts.add(checkSelected);
-
-		panelOpts.add(new JLabel("Accessed"));
-		JRadioButton checkAccessed = new JRadioButton();
-		optsGroup.add(checkAccessed);
-		panelOpts.add(checkAccessed);
-
-		panelOpts.add(new JLabel("Completed"));
-		JRadioButton checkCompleted = new JRadioButton();
-		optsGroup.add(checkCompleted);
-		panelOpts.add(checkCompleted);
-
-		panelOpts.add(new JLabel("Manual"));
-		JRadioButton checkManual = new JRadioButton();
-		optsGroup.add(checkManual);
-		panelOpts.add(checkManual);
-		optsGroup.setSelected(checkRand.getModel(), true);
-
-		checkRand.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-
-				// do something when the button is being selected...
-				panelOptsCAS.setVisible(false);
-			}
-		});
-
-		checkSelected.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-
-				// do something when the button is being selected...
-				panelOptsCAS.setVisible(false);
-			}
-		});
-
-		checkAccessed.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-
-				// do something when the button is being selected...
-				panelOptsCAS.setVisible(false);
-			}
-		});
-
-		checkManual.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-
-				// do something when the button is being selected...
-				panelOptsCAS.setVisible(true);
-			}
-		});
-
-		GridLayout glOptsCAS = new GridLayout(3, 2, 5, 5);
-		panelOptsCAS.setLayout(glOptsCAS);
-		panelOptsTop.add(panelOptsCAS);
-
-		panelOptsCAS.add(new JLabel("Verb:"));
-		final JTextField verbField = new JTextField(10);
-		verbField.setText("accessed");
-		panelOptsCAS.add(verbField);
-		panelOptsCAS.add(new JLabel("Object Type:"));
-		final JTextField objectTypeField = new JTextField(10);
-		objectTypeField.setText("scene");
-		panelOptsCAS.add(objectTypeField);
-		panelOptsCAS.add(new JLabel("Object Id:"));
-		final JTextField objectIdField = new JTextField(10);
-		objectIdField.setText("mainMenu");
-		panelOptsCAS.add(objectIdField);
-		panelOptsCAS.setVisible(false);
-
-		Container northCont = new Container();
-		northCont.setLayout(new BorderLayout());
-
-		northCont.add(panelData, BorderLayout.NORTH);
-		northCont.add(panelOptsTop, BorderLayout.CENTER);
-		northCont.add(panelStart, BorderLayout.SOUTH);
-
-		Container cp = getContentPane();
-		cp.add(northCont, BorderLayout.NORTH);
-		cp.add(panelTextArea, BorderLayout.CENTER);
-		cp.add(panelButtons, BorderLayout.SOUTH);
-
-		sendButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				try {
-					if (checkRand.isSelected()) {
-						randomTrace(tracker);
-					} else if (checkSelected.isSelected()) {
-						selected(tracker);
-					} else if (checkAccessed.isSelected()) {
-						accessed(tracker);
-					} else if (checkCompleted.isSelected()) {
-						completed(tracker);
-					} else {
-						// Manual
-						String verb = verbField.getText();
-						String objectType = objectTypeField.getText();
-						String objectId = objectIdField.getText();
-						tracker.actionTrace(verb, objectType, objectId);
-					}
-
-					tracker.requestFlush();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
+		
+		return scrollPane;
+	}
+	
+	private JComponent createSendPanel() {
+		JPanel sendPanel = new JPanel(new FlowLayout());
+		
+		JButton sendButton = new JButton("Send");
+		sendButton.addActionListener(new SendTraceAction());
+		
+		sendPanel.add(sendButton);
+		
+		return sendPanel;
 	}
 
-	private void randomTrace(TrackerAsset tracker) throws Exception {
-		int rand9 = (int) (Math.random() * 9) + 1;
+	private void randomTrace() throws Exception {
+		int rand9 = rand9();
 
 		if (rand9 <= 3) {
-			selected(tracker);
+			selected();
 		} else if (rand9 <= 6) {
-			accessed(tracker);
+			accessed();
 		} else {
-			completed(tracker);
+			completed();
 		}
 	}
+	
+	private static int rand9() {
+		return (int) ((Math.random() * 9) + 1);
+	}
 
-	private void selected(TrackerAsset tracker) throws Exception {
+	private void selected() throws Exception {
 		AlternativeTracker.Alternative[] values = AlternativeTracker.Alternative
 				.values();
 		tracker.getAlternative().selected(
-				"alternativeId_" + (int) ((Math.random() * 9) + 1),
-				"alternativeOptionId_" + (int) ((Math.random() * 9) + 1),
+				"alternativeId_" + rand9(),
+				"alternativeOptionId_" + rand9(),
 				values[new Random().nextInt(values.length)]);
 	}
 
-	private void accessed(TrackerAsset tracker) throws Exception {
+	private void accessed() throws Exception {
 		AccessibleTracker.Accessible[] values = AccessibleTracker.Accessible
 				.values();
 		tracker.getAccessible().accessed(
-				"accessedId_" + (int) ((Math.random() * 9) + 1),
+				"accessedId_" + rand9(),
 				values[new Random().nextInt(values.length)]);
 	}
 
-	private void completed(TrackerAsset tracker) throws Exception {
+	private void completed() throws Exception {
 		CompletableTracker.Completable[] values = CompletableTracker.Completable
 				.values();
 		tracker.getCompletable().completed(
-				"completableId_" + (int) ((Math.random() * 9) + 1),
+				"completableId_" + rand9(),
 				values[new Random().nextInt(values.length)]);
 	}
+	
+	private class LoginAndStartAction implements ActionListener {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			TrackerAssetSettings settings = new TrackerAssetSettings();
 
-	public static void main(String[] args) {
-		JFrame f = new Main();
-		f.setVisible(true);
+			settings.setHost(hostField.getText());
+			settings.setPort(443);
+			settings.setSecure(true);
+			settings.setTraceFormat(TrackerAssetSettings.TraceFormats.xapi);
+			settings.setBasePath("/api/");
+
+			tracker.setSettings(settings);
+
+			String username = usernameField.getText();
+			String password = passwordField.getText();
+			if (!username.isEmpty() && !password.isEmpty()) {
+				tracker.login(username, password);
+			}
+
+			tracker.start(trackingCodeField.getText());
+		}
+	}
+	
+	private class SendTraceAction implements ActionListener {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			try {
+				if (checkRand.isSelected()) {
+					randomTrace();
+				} else if (checkSelected.isSelected()) {
+					selected();
+				} else if (checkAccessed.isSelected()) {
+					accessed();
+				} else if (checkCompleted.isSelected()) {
+					completed();
+				} else {
+					// Manual
+					String verb = verbField.getText();
+					String objectType = objectTypeField.getText();
+					String objectId = objectIdField.getText();
+					tracker.actionTrace(verb, objectType, objectId);
+				}
+
+				tracker.requestFlush();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+	
+	private class EnableCustomPanelAction implements ActionListener {
+
+		private boolean enable;
+		
+		public EnableCustomPanelAction() {
+			this.enable = false;
+		}
+		
+		public EnableCustomPanelAction(boolean enable) {
+			this.enable = enable;
+		}		
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			customTraceOptionsPanel.setEnabled(enable);
+			for ( Component c : customTraceOptionsPanel.getComponents() ) {
+				c.setEnabled(enable);
+			}
+		}
+		
 	}
 }
