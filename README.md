@@ -23,14 +23,7 @@ After a game is developed, a common need is to know how the players play, what i
 5. Set up a bridge for creating connects with the server
   ```java
   // Set bridge, for instance the one defined at the tracker tester app
-  tracker.setBridge(new JavaBridge() {
-			@Override
-			public void Log(Severity severity, String msg) {
-				super.Log(severity, msg);
-				textArea.setText(textArea.getText() + "\n\n " + (++infoCount)
-						+ " -> " + severity + ": " + msg);
-			}
-  });
+  tracker.setBridge(new JavaBridge());
   
    ```
 
