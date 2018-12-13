@@ -30,7 +30,6 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
 
 5. Further configuration can be done:
   ```java
-    
   // Configure the options
   TrackerAssetSettings settings = new TrackerAssetSettings();
 
