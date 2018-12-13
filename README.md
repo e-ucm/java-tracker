@@ -10,18 +10,50 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
 1. Import the Java Tracker into your code:
   ```java
   import es.eucm.tracker.*;
+  import es.eucm.tracker.Exceptions.XApiException;
+  import eu.rageproject.asset.manager.Severity;
   ```
 4. Configure the tracker by:
   ```java
   TrackerAsset tracker = new TrackerAsset();
+  // set bridge, for instance the one defined at the tracker tester app
+  tracker.setBridge(new JavaBridge() {
+			@Override
+			public void Log(Severity severity, String msg) {
+				super.Log(severity, msg);
+				textArea.setText(textArea.getText() + "\n\n " + (++infoCount)
+						+ " -> " + severity + ": " + msg);
+			}
+  });
+  
+   ```
+
+5. Further configuration can be done:
+  ```java
+    
+  // Configure the options
+  TrackerAssetSettings settings = new TrackerAssetSettings();
+
+  settings.setHost(hostField.getText());
+  settings.setPort(443);
+  settings.setSecure(true);
+  settings.setTraceFormat(TrackerAsset.TraceFormats.xapi);
+  settings.setBasePath("/api/");
+
+  tracker.setSettings(settings);
 
   ```
-5. Start the tracker by using either
+6. Start the tracker by using either
    * `tracker.start(userToken, trakingCode)`
    * `tracker.start(trakingCode)` with the already extracted usertoken
    * `tracker.start()` with an already extracted userToken and trackingCode
 
 ## User Guide
+
+There are two storage types available: net and local. The tracker requires (if `net` mode is on) the [RAGE Analytics](https://github.com/e-ucm/rage-analytics) infrastructure up and running. Check out the [Quickstart guide](https://github.com/e-ucm/rage-analytics/wiki/Quickstart) and follow the `developer` and `teacher` steps in order to create a game and [setup a class](https://github.com/e-ucm/rage-analytics/wiki/Set-up-a-class). It also requires a:
+
+* **Host**: where the server is at. This value usually looks like `<rage_server_hostmane>/api/proxy/gleaner/collector/`. The [collector](https://github.com/e-ucm/rage-analytics/wiki/Back-end-collector) is an endpoint designed to retrieve traces and send them to the analysis pipeline.
+* **Tracking code**: an unique tracking code identifying the game. [This code is created in the frontend](https://github.com/e-ucm/rage-analytics/wiki/Tracking-code), when creating a new game.
 
 The tracker exposes an API designed to collect, analyze and visualize the data. The  API consists on defining a set of **game objects**. A game object represents an element of the game on which players can perform one or several types of interactions. Some examples of player's interactions are:
 
@@ -115,9 +147,14 @@ TrackerAsset.getInstance().getGameObject().used("GameObjectID", GameObjectTracke
 
 Note that in order to track other type of user interactions it is required to perform a previous analysis to identify the most suitable game objects ([Completable](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/CompletableTracker.java), [Accessible](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/AccessibleTracker.java), [Alternative](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/AlternativeTracker.java), [GameObject](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/GameObjectTracker.java)) for the given case. For instance, in order to track conversations alternatives are the best choice.
 
-## Tracker Tester App
+### Tracker Tester App
 
 An app to test the tracker by sending traces is available in the swing-example folder.
+
+### Tracker and Collector Flow
+If the storage type is `net`, the tracker will try to connect to a `Collector` [endpoint](https://github.com/e-ucm/rage-analytics/wiki/Back-end-collector), exposed by the [rage-analytics Backend](https://github.com/e-ucm/rage-analytics-backend). 
+
+More information about the tracker can be found in the [official documentation of rage-analytics](https://github.com/e-ucm/rage-analytics/wiki/Tracker).
 
 ## Useful Maven goals
 
