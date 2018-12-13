@@ -56,28 +56,29 @@ After a game is developed, a common need is to know how the players play, what i
 
 For tracker to send traces to the server, `tracker.start()` has to be called. If you want to use an authenticated user, you can login before starting the tracker.
 
-You can login with a username and password by calling the method `tracker.login(username, password);`. 
+You can login with a username and password by calling the method `tracker.login(username, password)`. 
 
 Then, you can start the tracker with either:
-   * `tracker.start(userToken, trakingCode)`
-   * `tracker.start(trackingCode)` with the already extracted usertoken (from login).
+   * `tracker.start(userToken, trackingCode)`
+   * `tracker.start(trackingCode)` with the already extracted userToken (from login).
    * `tracker.start()` with an already extracted userToken (from login) and trackingCode (shown at game on A2 server).
    
 ## Sending Traces to the Analytics Server
 
 There are two possible ways for sending traces:
-1. **Recommended**: Using the xAPI for serious games interfaces (Accessible, Alternative, Completable and GameObject) (more info in the [user guide](https://github.com/crisal24/java-tracker#user-guide) below).
-1. Using `TrackerAsset.ActionTrace(verb,target_type,target_id)` method. This is **not recomended unless you have clear in mind what you're doing**. Remember that xAPI traces are focused on sending actions, not purely variable changes. If you want to track variables, you can add them as extensions using `TrackerAsset.setVar(key, value)`. See below an example of use:
+1. **Recomended**: Using the xAPI for serious games interfaces (Accessible, Alternative, Completable and GameObject) (more info in the [user guide](https://github.com/crisal24/java-tracker#user-guide) below).
+1. Using `TrackerAsset.ActionTrace(verb,target_type,target_id)` method. This is **not recomended unless you have clear in mind what you are doing**. Remember that xAPI traces are focused on sending actions, not purely variable changes. If you want to track variables, you can add them as extensions using `TrackerAsset.setVar(key, value)`. See below an example of use:
 
 ```java
 // Simple trace
 TrackerAsset.getInstance().getGameObject().used("GameObjectID", GameObjectTracker.TrackedGameObject.Item);
 
-// Trace with extensions
+// Trace with extension
 TrackerAsset.getInstance().setVar("extension1", "value1");
 TrackerAsset.getInstance().getAccessible().skipped("AccesibleID2", AccessibleTracker.Accessible.Screen);
 
 // Complex trace
+// Including response, score, success, completion and several extensions
 TrackerAsset.getInstance().setResponse("TheResponse");
 TrackerAsset.getInstance().setScore(0.123f);
 TrackerAsset.getInstance().setSuccess(false);
@@ -88,7 +89,7 @@ TrackerAsset.getInstance().setVar("extension3", 3);
 TrackerAsset.getInstance().setVar("extension4", 4.56f);
 TrackerAsset.getInstance().actionTrace("selected", "zone", "ObjectID3");
 
-//Sending the traces
+// Sending the traces
 TrackerAsset.getInstance().flush();
 
 ```
@@ -96,10 +97,10 @@ TrackerAsset.getInstance().flush();
 ## Detailed Feature List
 1. Different storage types: 
 	1. `net`: sends data to a trace-server, such as the [rage-analytics Backend](https://github.com/e-ucm/rage-analytics-backend). If set, a hostname should be specified via the `host` property.
-	2. `local`, to store them locally for later retrieval. Un-sent traces are always persisted locally before being sent through the net, to support intermittent internet access.
+	2. `local`, to store them locally for later retrieval. Unsent traces are always persisted locally before being sent through the net, to support intermittent internet access.
 1. Different trace formats:
 	1. `csv`: allow processing in MS Excel or other spreadsheets. Also supported by many analytics environments.
-	2. `json`: especially intended for programmatic analysis, for instance using python or java/javascript or
+	2. `json`: especially intended for programmatic analysis, for instance using python, java or javascript.
 	3. `xapi`: an upcoming standard for student activity. Note that, if the tracker's storage type is `net` it is required to use the `xapi` trace format since the [rage-analytics Backend](https://github.com/e-ucm/rage-analytics-backend) expects xAPI Statements. The [xAPI tracking model](https://github.com/e-ucm/xapi-seriousgames) that the backend expects is composed of [Completables](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1341-completable), [Reachables](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1341-reachable), [Variables](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1342-variables) and [Alternatives](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1343-alternatives). 
  
 
@@ -118,7 +119,7 @@ The tracker exposes an API designed to collect, analyze and visualize the data. 
 
 A **gameplay** is the flow of interactions that a player performs over these game objects in a sequential order.
 
-The main typed of game objects supported are:
+The main types of game objects supported are:
 
 * [Completable](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/CompletableTracker.java) - for Game, Session, Level, Quest, Stage, Combat, StoryNode, Race or any other generic Completable. Methods: `Initialized`, `Progressed` and `Completed`.
 * [Accessible](https://github.com/e-ucm/java-tracker/blob/master/tracker/src/main/java/es/eucm/tracker/AccessibleTracker.java) - for Screen, Area, Zone, Cutscene or any other generic Accessible. Methods: `Accessed` and `Skipped`.
@@ -150,7 +151,7 @@ TrackerAsset.getInstance().getCompletable().completed("MyGameQuestId", Completab
 ```
 #### Accessible
 
-Usage example for the tracking the player's movement through some in-game screens and skipping the 'Intro' cutscene:
+Usage example for tracking the player's movement enterging the _'MainMenu'_ and skipping the _'Intro'_ cutscene:
 
 ```java
 // Accessible
@@ -191,11 +192,11 @@ Usage example for the tracking the player's with a NPC villager and using a heal
 
 // Interacted 
 // The player interacted with an NPC
-TrackerAsset.getInstance().getGameObject().interacted("GameObjectID", GameObjectTracker.TrackedGameObject.Npc);
+TrackerAsset.getInstance().getGameObject().interacted("NPC/Villager", GameObjectTracker.TrackedGameObject.Npc);
 
 // Used
 // The player used an item
-TrackerAsset.getInstance().getGameObject().used("GameObjectID", GameObjectTracker.TrackedGameObject.Item);
+TrackerAsset.getInstance().getGameObject().used("Item/HealthPotion", GameObjectTracker.TrackedGameObject.Item);
 
 ```
 
