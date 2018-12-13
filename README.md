@@ -4,6 +4,35 @@
 
 xAPI traces sent by games should comply with the [xAPI for serious games specification](https://github.com/e-ucm/xapi-seriousgames).
 
+## Installation
+1. Clone or download repository
+1. Copy into your project folder
+1. Import the Java Tracker into your code:
+  ```java
+  import es.eucm.tracker.*;
+  ```
+4. Configure the tracker by:
+  ```java
+  TrackerAsset tracker = new TrackerAsset();
+
+  ```
+5. Start the tracker by using either
+   * `tracker.start(userToken, trakingCode)`
+   * `tracker.start(trakingCode)` with the already extracted usertoken
+   * `tracker.start()` with an already extracted userToken and trackingCode
+
+## Sending traces to the Analytics Server
+
+## User Guide
+
+### Completable
+
+### Accessible
+
+### Alternative
+
+### Tracked Game Object
+
 ## Useful Maven goals
 
 - `mvn clean install`: run tests, check correct headers and generate `tracker-jar-with-dependencies.jar` file inside `tracker/target` folder
