@@ -47,6 +47,35 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
    * `tracker.start(userToken, trakingCode)`
    * `tracker.start(trakingCode)` with the already extracted usertoken
    * `tracker.start()` with an already extracted userToken and trackingCode
+   
+## Sending Traces to the Analytics Server
+
+There are two possible ways for sending traces:
+1. **Recommended**: Using the xAPI for serious games interfaces (Accessible, Alternative, Completable and GameObject) (more info below).
+1. Using `TrackerAsset.ActionTrace(verb,target_type,target_id)` method. This is **not recomended unless you have clear in mind what you're doing**. Remember that xAPI traces are focused on sending actions, not purely variable changes. If you want to track variables, you can add them as extensions using `TrackerAsset.setVar(key, value)`. See below an example of use:
+
+```java
+// Simple trace
+TrackerAsset.getInstance().getGameObject().used("GameObjectID", GameObjectTracker.TrackedGameObject.Item);
+
+// Trace with extensions
+TrackerAsset.getInstance().setVar("extension1", "value1");
+TrackerAsset.getInstance().getAccessible().skipped("AccesibleID2", AccessibleTracker.Accessible.Screen);
+
+// Complex trace
+TrackerAsset.getInstance().setResponse("TheResponse");
+TrackerAsset.getInstance().setScore(0.123f);
+TrackerAsset.getInstance().setSuccess(false);
+TrackerAsset.getInstance().setCompletion(true);
+TrackerAsset.getInstance().setVar("extension1", "value1");
+TrackerAsset.getInstance().setVar("extension2", "value2");
+TrackerAsset.getInstance().setVar("extension3", 3);
+TrackerAsset.getInstance().setVar("extension4", 4.56f);
+TrackerAsset.getInstance().actionTrace("selected", "zone", "ObjectID3");
+
+//Sending the traces
+TrackerAsset.getInstance().flush();
+```
 
 ## User Guide
 
