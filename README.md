@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.org/e-ucm/java-tracker.svg)](https://travis-ci.org/e-ucm/java-tracker) [![Coverage Status](https://coveralls.io/repos/e-ucm/java-tracker/badge.svg?branch=master&service=github)](https://coveralls.io/github/e-ucm/java-tracker?branch=master)
 
-xAPI traces sent by games should comply with the [xAPI for serious games specification](https://github.com/e-ucm/xapi-seriousgames).
+This code belongs to the e-UCM Research Group. The Java Tracker sends analytics information to a server or, if the server is currently not available, stores them locally until the server is available again. The traces sent by the games should comply with the [xAPI for serious games specification](https://github.com/e-ucm/xapi-seriousgames).
+
+After a game is developed, a common need is to know how the players play, what interactions they follow within the game and how much time they spend in a game session; collectively, these are known as game analytics. Analytics are used to locate gameplay bottlenecks and assess game effectiveness and learning outcomes, among other tasks.
 
 ## Installation
 1. Clone or download repository
@@ -13,10 +15,14 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
   import es.eucm.tracker.Exceptions.XApiException;
   import eu.rageproject.asset.manager.Severity;
   ```
-4. Configure the tracker by:
+4. Create a new TrackerAsset by:
   ```java
   TrackerAsset tracker = new TrackerAsset();
-  // set bridge, for instance the one defined at the tracker tester app
+  ```
+  
+5. Set up a bridge for creating connects with the server
+  ```java
+  // Set bridge, for instance the one defined at the tracker tester app
   tracker.setBridge(new JavaBridge() {
 			@Override
 			public void Log(Severity severity, String msg) {
@@ -28,7 +34,7 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
   
    ```
 
-5. Further configuration can be done:
+6. Further configuration of the tracker can be done with `TrackerAssetSettings()`:
   ```java
   // Configure the options
   TrackerAssetSettings settings = new TrackerAssetSettings();
@@ -42,7 +48,7 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
   tracker.setSettings(settings);
 
   ```
-6. Optionally, login with user
+7. Optionally, login with user
 1. Start the tracker by using `tracker.start()`
 1. You can start sending traces now.
    
@@ -84,7 +90,18 @@ TrackerAsset.getInstance().actionTrace("selected", "zone", "ObjectID3");
 
 //Sending the traces
 TrackerAsset.getInstance().flush();
+
 ```
+
+## Detailed Feature List
+1. Different storage types: 
+	1. `net`: sends data to a trace-server, such as the [rage-analytics Backend](https://github.com/e-ucm/rage-analytics-backend). If set, a hostname should be specified via the `host` property.
+	2. `local`, to store them locally for later retrieval. Un-sent traces are always persisted locally before being sent through the net, to support intermittent internet access.
+1. Different trace formats:
+	1. `csv`: allow processing in MS Excel or other spreadsheets. Also supported by many analytics environments.
+	2. `json`: especially intended for programmatic analysis, for instance using python or java/javascript or
+	3. `xapi`: an upcoming standard for student activity. Note that, if the tracker's storage type is `net` it is required to use the `xapi` trace format since the [rage-analytics Backend](https://github.com/e-ucm/rage-analytics-backend) expects xAPI Statements. The [xAPI tracking model](https://github.com/e-ucm/xapi-seriousgames) that the backend expects is composed of [Completables](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1341-completable), [Reachables](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1341-reachable), [Variables](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1342-variables) and [Alternatives](https://github.com/e-ucm/xapi-seriousgames/blob/master/README.md#1343-alternatives). 
+ 
 
 ## User Guide
 
