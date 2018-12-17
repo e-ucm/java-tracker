@@ -16,7 +16,6 @@
 package es.eucm.tracker.swing;
 
 import es.eucm.tracker.*;
-import es.eucm.tracker.Exceptions.XApiException;
 import eu.rageproject.asset.manager.Severity;
 
 import javax.swing.*;
@@ -34,7 +33,7 @@ public class Main extends JFrame {
 
 		final JPanel panelTextArea = new JPanel();
 		final JTextArea textArea = new JTextArea(60, 90);
-		final TrackerAsset tracker = new TrackerAsset();
+		final TrackerAsset tracker = TrackerAsset.getInstance();
 		textArea.setLineWrap(true);
 
 		tracker.setBridge(new JavaBridge() {

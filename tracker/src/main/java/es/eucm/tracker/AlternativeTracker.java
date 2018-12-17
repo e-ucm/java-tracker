@@ -16,8 +16,8 @@
 
 package es.eucm.tracker;
 
-import es.eucm.tracker.Exceptions.TargetXApiException;
-import es.eucm.tracker.Exceptions.ValueExtensionException;
+import es.eucm.tracker.exceptions.TargetXApiException;
+import es.eucm.tracker.exceptions.ValueExtensionException;
 
 public class AlternativeTracker implements TrackerAsset.IGameObjectTracker {
 	private TrackerAsset tracker;
@@ -42,26 +42,25 @@ public class AlternativeTracker implements TrackerAsset.IGameObjectTracker {
 	public void selected(String alternativeId, String optionId)
 			throws Exception {
 		boolean check = true;
-		check &= tracker.getUtils().check(alternativeId,
+		check &= TrackerUtils.check(alternativeId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class);
-		check &= tracker.getUtils().check(optionId,
+		check &= TrackerUtils.check(optionId, tracker,
 				"xAPI Exception: Selected alternative is null or empty",
 				"xAPI Exception: Selected alternative can't be null or empty",
 				ValueExtensionException.class);
 		if (check) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Selected));
+					TrackerAsset.Verb.Selected), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
 					Alternative.Alternative.toString().toLowerCase(),
-					alternativeId));
+					alternativeId, tracker));
 
 			TrackerAsset.TrackerEvent.TraceResult result = new TrackerAsset.TrackerEvent.TraceResult();
-			result.setResponse(optionId);
+			result.setResponse(optionId, tracker);
 			trace.setResult(result);
 
 			tracker.trace(trace);
@@ -82,25 +81,24 @@ public class AlternativeTracker implements TrackerAsset.IGameObjectTracker {
 	public void selected(String alternativeId, String optionId, Alternative type)
 			throws Exception {
 		boolean check = true;
-		check &= tracker.getUtils().check(alternativeId,
+		check &= TrackerUtils.check(alternativeId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class);
-		check &= tracker.getUtils().check(optionId,
+		check &= TrackerUtils.check(optionId, tracker,
 				"xAPI Exception: Selected alternative is null or empty",
 				"xAPI Exception: Selected alternative can't be null or empty",
 				ValueExtensionException.class);
 		if (check) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Selected));
+					TrackerAsset.Verb.Selected), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), alternativeId));
+					.toString().toLowerCase(), alternativeId, tracker));
 
 			TrackerAsset.TrackerEvent.TraceResult result = new TrackerAsset.TrackerEvent.TraceResult();
-			result.setResponse(optionId);
+			result.setResponse(optionId, tracker);
 			trace.setResult(result);
 
 			tracker.trace(trace);
@@ -119,26 +117,25 @@ public class AlternativeTracker implements TrackerAsset.IGameObjectTracker {
 	public void unlocked(String alternativeId, String optionId)
 			throws Exception {
 		boolean check = true;
-		check &= tracker.getUtils().check(alternativeId,
+		check &= TrackerUtils.check(alternativeId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class);
-		check &= tracker.getUtils().check(optionId,
+		check &= TrackerUtils.check(optionId, tracker,
 				"xAPI Exception: Selected alternative is null or empty",
 				"xAPI Exception: Selected alternative can't be null or empty",
 				ValueExtensionException.class);
 		if (check) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Unlocked));
+					TrackerAsset.Verb.Unlocked), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
 					Alternative.Alternative.toString().toLowerCase(),
-					alternativeId));
+					alternativeId, tracker));
 
 			TrackerAsset.TrackerEvent.TraceResult result = new TrackerAsset.TrackerEvent.TraceResult();
-			result.setResponse(optionId);
+			result.setResponse(optionId, tracker);
 			trace.setResult(result);
 
 			tracker.trace(trace);
@@ -159,25 +156,24 @@ public class AlternativeTracker implements TrackerAsset.IGameObjectTracker {
 	public void unlocked(String alternativeId, String optionId, Alternative type)
 			throws Exception {
 		boolean check = true;
-		check &= tracker.getUtils().check(alternativeId,
+		check &= TrackerUtils.check(alternativeId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class);
-		check &= tracker.getUtils().check(optionId,
+		check &= TrackerUtils.check(optionId, tracker,
 				"xAPI Exception: Selected alternative is null or empty",
 				"xAPI Exception: Selected alternative can't be null or empty",
 				ValueExtensionException.class);
 		if (check) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Unlocked));
+					TrackerAsset.Verb.Unlocked), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), alternativeId));
+					.toString().toLowerCase(), alternativeId, tracker));
 
 			TrackerAsset.TrackerEvent.TraceResult result = new TrackerAsset.TrackerEvent.TraceResult();
-			result.setResponse(optionId);
+			result.setResponse(optionId, tracker);
 			trace.setResult(result);
 
 			tracker.trace(trace);

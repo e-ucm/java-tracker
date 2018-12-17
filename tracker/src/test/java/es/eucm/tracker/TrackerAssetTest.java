@@ -16,17 +16,11 @@
 package es.eucm.tracker;
 
 import com.google.gson.Gson;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import es.eucm.tracker.Exceptions.*;
-import es.eucm.tracker.Utils.RefSupport;
-import es.eucm.tracker.Utils.TrackerAssetUtils;
+import es.eucm.tracker.exceptions.*;
 import eu.rageproject.asset.manager.*;
-import org.apache.commons.lang3.builder.ToStringSummary;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -57,12 +51,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().stop();
 		Path current = Paths.get(System.getProperty("user.dir"));
 
-		TrackerAsset.TraceFormats f = TrackerAsset.TraceFormats.json;
-		RefSupport<TrackerAsset.TraceFormats> rv = new RefSupport<TrackerAsset.TraceFormats>();
-		if (TrackerAssetUtils.ParseEnum(format, rv,
-				TrackerAsset.TraceFormats.class)) {
-			settings.setTraceFormat(rv.getValue());
-		}
+		settings.setTraceFormat(TrackerAsset.TraceFormats.valueOf(format));
 
 		settings.setStorageType(st);
 		TrackerAsset.getInstance().setSettings(settings);
@@ -1069,6 +1058,9 @@ public class TrackerAssetTest {
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
+		for (Map.Entry<String, Object> e : ((Map<String, Object>)tracejson).entrySet()) {
+			System.err.println(e.getKey() + " -> " + e.getValue());
+		}
 		assertEquals(tracejson.entrySet().size(), 4);
 		assertEquals(((Map) tracejson.get("object")).get("id"), "GameObjectID");
 		assertEquals(
@@ -1152,8 +1144,8 @@ public class TrackerAssetTest {
 	}
 
 	private void compareCSV(String t1, String t2) throws Exception {
-		List<String> sp1 = TrackerAssetUtils.parseCSV(t1);
-		List<String> sp2 = TrackerAssetUtils.parseCSV(t2);
+		List<String> sp1 = TrackerUtils.parseCSV(t1);
+		List<String> sp2 = TrackerUtils.parseCSV(t2);
 		assertEquals(sp1.size(), sp2.size());
 		for (int i = 0; i < 3; i++)
 			Assert.assertEquals(sp1.get(i), sp2.get(i));
