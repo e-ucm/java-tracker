@@ -214,7 +214,7 @@ public enum AssetManager {
 	 * Returns an object which is an instance of the given class associated with
 	 * this object. Returns null if no such object can be found.
 	 * 
-	 * @param parameter1
+	 * @param adapter
 	 *            the adapter class to look up.
 	 * 
 	 * @return a object of the given class, or null if this object does not have

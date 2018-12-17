@@ -29,35 +29,35 @@ public interface IAsset {
 	 * 
 	 * @return The class name.
 	 */
-	public String getClassName();
+	String getClassName();
 
 	/**
 	 * Gets the identifier
 	 * 
 	 * @return The identifier.
 	 */
-	public String getId();
+	String getId();
 
 	/**
 	 * Gets the dependencies
 	 * 
 	 * @return The dependencies.
 	 */
-	public Map<String, String> getDependencies();
+	Map<String, String> getDependencies();
 
 	/**
 	 * Gets the maturity
 	 * 
 	 * @return The maturity.
 	 */
-	public String getMaturity();
+	String getMaturity();
 
 	/**
 	 * Gets the settings
 	 * 
 	 * @return The settings.
 	 */
-	public ISettings getSettings();
+	ISettings getSettings();
 
 	/**
 	 * Sets the settings
@@ -65,21 +65,21 @@ public interface IAsset {
 	 * @param settings
 	 *            Options for controlling the operation.
 	 */
-	public void setSettings(final ISettings settings);
+	void setSettings(final ISettings settings);
 
 	/**
 	 * Gets the version
 	 * 
 	 * @return The version.
 	 */
-	public String getVersion();
+	String getVersion();
 
 	/**
 	 * Gets the bridge
 	 * 
 	 * @return The bridge.
 	 */
-	public IBridge getBridge();
+	IBridge getBridge();
 
 	/**
 	 * Sets a bridge
@@ -87,5 +87,5 @@ public interface IAsset {
 	 * @param bridge
 	 *            The bridge.
 	 */
-	public void setBridge(final IBridge bridge);
+	void setBridge(final IBridge bridge);
 }
