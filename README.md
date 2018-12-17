@@ -12,7 +12,7 @@ After a game is developed, a common need is to know how the players play, what i
 1. Import the Java Tracker into your code:
   ```java
   import es.eucm.tracker.*;
-  import es.eucm.tracker.Exceptions.XApiException;
+  import es.eucm.tracker.exceptions.XApiException;
   import eu.rageproject.asset.manager.Severity;
   ```
 4. Create a new TrackerAsset by:
