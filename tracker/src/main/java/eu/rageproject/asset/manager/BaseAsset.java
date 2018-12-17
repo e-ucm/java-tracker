@@ -48,44 +48,42 @@ public abstract class BaseAsset implements IAsset {
 	 * Specialised default constructor for use only by derived class
 	 */
 	protected BaseAsset() {
-		this.id = AssetManager.getInstance().registerAssetInstance(this,
-				this.getClassName());
+		id = AssetManager.getInstance().registerAssetInstance(this, getClassName());
 		String xml = getVersionAndDependencies();
 		if (!"".equals(xml)) {
-			this.versionInfo = RageVersionInfo.loadVersionInfo(xml);
+			versionInfo = RageVersionInfo.loadVersionInfo(xml);
 		} else {
-			this.versionInfo = new RageVersionInfo();
+			versionInfo = new RageVersionInfo();
 		}
-
 	}
 
 	/**
 	 * Logs
 	 * 
-	 * @param loglevel
-	 *            The loglevel.
+	 * @param logLevel
+	 *            The logLevel.
 	 * @param format
 	 *            Describes the format to use.
 	 * @param args
 	 *            Variable arguments providing the arguments.
 	 */
-	public void Log(Severity loglevel, String format, Object... args) {
-		Log(loglevel, String.format(Locale.ROOT, format, args));
+	public void log(Severity logLevel, String format, Object... args) {
+		log(logLevel, String.format(Locale.ROOT, format, args));
 	}
 
 	/**
 	 * Logs
 	 * 
-	 * @param loglevel
+	 * @param logLevel
 	 *            The loglevel.
 	 * @param msg
 	 *            The message.
 	 */
-	public void Log(Severity loglevel, String msg) {
+	public void log(Severity logLevel, String msg) {
 		logger = getInterface(ILog.class);
 
 		if (logger != null) {
-			logger.Log(loglevel, msg);
+			logger.Log(logLevel, msg);
 		}
 	}
 
@@ -132,7 +130,6 @@ public abstract class BaseAsset implements IAsset {
 	 *            The bridge.
 	 */
 	public BaseAsset(final IBridge bridge) {
-		this();
 		this.bridge = bridge;
 	}
 
@@ -163,7 +160,7 @@ public abstract class BaseAsset implements IAsset {
 	 */
 	@Override
 	public IBridge getBridge() {
-		return this.bridge;
+		return bridge;
 	}
 
 	/**
@@ -184,7 +181,7 @@ public abstract class BaseAsset implements IAsset {
 	 */
 	@Override
 	public String getMaturity() {
-		return this.versionInfo.getMaturity();
+		return versionInfo.getMaturity();
 	}
 
 	/**
@@ -209,11 +206,11 @@ public abstract class BaseAsset implements IAsset {
 	/**
 	 * Checks if the asset has settings
 	 * 
-	 * @return {@code true} if this {@link Asset} has settings, {@code false}
+	 * @return {@code true} if {@link Asset} has settings, {@code false}
 	 *         otherwhise.
 	 */
 	public boolean hasSettings() {
-		return this.settings != null;
+		return settings != null;
 	}
 
 	/**
@@ -223,7 +220,7 @@ public abstract class BaseAsset implements IAsset {
 	 */
 	@Override
 	public String getVersion() {
-		return this.versionInfo.toString();
+		return versionInfo.toString();
 	}
 
 	/**
@@ -232,7 +229,7 @@ public abstract class BaseAsset implements IAsset {
 	 * @return The version information.
 	 */
 	public RageVersionInfo getVersionInfo() {
-		return this.versionInfo;
+		return versionInfo;
 	}
 
 	/**
@@ -254,7 +251,7 @@ public abstract class BaseAsset implements IAsset {
 	public Map<String, String> getDependencies() {
 		Map<String, String> result = new TreeMap<>();
 
-		for (Dependency dep : this.versionInfo.getDependencies()) {
+		for (Dependency dep : versionInfo.getDependencies()) {
 			String minv = "0.0";
 			String depMinv = dep.getMinVersion();
 			if (depMinv != null) {
@@ -274,19 +271,19 @@ public abstract class BaseAsset implements IAsset {
 
 	/**
 	 * Returns an object which is an instance of the given class associated with
-	 * this object. Returns null if no such object can be found.
+	 * object. Returns null if no such object can be found.
 	 * 
-	 * @param parameter1
+	 * @param adapter
 	 *            the adapter class to look up.
 	 * 
-	 * @return a object of the given class, or null if this object does not have
+	 * @return a object of the given class, or null if object does not have
 	 *         an adapter for the given class.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getInterface(final Class<T> adapter) {
-		if (this.bridge != null
-				&& adapter.isAssignableFrom(this.bridge.getClass())) {
-			return (T) this.bridge;
+	protected <T> T getInterface(final Class<T> adapter) {
+		if (bridge != null
+				&& adapter.isAssignableFrom(bridge.getClass())) {
+			return (T) bridge;
 		}
 
 		IBridge assetManagerBridge = AssetManager.getInstance().getBridge();
@@ -309,7 +306,7 @@ public abstract class BaseAsset implements IAsset {
 		if (ds != null && hasSettings()
 				&& ds.hasDefaultSettings(getClassName(), getId())) {
 			String xml = ds.loadDefaultSettings(getClassName(), getId());
-			this.settings = settingsFromXml(xml);
+			settings = settingsFromXml(xml);
 			return true;
 		}
 
@@ -329,7 +326,7 @@ public abstract class BaseAsset implements IAsset {
 
 		if (ds != null && hasSettings() && ds.exists(filename)) {
 			String xml = ds.load(filename);
-			this.settings = this.settingsFromXml(xml);
+			settings = settingsFromXml(xml);
 			return true;
 		}
 
@@ -390,7 +387,7 @@ public abstract class BaseAsset implements IAsset {
 	 * @return a {@link ISettings} object implementation.
 	 */
 	protected ISettings settingsFromXml(final String xml) {
-		return JAXB.unmarshal(new StringReader(xml), this.settings.getClass());
+		return JAXB.unmarshal(new StringReader(xml), settings.getClass());
 	}
 
 	/**
@@ -404,7 +401,7 @@ public abstract class BaseAsset implements IAsset {
 	 */
 	protected String settingsToXml() {
 		StringWriter writer = new StringWriter();
-		JAXB.marshal(this.settings, writer);
+		JAXB.marshal(settings, writer);
 		return writer.toString();
 	}
 }
