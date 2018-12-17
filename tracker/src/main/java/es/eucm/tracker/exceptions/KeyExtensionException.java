@@ -17,11 +17,13 @@
 // Translated by CS2J (http://www.cs2j.com): 05/11/2018 15:29:15
 //
 
-package es.eucm.tracker.Exceptions;
+package es.eucm.tracker.exceptions;
 
-public class TraceException extends TrackerException {
-	public TraceException(String message) {
+public class KeyExtensionException extends ExtensionException {
+	public KeyExtensionException(String message) {
 		super(message);
 	}
-
+	public KeyExtensionException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }
