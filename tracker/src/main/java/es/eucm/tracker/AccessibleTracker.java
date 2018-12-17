@@ -16,7 +16,7 @@
 
 package es.eucm.tracker;
 
-import es.eucm.tracker.Exceptions.TargetXApiException;
+import es.eucm.tracker.exceptions.TargetXApiException;
 
 public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 	private TrackerAsset tracker;
@@ -37,17 +37,16 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 	 *            Reachable identifier.
 	 */
 	public void accessed(String reachableId) throws Exception {
-		if (tracker.getUtils().check(reachableId,
+		if (TrackerUtils.check(reachableId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Accessed));
+					TrackerAsset.Verb.Accessed), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
-					Accessible.Accessible.toString().toLowerCase(), reachableId));
+					Accessible.Accessible.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);
 		}
@@ -62,17 +61,16 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 	 *            Reachable type.
 	 */
 	public void accessed(String reachableId, Accessible type) throws Exception {
-		if (tracker.getUtils().check(reachableId,
+		if (TrackerUtils.check(reachableId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Accessed));
+					TrackerAsset.Verb.Accessed), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), reachableId));
+					.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);
 		}
@@ -85,17 +83,16 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 	 *            Reachable identifier.
 	 */
 	public void skipped(String reachableId) throws Exception {
-		if (tracker.getUtils().check(reachableId,
+		if (TrackerUtils.check(reachableId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Skipped));
+					TrackerAsset.Verb.Skipped), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
-					Accessible.Accessible.toString().toLowerCase(), reachableId));
+					Accessible.Accessible.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);
 		}
@@ -110,17 +107,16 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 	 *            Reachable type.
 	 */
 	public void skipped(String reachableId, Accessible type) throws Exception {
-		if (tracker.getUtils().check(reachableId,
+		if (TrackerUtils.check(reachableId, tracker,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent(
-					tracker);
+			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
 
 			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
-					TrackerAsset.Verb.Skipped));
+					TrackerAsset.Verb.Skipped), tracker);
 			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), reachableId));
+					.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);
 		}
