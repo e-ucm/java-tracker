@@ -13,17 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//
-// Translated by CS2J (http://www.cs2j.com): 05/11/2018 15:29:16
-//
 
 package es.eucm.tracker;
-
-import com.google.gson.Gson;
-import es.eucm.tracker.Exceptions.*;
-import es.eucm.tracker.Utils.RefSupport;
-import es.eucm.tracker.Utils.TrackerAssetUtils;
-import eu.rageproject.asset.manager.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,128 +24,77 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.gson.Gson;
+import es.eucm.tracker.exceptions.*;
+import eu.rageproject.asset.manager.*;
+
+import static es.eucm.tracker.TrackerUtils.*;
+
 /**
  * A tracker asset.
- * 
- * TODO - Add method to return the mime-type/content-type.TODO - Add method to
- * return the accept-type.TODO - Check disk based/off-line storage (local).TODO
- * - Serialize Queue for later submission (using queue.ToList()).TODO - Prevent
- * csv/xml/json from net storage and xapi from local storage.
  */
 public class TrackerAsset extends BaseAsset {
+
+	/**
+     * Unique instance.
+	 */
+	private static TrackerAsset INSTANCE;
+
 	private static final Gson gson = new Gson();
 
-	public static long START_DATE = System.currentTimeMillis();
-	/**
-	 * True when the thread must exit.
-	 */
-	private boolean exit = false;
-	/**
-	 * The RegEx to extract a JSON Object. Used to extract 'actor'.
-	 * 
-	 * NOTE: This regex handles matching brackets by using balancing groups.
-	 * This should be tested in Mono if it works there too. NOTE: {} brackets
-	 * must be escaped as {{ and }} for String.Format statements. NOTE: \ must
-	 * be escaped as \\ in strings.
-	 */
-
-	/*
-	 * private static final String ObjectRegEx = "\"%s\":(" + // {0} is replaced
-	 * by the proprty name, capture only its value in {} brackets. "\\{" + //
-	 * Start with a opening brackets. "(?>" + "    [^{{}}]+" + // Capture each
-	 * non bracket chracter. "    |    \\{ (?<n>)" + // +1 for opening bracket.
-	 * //"    |    \\} (?<m>)" + // -1 for closing bracket. ")*" +
-	 * //"(?(n)(?!))" + // Handle unaccounted left brackets with a fail. "\\})";
-	 * // Stop at matching bracket.
-	 */
-
-	// private const string ObjectRegEx = "\"{0}\":(\\{{(?:.+?)\\}},)";
 	/**
 	 * Filename of the settings file.
 	 */
-	private static final String SettingsFileName = "TrackerAssetSettings.xml";
+	private static final String settingsFileName = "TrackerAssetSettings.xml";
 	/**
 	 * The TimeStamp Format.
 	 */
-	private static final String TimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+	private static final String timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 	/**
 	 * The RegEx to extract a plain quoted JSON Value. Used to extract 'token'.
 	 */
-	private static final String TokenRegEx = "\"%s\":\"(.+?)\"";
-	/**
-	 * The instance.
-	 */
-	private static TrackerAsset _instance;
-	/**
-	 * The instance.
-	 */
-	private TrackerAssetUtils __Utils;
-
-	TrackerAssetUtils getUtils() {
-		return __Utils;
-	}
-
-	private void setUtils(TrackerAssetUtils value) {
-		__Utils = value;
-	}
+	private static final String tokenRegex = "\"%s\":\"(.+?)\"";
 
 	/**
-	 * Identifier for the object.
-	 * 
-	 * Extracted from JSON inside Success().
-	 */
-	private String ObjectId = "";
-	/**
-	 * Tracker StrictMode
+	 * Causes errors to result in exceptions being thrown. If false,
+	 * errors will only be reported in the log (if any).
 	 */
 	private boolean strictMode = true;
 
 	/**
-	 * Tracker StrictMode
+	 * Set to indicate that the tracker must finish.
 	 */
-	public boolean getStrictMode() {
-		return strictMode;
-	}
+	private boolean exit = false;
 
-	public void setStrictMode(boolean value) {
-		strictMode = value;
-	}
-
-	/**
-	 * A Regex to extact the actor object from JSON.
-	 */
-	// private Pattern jsonActor =
-	// Pattern.compile(String.format(ObjectRegEx.replaceAll("\\s+", ""),
-	// "actor"));
 	/**
 	 * A Regex to extact the authentication token value from JSON.
 	 */
-	private Pattern jsonAuthToken = Pattern.compile(String.format(TokenRegEx,
+	private Pattern jsonAuthToken = Pattern.compile(String.format(tokenRegex,
 			"authToken"));
 	/**
 	 * A Regex to extact the playerid token value from JSON.
 	 */
-	private Pattern jsonPlayerId = Pattern.compile(String.format(TokenRegEx,
+	private Pattern jsonPlayerId = Pattern.compile(String.format(tokenRegex,
 			"playerId"));
 	/**
 	 * A Regex to extact the session token value from JSON.
 	 */
-	private Pattern jsonSession = Pattern.compile(String.format(TokenRegEx,
+	private Pattern jsonSession = Pattern.compile(String.format(tokenRegex,
 			"session"));
 	/**
 	 * A Regex to extact the objectId value from JSON.
 	 */
-	private Pattern jsonObjectId = Pattern.compile(String.format(TokenRegEx,
+	private Pattern jsonObjectId = Pattern.compile(String.format(tokenRegex,
 			"objectId"));
 	/**
 	 * A Regex to extact the token value from JSON.
 	 */
-	private Pattern jsonToken = Pattern.compile(String.format(TokenRegEx,
+	private Pattern jsonToken = Pattern.compile(String.format(tokenRegex,
 			"token"));
 	/**
 	 * A Regex to extact the status value from JSON.
 	 */
-	private Pattern jsonHealth = Pattern.compile(String.format(TokenRegEx,
+	private Pattern jsonHealth = Pattern.compile(String.format(tokenRegex,
 			"status"));
 	/**
 	 * The queue of TrackerEvents to Send.
@@ -167,7 +107,7 @@ public class TrackerAsset extends BaseAsset {
 	/**
 	 * The list of traces sent when net storage unable to start
 	 */
-	private List<TrackerEvent> tracesUnlogged = new ArrayList<TrackerEvent>();
+	private List<TrackerEvent> unsentTraces = new ArrayList<TrackerEvent>();
 	/**
 	 * Options for controlling the operation.
 	 */
@@ -175,34 +115,138 @@ public class TrackerAsset extends BaseAsset {
 	/**
 	 * List of Extensions that have to ve added to the next trace
 	 */
-	private Map<String, Object> extensions = new HashMap<String, Object>();
+	private Map<String, Object> extensions = new HashMap<>();
 	/**
 	 * Instance of AccessibleTracker
 	 */
-	private AccessibleTracker accessibletracker;
+	private AccessibleTracker accessibleTracker;
 	/**
 	 * Instance of AlternativeTracker
 	 */
-	private AlternativeTracker alternativetracker;
+	private AlternativeTracker alternativeTracker;
 	/**
 	 * Instance of CompletableTracker
 	 */
-	private CompletableTracker completabletracker;
+	private CompletableTracker completableTracker;
 	/**
 	 * Instance of GameObjectTracker
 	 */
-	private GameObjectTracker gameobjecttracer;
+	private GameObjectTracker gameObjectTracker;
+
+	/**
+	 * Used from TrackerEvent.TraceObject.toJson()
+	 */
+	private String objectId;
+
+	/**
+	 * Possible event types
+	 */
+	public enum Events {
+		 /** a choice event */
+		choice,
+		/** a click event */
+		click,
+		/** a screen event */
+		screen,
+		/** a var event */
+		var,
+		/** a the zone event. */
+		zone
+	}
+
+	/**
+	 * Possible storage types
+	 */
+	public enum StorageTypes {
+		/** network storage */
+		net,
+		/** local storage */
+		local
+	}
+
+	/**
+	 * Possible trace formats
+	 */
+	public enum TraceFormats {
+		/** json-formatted traces */
+		json,
+		/** xml-formatted traces */
+		xml,
+		/**
+		 * An enum constant representing the xAPI option.
+		 */
+		xapi,
+		/** csv-formatted traces */
+		csv
+	}
+
+	/**
+	 * Values that represent the available verbs for traces.
+	 */
+	public enum Verb {
+		Initialized, Progressed, Completed, Accessed, Skipped, Selected, Unlocked, Interacted, Used
+	}
+
+
+	/**
+	 * Values that represent the different extensions for traces.
+	 *
+	 * Extensions can be either 'special' or 'common'.
+	 *
+	 * Special extensions are stored separately in xAPI,
+	 * e.g.: result: { score: { raw: score_value_float> }, success:
+	 * success_value_bool, completion: completion_value_bool,
+	 * response: response_value_string ... }
+	 *
+	 * Common extensions are stored in the
+	 * result.extensions object (in the xAPI format), e.g.:
+	 * result: { ...
+	 *  extensions: { .../health: value, .../position: value,
+	 * .../progress: value} }
+	 */
+	public enum Extension {
+		/*
+		 * Special extensions,
+		 */
+		/** special extension: score */
+		Score(true),
+		/** special extension: success */
+		Success(true),
+		/** special extension: response */
+		Response(true),
+		/** special extension: completion */
+		Completion(true),
+		/*
+		 * Common extensions, these extensions
+		 */
+		/** common extension: health */
+		Health(false),
+		/** common extension: position*/
+		Position(false),
+		/** common extension: progress */
+		Progress(false);
+
+		final boolean special;
+
+		Extension(boolean special) {
+			this.special = special;
+		}
+
+		public boolean isSpecial() {
+			return special;
+		}
+	}
+
 
 	/**
 	 * Prevents a default instance of the TrackerAsset class from being created.
 	 */
-	public TrackerAsset() {
-		super();
-		this.setUtils(new TrackerAssetUtils(this));
+	private TrackerAsset() {
 		settings = new TrackerAssetSettings();
-		if (loadSettings(SettingsFileName)) {
+		if (loadSettings(settingsFileName)) {
+			// settings loaded
 		} else {
-			// ok
+			// settings not found: make up some defaults
 			settings.setSecure(true);
 			settings.setHost("rage.e-ucm.es");
 			settings.setPort(443);
@@ -212,92 +256,8 @@ public class TrackerAsset extends BaseAsset {
 			settings.setStorageType(StorageTypes.local);
 			settings.setTraceFormat(TraceFormats.csv);
 			settings.setBatchSize(10);
-			SaveSettings(SettingsFileName);
+			SaveSettings(settingsFileName);
 		}
-	}
-
-	public enum Events {
-		/**
-		 * Values that represent events.
-		 * 
-		 * An enum constant representing the choice option.
-		 */
-		choice,
-		/**
-		 * An enum constant representing the click option.
-		 */
-		click,
-		/**
-		 * An enum constant representing the screen option.
-		 */
-		screen, var,
-		/**
-		 * An enum constant representing the variable option.
-		 * 
-		 * An enum constant representing the zone option.
-		 */
-		zone
-	}
-
-	public enum StorageTypes {
-		/**
-		 * Values that represent storage types.
-		 * 
-		 * An enum constant representing the network option.
-		 */
-		net,
-		/**
-		 * An enum constant representing the local option.
-		 */
-		local
-	}
-
-	public enum TraceFormats {
-		/**
-		 * Values that represent trace formats.
-		 * 
-		 * An enum constant representing the JSON option.
-		 */
-		json,
-		/**
-		 * An enum constant representing the XML option.
-		 */
-		xml,
-		/**
-		 * An enum constant representing the xAPI option.
-		 */
-		xapi,
-		/**
-		 * An enum constant representing the CSV option.
-		 */
-		csv
-	}
-
-	public enum Verb {
-		/**
-		 * Values that represent the available verbs for traces.
-		 */
-		Initialized, Progressed, Completed, Accessed, Skipped, Selected, Unlocked, Interacted, Used
-	}
-
-	public enum Extension {
-		/**
-		 * Values that represent the different extensions for traces.
-		 */
-		/*
-		 * Special extensions, those extensions are stored reparatedly in xAPI,
-		 * e.g.: result: { score: { raw: <score_value: float> }, success:
-		 * <success_value: bool>, completion: <completion_value: bool>,
-		 * response: <response_value: string> ... }
-		 */
-		Score, Success, Response, Completion,
-		/*
-		 * Common extensions, these extensions are stored in the
-		 * result.extensions object (in the xAPI format), e.g.: result: { ...
-		 * extensions: { .../health: <value>, .../position: <value>,
-		 * .../progress: <value> } }
-		 */
-		Health, Position, Progress
 	}
 
 	/**
@@ -306,10 +266,18 @@ public class TrackerAsset extends BaseAsset {
 	 * The instance.
 	 */
 	public static TrackerAsset getInstance() {
-		if (_instance == null)
-			_instance = new TrackerAsset();
+		if (INSTANCE == null)
+			INSTANCE = new TrackerAsset();
 
-		return _instance;
+		return INSTANCE;
+	}
+
+	public boolean isStrictMode() {
+		return strictMode;
+	}
+
+	public void setStrictMode(boolean value) {
+		strictMode = value;
 	}
 
 	/**
@@ -317,14 +285,14 @@ public class TrackerAsset extends BaseAsset {
 	 * 
 	 * true if started, false if not.
 	 */
-	private Boolean __Started = false;
+	private boolean started = false;
 
-	public Boolean getStarted() {
-		return __Started;
+	public boolean isStarted() {
+		return started;
 	}
 
-	public void setStarted(Boolean value) {
-		__Started = value;
+	public void setStarted(boolean value) {
+		started = value;
 	}
 
 	/**
@@ -333,14 +301,18 @@ public class TrackerAsset extends BaseAsset {
 	 * 
 	 * true if active, false if not.
 	 */
-	private Boolean __Active = false;
+	private boolean active = false;
 
-	public Boolean getActive() {
-		return __Active;
+	public boolean isActive() {
+		return active;
 	}
 
-	public void setActive(Boolean value) {
-		__Active = value;
+	public void setActive(boolean value) {
+		active = value;
+	}
+
+	public String getObjectId() {
+		return objectId;
 	}
 
 	/**
@@ -349,14 +321,14 @@ public class TrackerAsset extends BaseAsset {
 	 * 
 	 * true if connected, false if not.
 	 */
-	private Boolean __Connected = false;
+	private boolean connected = false;
 
-	public Boolean getConnected() {
-		return __Connected;
+	public boolean getConnected() {
+		return connected;
 	}
 
-	public void setConnected(Boolean value) {
-		__Connected = value;
+	public void setConnected(boolean value) {
+		connected = value;
 	}
 
 	/**
@@ -364,14 +336,14 @@ public class TrackerAsset extends BaseAsset {
 	 * 
 	 * The health.
 	 */
-	private String __Health = "";
+	private String health = "";
 
 	public String getHealth() {
-		return __Health;
+		return health;
 	}
 
 	public void setHealth(String value) {
-		__Health = value;
+		health = value;
 	}
 
 	/**
@@ -395,90 +367,62 @@ public class TrackerAsset extends BaseAsset {
 	 * 
 	 * Extracted from JSON inside Success().
 	 */
-	private Map<String, Object> __ActorObject;
+	private Map<String, Object> actorObject;
 
 	private Map<String, Object> getActorObject() {
-		return __ActorObject;
+		return actorObject;
 	}
 
 	private void setActorObject(Map<String, Object> value) {
-		__ActorObject = value;
+		actorObject = value;
 	}
 
 	/**
 	 * Access point for Accessible Traces generation
 	 */
 	public AccessibleTracker getAccessible() {
-		if (accessibletracker == null) {
-			accessibletracker = new AccessibleTracker();
-			accessibletracker.setTracker(this);
+		if (accessibleTracker == null) {
+			accessibleTracker = new AccessibleTracker();
+			accessibleTracker.setTracker(this);
 		}
 
-		return accessibletracker;
+		return accessibleTracker;
 	}
 
 	/**
 	 * Access point for Alternative Traces generation
 	 */
 	public AlternativeTracker getAlternative() {
-		if (alternativetracker == null) {
-			alternativetracker = new AlternativeTracker();
-			alternativetracker.setTracker(this);
+		if (alternativeTracker == null) {
+			alternativeTracker = new AlternativeTracker();
+			alternativeTracker.setTracker(this);
 		}
 
-		return alternativetracker;
+		return alternativeTracker;
 	}
 
 	/**
 	 * Access point for Completable Traces generation
 	 */
 	public CompletableTracker getCompletable() {
-		if (completabletracker == null) {
-			completabletracker = new CompletableTracker();
-			completabletracker.setTracker(this);
+		if (completableTracker == null) {
+			completableTracker = new CompletableTracker();
+			completableTracker.setTracker(this);
 		}
 
-		return completabletracker;
+		return completableTracker;
 	}
 
 	/**
 	 * Access point for Completable Traces generation
 	 */
 	public GameObjectTracker getGameObject() {
-		if (gameobjecttracer == null) {
-			gameobjecttracer = new GameObjectTracker();
-			gameobjecttracer.setTracker(this);
+		if (gameObjectTracker == null) {
+			gameObjectTracker = new GameObjectTracker();
+			gameObjectTracker.setTracker(this);
 		}
 
-		return gameobjecttracer;
-	}
-
-	/**
-	 * Access point for Accessible Traces generation
-	 */
-	public AccessibleTracker getaccessible() {
-		return getAccessible();
-	}
-
-	/**
-	 * Access point for Alternative Traces generation
-	 */
-	public AlternativeTracker getalternative() {
-		return getAlternative();
-	}
-
-	/**
-	 * Access point for Completable Traces generation
-	 */
-	public CompletableTracker getcompletable() {
-		return getCompletable();
-	}
-
-	/**
-	 * Access point for Completable Traces generation
-	 */
-	public GameObjectTracker gettrackedGameObject() {
-		return getGameObject();
+		return gameObjectTracker;
 	}
 
 	/**
@@ -492,11 +436,11 @@ public class TrackerAsset extends BaseAsset {
 			Matcher m = jsonHealth.matcher(response.body);
 			if (m.find()) {
 				setHealth(m.group(1));
-				Log(Severity.Information, "Health Status=%s", getHealth());
+				log(Severity.Information, "Health Status=%s", getHealth());
 			}
 
 		} else {
-			Log(Severity.Error, "Request Error: %s-%2$s",
+			log(Severity.Error, "Request Error: %s-%2$s",
 					response.responseCode, response.responsMessage);
 		}
 		return response.GetResultAllowed();
@@ -550,13 +494,13 @@ public class TrackerAsset extends BaseAsset {
 							"Bearer ".length()));
 				}
 
-				Log(Severity.Information, "Token= %s", settings.getUserToken());
+				log(Severity.Information, "Token= %s", settings.getUserToken());
 				logged = true;
 			}
 
 		} else {
 			logged = false;
-			Log(Severity.Error, "Request Error: %s-%2$s",
+			log(Severity.Error, "Request Error: %s-%2$s",
 					response.responseCode, response.responsMessage);
 		}
 		return logged;
@@ -569,7 +513,7 @@ public class TrackerAsset extends BaseAsset {
 	 *            The playerId of the anonymous player
 	 * @return true if it succeeds, false if it fails.
 	 */
-	public Boolean login(String anonymousId) {
+	public boolean login(String anonymousId) {
 		this.settings.setPlayerId(anonymousId);
 		return true;
 	}
@@ -641,13 +585,13 @@ public class TrackerAsset extends BaseAsset {
 				String.format("proxy/gleaner/collector/start/%s",
 						settings.getTrackingCode()), "POST", headers, body);
 		if (response.GetResultAllowed()) {
-			Log(Severity.Information, "");
+			log(Severity.Information, "");
 			// Extract AuthToken.
 			//
 			Matcher m = jsonAuthToken.matcher(response.body);
 			if (m.find()) {
 				settings.setUserToken(m.group(1));
-				Log(Severity.Information, "AuthToken= %s",
+				log(Severity.Information, "AuthToken= %s",
 						settings.getUserToken());
 				setConnected(true);
 			}
@@ -657,7 +601,7 @@ public class TrackerAsset extends BaseAsset {
 			m = jsonPlayerId.matcher(response.body);
 			if (m.find()) {
 				settings.setPlayerId(m.group(1));
-				Log(Severity.Information, "PlayerId= %s",
+				log(Severity.Information, "PlayerId= %s",
 						settings.getPlayerId());
 			}
 
@@ -665,31 +609,31 @@ public class TrackerAsset extends BaseAsset {
 			//
 			m = jsonSession.matcher(response.body);
 			if (m.find()) {
-				Log(Severity.Information, "Session= %s", m.group());
+				log(Severity.Information, "Session= %s", m.group());
 			}
 
 			// Extract ObjectID.
 			//
 			m = jsonObjectId.matcher(response.body);
 			if (m.find()) {
-				ObjectId = m.group(1);
-				if (!ObjectId.endsWith("/")) {
-					ObjectId += "/";
+				objectId = m.group(1);
+				if (!objectId.endsWith("/")) {
+					objectId += "/";
 				}
 
-				Log(Severity.Information, "ObjectId= %s", ObjectId);
+				log(Severity.Information, "ObjectId= %s", objectId);
 			}
 
 			// Extract Actor Json Object.
 			Map<String, Object> jbody = gson.fromJson(response.body, Map.class);
 			if (jbody.containsKey("actor")) {
 				setActorObject((Map) jbody.get("actor"));
-				Log(Severity.Information, "Actor= %s", getActorObject());
+				log(Severity.Information, "Actor= %s", getActorObject());
 				setActive(true);
 			}
 
 		} else {
-			Log(Severity.Error, "Request Error: %s-%2$s",
+			log(Severity.Error, "Request Error: %s-%2$s",
 					response.responseCode, response.responsMessage);
 			setActive(false);
 			setConnected(false);
@@ -734,7 +678,7 @@ public class TrackerAsset extends BaseAsset {
 		if (trace == null || "".equals(trace))
 			throw new TraceException("Trace is be empty or null");
 
-		List<String> parts = TrackerAssetUtils.parseCSV(trace);
+		List<String> parts = parseCSV(trace);
 		if (parts.size() != 3)
 			throw new TraceException(
 					"Trace length must be 3 (verb,target_type,target_id)");
@@ -753,21 +697,20 @@ public class TrackerAsset extends BaseAsset {
 		 * if (strictMode) { Debug.LogWarning
 		 * ("Tracker: Trace() method is Obsolete. Ignoring"); return; } else {
 		 */
-		if (values.length != 3)
+		if (values.length != 3) {
 			throw new TraceException(
-					"Tracker: Trace must have at least 3 arguments: a verb, a target type and a target ID");
+					"Tracker: Trace must have at least 3 arguments: " +
+							"a verb, a target type and a target ID");
+		}
 
 		for (int i = 0; i < values.length; i++) {
-			if (!getUtils().check(
-					values[i],
-					"Tracker: Trace param " + i
-							+ " is null or empty, ignoring trace.",
+			if (!check(values[i], this,
+					"Tracker: Trace param " + i	+ " is null or empty, ignoring trace.",
 					"Tracker: Trace param " + i + " is null or empty",
-					TraceException.class))
+					TraceException.class)) {
 				return;
-
+			}
 		}
-		// }
 		actionTrace(values[0], values[1], values[2]);
 	}
 
@@ -776,11 +719,11 @@ public class TrackerAsset extends BaseAsset {
 	 * 
 	 */
 	public void trace(TrackerAsset.TrackerEvent trace) throws Exception {
-		if (!this.getStarted())
+		if (!this.isStarted())
 			throw new TrackerException("Tracker Has not been started");
 
 		if (extensions.size() > 0) {
-			trace.getResult().setExtensions(new HashMap(extensions));
+			trace.getResult().setExtensions(extensions, this);
 			extensions.clear();
 		}
 
@@ -791,25 +734,25 @@ public class TrackerAsset extends BaseAsset {
 	 * Adds a trace with verb, target and targeit
 	 * 
 	 */
-	public void actionTrace(String verb, String target_type, String target_id)
+	public void actionTrace(String verb, String targetType, String targetId)
 			throws Exception {
 		boolean trace = true;
-		trace &= getUtils().check(verb,
+		trace &= check(verb, this,
 				"Tracker: Trace verb can't be null, ignoring. ",
-				"Tracker: Trace verb can't be null.", TraceException.class);
-		trace &= getUtils().check(target_type,
+				"Tracker: Trace verb can't be null.",
+				TraceException.class);
+		trace &= check(targetType, this,
 				"Tracker: Trace Target type can't be null, ignoring. ",
 				"Tracker: Trace Target type can't be null.",
 				TraceException.class);
-		trace &= getUtils()
-				.check(target_id,
-						"Tracker: Trace Target ID can't be null, ignoring. ",
-						"Tracker: Trace Target ID can't be null.",
-						TraceException.class);
+		trace &= check(targetId, this,
+				"Tracker: Trace Target ID can't be null, ignoring. ",
+				"Tracker: Trace Target ID can't be null.",
+				TraceException.class);
 		if (trace) {
-			TrackerEvent te = new TrackerEvent(this);
-			te.setEvent(new TrackerEvent.TraceVerb(verb));
-			te.setTarget(new TrackerEvent.TraceObject(target_type, target_id));
+			TrackerEvent te = new TrackerEvent();
+			te.setEvent(new TrackerEvent.TraceVerb(verb, this), this);
+			te.setTarget(new TrackerEvent.TraceObject(targetType, targetId, this));
 			trace(te);
 		}
 	}
@@ -824,7 +767,7 @@ public class TrackerAsset extends BaseAsset {
 	 * @return true if it succeeds, false if it fails.
 	 */
 	private RequestResponse issueRequest(String path, String method) {
-		return issueRequest(path, method, new HashMap<String, String>(), "");
+		return issueRequest(path, method, new HashMap<>(), "");
 	}
 
 	/**
@@ -880,7 +823,7 @@ public class TrackerAsset extends BaseAsset {
 						settings.getSecure() ? "s" : "",
 						settings.getHost(),
 						port == 80 ? "" : String.format(":%d", port),
-						IsNullOrEmpty(settings.getBasePath().replaceAll(
+						isNullOrEmpty(settings.getBasePath().replaceAll(
 								"[/]+$", "")) ? "" : settings.getBasePath()
 								.replaceAll("[/]+$", ""), path.replaceAll("^/",
 								""));
@@ -903,40 +846,39 @@ public class TrackerAsset extends BaseAsset {
 	 * Process the queue.
 	 */
 	private void processQueue() throws XApiException {
-		if (!getStarted()) {
-			Log(Severity.Warning,
+		if (!isStarted()) {
+			log(Severity.Warning,
 					"Refusing to send traces without starting tracker (Active is False, should be True)");
 			return;
-		} else if (!getActive()) {
+		} else if (!isActive()) {
 			connect();
 		}
 
-		if (queue.getCount() > 0 || tracesPending.size() > 0
-				|| tracesUnlogged.size() > 0) {
+		if (queue.getCount() > 0 ||
+				! tracesPending.isEmpty() || ! unsentTraces.isEmpty()) {
+
 			// Extract the traces from the queue and remove from the queue
 			List<TrackerEvent> traces = collectTraces();
-			// Check if it's connected now
-			if (getActive()) {
+			// Check if it is connected now
+			if (isActive()) {
 				if (sendUnloggedTraces()) {
-					String data = processTraces(traces,
-							settings.getTraceFormat());
+					String data = processTraces(traces,	settings.getTraceFormat());
 					if ((!sendPendingTraces() || !(queue.getCount() > 0 && sendTraces(data)))
-							&& queue.getCount() > 0)
+							&& queue.getCount() > 0) {
 						tracesPending.add(data);
-
+					}
 				}
-
 			} else {
-				tracesUnlogged.addAll(traces);
+				unsentTraces.addAll(traces);
 			}
 			// if backup requested, save a copy
 			if (settings.getBackupStorage()) {
 				IDataStorage storage = getInterface(IDataStorage.class);
-				IAppend append_storage = getInterface(IAppend.class);
+				IAppend appendStorage = getInterface(IAppend.class);
 				if (queue.getCount() > 0) {
 					String rawData = processTraces(traces, TraceFormats.csv);
-					if (append_storage != null) {
-						append_storage
+					if (appendStorage != null) {
+						appendStorage
 								.Append(settings.getBackupFile(), rawData);
 					} else if (storage != null) {
 						String previous = storage.exists(settings
@@ -955,7 +897,7 @@ public class TrackerAsset extends BaseAsset {
 
 			queue.dequeue(traces.size());
 		} else {
-			Log(Severity.Information, "Nothing to flush");
+			log(Severity.Information, "Nothing to flush");
 		}
 	}
 
@@ -969,82 +911,73 @@ public class TrackerAsset extends BaseAsset {
 
 	String processTraces(List<TrackerEvent> traces, TraceFormats format)
 			throws XApiException {
-		String data = "";
-		TrackerAsset.TrackerEvent item;
-		List<String> sb = new ArrayList<>();
-		for (int i = 0; i < traces.size(); i++) {
-			item = traces.get(i);
+		List<String> stringsToSend = new ArrayList<>();
+		for (TrackerAsset.TrackerEvent item : traces) {
 			switch (format) {
 			case json:
-				sb.add(item.toJson());
+				stringsToSend.add(item.toJson(this));
 				break;
 			case xml:
-				sb.add(item.toXml());
+				stringsToSend.add(item.toXml(this));
 				break;
 			case xapi:
-				sb.add(item.toXapi());
+				stringsToSend.add(item.toXapi(this));
 				break;
 			default:
-				sb.add(item.toCsv());
+				stringsToSend.add(item.toCsv());
 				break;
 
 			}
 		}
+		StringBuilder data = new StringBuilder(String.join(",\r\n", stringsToSend));
 		switch (format) {
-		case csv:
-			data = String.join("\r\n", sb) + "\r\n";
-			break;
-		case json:
-			data = "[\r\n" + String.join(",\r\n", sb) + "\r\n]";
-			break;
-		case xml:
-			data = "<TrackEvents>\r\n" + String.join("\r\n", sb)
-					+ "\r\n</TrackEvent>";
-			break;
-		case xapi:
-			data = "[\r\n" + String.join(",\r\n", sb) + "\r\n]";
-			break;
-		default:
-			data = String.join("\r\n", sb);
-			break;
-
+			case json:
+			case xapi:
+				data.insert(0, "[\r\n").append("\r\n]");
+				break;
+			case xml:
+				data.insert(0, "<TrackEvents>\r\n").append("\r\n</TrackEvent>");
+				break;
+				case csv:
+			default:
+				data.append("\r\n");
+				break;
 		}
-		sb.clear();
-		return data;
+		return data.toString();
 	}
 
 	boolean sendPendingTraces() {
 		while (tracesPending.size() > 0) {
 			// Try to send old traces
-			Log(Severity.Information,
+			log(Severity.Information,
 					"Enqueued trace-blocks detected: %s. Processing...",
 					tracesPending.size());
 			String data = tracesPending.get(0);
 			if (!sendTraces(data)) {
-				Log(Severity.Information, "Error sending enqueued traces");
+				log(Severity.Information, "Error sending enqueued traces");
 				break;
 			} else {
 				// does not keep sending old traces, but continues processing
 				// new traces so that get added to tracesPending
 				tracesPending.remove(0);
-				Log(Severity.Information, "Sent enqueued traces OK");
+				log(Severity.Information, "Sent enqueued traces OK");
 			}
 		}
 		return tracesPending.size() == 0;
 	}
 
 	boolean sendUnloggedTraces() throws XApiException {
-		if (tracesUnlogged.size() > 0 && this.getActorObject() != null) {
-			String data = processTraces(tracesUnlogged,
+		if (unsentTraces.size() > 0 && this.getActorObject() != null) {
+			String data = processTraces(unsentTraces,
 					settings.getTraceFormat());
 			boolean sent = sendTraces(data);
-			tracesUnlogged.clear();
+			unsentTraces.clear();
 			if (!sent)
 				tracesPending.add(data);
 
 		}
 
-		return tracesUnlogged.size() == 0;
+		return unsentTraces.size() == 0;
 	}
 
 	boolean sendTraces(String data) {
@@ -1069,17 +1002,17 @@ public class TrackerAsset extends BaseAsset {
 			headers.put("Content-Type", "application/json");
 			headers.put("Authorization",
 					String.format("%s", settings.getUserToken()));
-			Log(Severity.Information, "\r\n" + data);
+			log(Severity.Information, "\r\n" + data);
 			RequestResponse response = issueRequest(
 					"proxy/gleaner/collector/track", "POST", headers, data);
 			if (response.GetResultAllowed()) {
-				Log(Severity.Information, "Track= %s", response.body);
+				log(Severity.Information, "Track= %s", response.body);
 				setConnected(true);
 			} else {
-				Log(Severity.Error, "Request Error: %s-%s",
+				log(Severity.Error, "Request Error: %s-%s",
 						response.responseCode, response.responsMessage);
-				Log(Severity.Warning,
-						"Error flushing, connection disabled temporaly");
+				log(Severity.Warning,
+						"Error flushing, connection disabled temporarily");
 				setConnected(false);
 				return false;
 			}
@@ -1108,7 +1041,7 @@ public class TrackerAsset extends BaseAsset {
 	 */
 	public void setScore(float score) throws Exception {
 		if (score < 0 || score > 1)
-			Log(Severity.Warning,
+			log(Severity.Warning,
 					"Tracker: Score recommended between 0 and 1 (Current: "
 							+ score + ")");
 
@@ -1145,7 +1078,7 @@ public class TrackerAsset extends BaseAsset {
 	 */
 	public void setProgress(float progress) throws Exception {
 		if (progress < 0 || progress > 1)
-			Log(Severity.Warning,
+			log(Severity.Warning,
 					"Tracker: Progress recommended between 0 and 1 (Current: "
 							+ progress + ")");
 
@@ -1164,11 +1097,11 @@ public class TrackerAsset extends BaseAsset {
 	 */
 	public void setPosition(float x, float y, float z) throws Exception {
 		if (Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z)) {
-			if (getStrictMode())
+			if (isStrictMode())
 				throw new ValueExtensionException(
 						"Tracker: x, y or z cant be null.");
 			else {
-				Log(Severity.Information,
+				log(Severity.Information,
 						"Tracker: x, y or z cant be null, ignoring.");
 				return;
 			}
@@ -1185,10 +1118,12 @@ public class TrackerAsset extends BaseAsset {
 	 *            Health.
 	 */
 	public void setHealth(float health) throws Exception {
-		if (getUtils().check(health, "Tracker: Health cant be null, ignoring.",
-				"Tracker: Health cant be null.", ValueExtensionException.class))
+		if (check(health, this,
+			"Tracker: Health cant be null, ignoring.",
+			"Tracker: Health cant be null.",
+			ValueExtensionException.class)) {
 			addExtension(Extension.Health.toString().toLowerCase(), health);
-
+		}
 	}
 
 	/**
@@ -1301,7 +1236,7 @@ public class TrackerAsset extends BaseAsset {
 	}
 
 	private void addExtension(String key, Object value) throws Exception {
-		if (getUtils().checkExtension(key, value)) {
+		if (checkExtension(key, value, this)) {
 			extensions.put(key, value);
 		}
 
@@ -1326,15 +1261,14 @@ public class TrackerAsset extends BaseAsset {
 		private TrackerAsset.TrackerEvent.TraceObject target;
 		private TrackerAsset.TrackerEvent.TraceResult result;
 
-		public TrackerEvent(TrackerAsset tracker) {
-			this.setTracker(tracker);
-			this.setTimeStamp(System.currentTimeMillis());
-			this.setResult(new TrackerAsset.TrackerEvent.TraceResult());
+		public TrackerEvent() {
+			timeStamp = System.currentTimeMillis();
+			result = new TrackerAsset.TrackerEvent.TraceResult();
 		}
 
 		private static Map<String, String> getVerbIDs() {
 			if (verbIds == null) {
-				verbIds = new HashMap<String, String>();
+				verbIds = new HashMap<>();
 				verbIds.put(TrackerAsset.Verb.Initialized.toString()
 						.toLowerCase(),
 						"http://adlnet.gov/expapi/verbs/initialized");
@@ -1368,7 +1302,7 @@ public class TrackerAsset extends BaseAsset {
 
 		private static Map<String, String> getObjectIDs() {
 			if (objectIds == null) {
-				objectIds = new HashMap<String, String>();
+				objectIds = new HashMap<>();
 
 				// Completable
 				objectIds
@@ -1408,7 +1342,7 @@ public class TrackerAsset extends BaseAsset {
 								.toString().toLowerCase(),
 								"https://w3id.org/xapi/seriousgames/activity-types/completable");
 
-				// Acceesible
+				// Accessible
 				objectIds
 						.put(AccessibleTracker.Accessible.Screen.toString()
 								.toLowerCase(),
@@ -1479,7 +1413,7 @@ public class TrackerAsset extends BaseAsset {
 
 		private static Map<String, String> getExtensionIDs() {
 			if (extensionIds == null) {
-				extensionIds = new HashMap<String, String>();
+				extensionIds = new HashMap<>();
 				extensionIds.put(TrackerAsset.Extension.Health.toString()
 						.toLowerCase(),
 						"https://w3id.org/xapi/seriousgames/extensions/health");
@@ -1497,21 +1431,6 @@ public class TrackerAsset extends BaseAsset {
 		}
 
 		/**
-		 * Gets or sets the Tracker
-		 * 
-		 * The Tracker.
-		 */
-		private TrackerAsset __Tracker;
-
-		public TrackerAsset getTracker() {
-			return __Tracker;
-		}
-
-		public void setTracker(TrackerAsset value) {
-			__Tracker = value;
-		}
-
-		/**
 		 * Gets or sets the event.
 		 * 
 		 * The event.
@@ -1520,11 +1439,11 @@ public class TrackerAsset extends BaseAsset {
 			return verb;
 		}
 
-		public void setEvent(TrackerAsset.TrackerEvent.TraceVerb value)
+		public void setEvent(TrackerAsset.TrackerEvent.TraceVerb value, TrackerAsset tracker)
 				throws Exception {
 			this.verb = value;
 			this.verb.setParent(this);
-			this.verb.isValid();
+			this.verb.isValid(tracker);
 		}
 
 		/**
@@ -1538,7 +1457,6 @@ public class TrackerAsset extends BaseAsset {
 
 		public void setTarget(TrackerAsset.TrackerEvent.TraceObject value) {
 			this.target = value;
-			this.target.setParent(this);
 		}
 
 		/**
@@ -1552,7 +1470,6 @@ public class TrackerAsset extends BaseAsset {
 
 		public void setResult(TrackerAsset.TrackerEvent.TraceResult value) {
 			this.result = value;
-			this.result.setParent(this);
 		}
 
 		/**
@@ -1560,14 +1477,10 @@ public class TrackerAsset extends BaseAsset {
 		 * 
 		 * The time stamp.
 		 */
-		private double __TimeStamp = 0;
+		private double timeStamp;
 
 		public double getTimeStamp() {
-			return __TimeStamp;
-		}
-
-		public void setTimeStamp(double value) {
-			__TimeStamp = value;
+			return timeStamp;
 		}
 
 		/**
@@ -1582,7 +1495,7 @@ public class TrackerAsset extends BaseAsset {
 					+ ","
 					+ getTarget().toCsv()
 					+ (this.getResult() == null
-							|| IsNullOrEmpty(this.getResult().toCsv()) ? ""
+							|| isNullOrEmpty(this.getResult().toCsv()) ? ""
 							: this.getResult().toCsv());
 		}
 
@@ -1591,13 +1504,13 @@ public class TrackerAsset extends BaseAsset {
 		 * 
 		 * @return This object as a string.
 		 */
-		public String toJson() throws XApiException {
+		public String toJson(TrackerAsset tracker) throws XApiException {
 			Map json = new HashMap();
 			json.put("actor",
-					(getTracker().getActorObject() == null) ? new HashMap<>()
-							: getTracker().getActorObject());
+					(tracker == null || tracker.getActorObject() == null) ?
+							new HashMap<>() : tracker.getActorObject());
 			json.put("event", getEvent().toJson());
-			json.put("target", getTarget().toJson());
+			json.put("target", getTarget().toJson(tracker));
 			Map<String, Object> result = getResult().toJson();
 			if (result.size() > 0)
 				json.put("result", result);
@@ -1617,14 +1530,14 @@ public class TrackerAsset extends BaseAsset {
 		 * 
 		 * @return This object as a string.
 		 */
-		public String toXml() {
+		public String toXml(TrackerAsset tracker) {
 			return ""; // "<TrackEvent \"timestamp\"=\"" +
 						// this.getTimeStamp().ToString(TimeFormat) + "\"" +
 						// " \"event\"=\"" +
 						// verbIds[this.getEvent().ToString().ToLower()] + "\""
 						// + " \"target\"=\"" + this.getTarget() + "\"" +
 						// (this.getResult() == null ||
-						// String.IsNullOrEmpty(this.getResult().toXml()) ?
+						// String.isNullOrEmpty(this.getResult().toXml()) ?
 						// " />" : "><![CDATA[" + this.getResult().toXml() +
 						// "]]></TrackEvent>");
 		}
@@ -1634,13 +1547,13 @@ public class TrackerAsset extends BaseAsset {
 		 * 
 		 * @return This object as a string.
 		 */
-		public String toXapi() throws XApiException {
+		public String toXapi(TrackerAsset tracker) throws XApiException {
 			Map json = new HashMap();
 			json.put("actor",
-					(getTracker().getActorObject() == null) ? new HashMap<>()
-							: getTracker().getActorObject());
+					(tracker == null || tracker.getActorObject() == null) ? new HashMap<>()
+							: tracker.getActorObject());
 			json.put("verb", getEvent().toXapi());
-			json.put("object", getTarget().toXapi());
+			json.put("object", getTarget().toXapi(tracker));
 			Map<String, Object> result = getResult().toXapi();
 			if (result.size() > 0)
 				json.put("result", result);
@@ -1677,76 +1590,59 @@ public class TrackerAsset extends BaseAsset {
 		}
 
 		// 2) If the string contains a CRLF or , enquote the whole string.
-		private boolean isValid() throws Exception {
+		private boolean isValid(TrackerAsset tracker) throws Exception {
 			boolean check = true;
-			check &= getEvent().isValid();
+			check &= getEvent().isValid(tracker);
 			check &= getTarget().isValid();
-			check &= getResult().isValid();
-			return true;
+			check &= getResult().isValid(tracker);
+			return check;
 		}
 
 		/**
 		 * Class for Target storage.
 		 */
 		public static class TraceObject {
-			String _type;
-			String _id;
-			private TrackerAsset.TrackerEvent __Parent;
-
-			public TrackerAsset.TrackerEvent getParent() {
-				return __Parent;
-			}
-
-			public void setParent(TrackerAsset.TrackerEvent value) {
-				__Parent = value;
-			}
+			String type;
+			String id;
 
 			public String getType() {
-				return _type;
+				return type;
 			}
 
-			public void setType(String value) throws Exception {
-				if (getParent() == null
-						|| getParent()
-								.getTracker()
-								.getUtils()
-								.check(value,
-										"xAPI Exception: Target Type is null or empty. Ignoring.",
-										"xAPI Exception: Target Type can't be null or empty.",
-										TargetXApiException.class))
-					_type = value;
+			public void setType(String value, TrackerAsset tracker) throws Exception {
+				if (tracker == null || check(value, tracker,
+					"xAPI Exception: Target Type is null or empty. Ignoring.",
+					"xAPI Exception: Target Type can't be null or empty.",
+					TargetXApiException.class))
+					type = value;
 			}
 
 			public String getID() {
-				return _id;
+				return id;
 			}
 
-			public void setID(String value) throws Exception {
-				if (getParent() == null
-						|| getParent()
-								.getTracker()
-								.getUtils()
-								.check(value,
-										"xAPI Exception: Target ID is null or empty. Ignoring.",
-										"xAPI Exception: Target ID can't be null or empty.",
-										TargetXApiException.class))
-					_id = value;
+			public void setID(String value, TrackerAsset tracker) throws Exception {
+				if (tracker == null	|| check(value, tracker,
+					"xAPI Exception: Target ID is null or empty. Ignoring.",
+					"xAPI Exception: Target ID can't be null or empty.",
+					TargetXApiException.class))
+					id = value;
 
 			}
 
-			private Map<String, Object> __Definition;
+			private Map<String, Object> definition;
 
 			public Map<String, Object> getDefinition() {
-				return __Definition;
+				return definition;
 			}
 
 			public void setDefinition(Map<String, Object> value) {
-				__Definition = value;
+				definition = value;
 			}
 
-			public TraceObject(String type, String id) throws Exception {
-				this.setType(type);
-				this.setID(id);
+			public TraceObject(String type, String id, TrackerAsset tracker) throws Exception {
+				this.setType(type, tracker);
+				this.setID(id, tracker);
 			}
 
 			public String toCsv() {
@@ -1754,17 +1650,17 @@ public class TrackerAsset extends BaseAsset {
 						+ getID().replace(",", "\\,");
 			}
 
-			public Map<String, Object> toJson() throws TargetXApiException {
+			public Map<String, Object> toJson(TrackerAsset tracker) throws TargetXApiException {
 				String typeKey = getType();
 
 				if (getObjectIDs().containsKey(getType())) {
 					typeKey = getObjectIDs().get(getType());
-				} else if (getParent().getTracker().getStrictMode()) {
+				} else if (tracker.isStrictMode()) {
 					throw (new TargetXApiException(
 							"Tracker-xAPI: Unknown definition for target type: "
 									+ getType()));
 				} else {
-					getParent().getTracker().Log(
+					tracker.log(
 							Severity.Warning,
 							"Tracker-xAPI: Unknown definition for target type: "
 									+ getType());
@@ -1772,9 +1668,9 @@ public class TrackerAsset extends BaseAsset {
 
 				Map<String, Object> obj = new HashMap<>(), definition = new HashMap<>();
 
+				// FIXME - strongly suspect this logic ->
 				obj.put("id",
-						((getParent().getTracker().getActorObject() != null) ? getParent()
-								.getTracker().ObjectId : "")
+						((tracker.getActorObject() != null) ? tracker.getObjectId() : "")
 								+ getID());
 				definition.put("type", typeKey);
 				obj.put("definition", definition);
@@ -1787,13 +1683,13 @@ public class TrackerAsset extends BaseAsset {
 			}
 
 			// TODO;
-			public Map<String, Object> toXapi() throws TargetXApiException {
-				return this.toJson();
+			public Map<String, Object> toXapi(TrackerAsset tracker) throws TargetXApiException {
+				return this.toJson(tracker);
 			}
 
 			public boolean isValid() throws Exception {
-				return TrackerAssetUtils.quickCheck(getType())
-						&& TrackerAssetUtils.quickCheck(getID());
+				return notNullEmptyOrNan(getType())
+						&& notNullEmptyOrNan(getID());
 			}
 
 		}
@@ -1802,73 +1698,62 @@ public class TrackerAsset extends BaseAsset {
 		 * Class for Verb storage.
 		 */
 		public static class TraceVerb {
-			private TrackerAsset.TrackerEvent __Parent;
+			/** the parent event, for which this is the verb */
+			private TrackerAsset.TrackerEvent parent;
 
 			public TrackerAsset.TrackerEvent getParent() {
-				return __Parent;
+				return parent;
 			}
 
 			public void setParent(TrackerAsset.TrackerEvent value) {
-				__Parent = value;
+				parent = value;
 			}
 
-			private String sverb = "";
-			private Verb vverb = Verb.Initialized;
+			private String stringVerb = "";
+			private Verb xApiVerb = Verb.Initialized;
 
-			public String getsVerb() {
-				return sverb;
+			public String getStringVerb() {
+				return stringVerb;
 			}
 
-			public void setsVerb(String value) throws TrackerException {
-				sverb = value;
-
-				RefSupport<Verb> rv = new RefSupport<Verb>();
-				if (TrackerAssetUtils.ParseEnum(value, rv, Verb.class)) {
-					sverb = value.toLowerCase();
-					this.vverb = rv.getValue();
-				} else if (getParent() != null) {
-					if (getParent().getTracker().getStrictMode()) {
-						throw (new VerbXApiException(
-								"Tracker-xAPI: Unknown definition for verb: "
-										+ value));
-					} else {
-						getParent().getTracker().Log(
-								Severity.Warning,
-								"Tracker-xAPI: Unknown definition for verb: "
-										+ value);
-					}
-
+			public void setStringVerb(String value, TrackerAsset tracker) throws TrackerException {
+				stringVerb = value;
+				xApiVerb = parseEnum(value, Verb.class, tracker,
+						"Tracker-xAPI: Unknown definition for verb: " + value,
+						"Tracker-xAPI: Unknown definition for verb: " + value, VerbXApiException.class);
+				if (xApiVerb != null) {
+					stringVerb = value.toLowerCase();
 				}
 			}
 
 			public Verb getVerb() {
-				return vverb;
+				return xApiVerb;
 			}
 
 			public void setVerb(Verb value) {
-				sverb = value.toString().toLowerCase();
-				vverb = value;
+				stringVerb = value.toString().toLowerCase();
+				xApiVerb = value;
 			}
 
 			public TraceVerb(Verb verb) {
-				this.setVerb(verb);
+				setVerb(verb);
 			}
 
-			public TraceVerb(String verb) throws Exception {
-				this.setsVerb(verb);
+			public TraceVerb(String verb, TrackerAsset tracker) throws Exception {
+				setStringVerb(verb, tracker);
 			}
 
 			public String toCsv() {
-				return this.getsVerb().replace(",", "\\,");
+				return getStringVerb().replace(",", "\\,");
 			}
 
 			public Map<String, Object> toJson() {
-				String id = this.getsVerb();
+				String id = getStringVerb();
 				Map<String, Object> verb = new HashMap<>();
 				if (getVerbIDs().containsKey(id)) {
 					verb.put("id", getVerbIDs().get(id));
 				} else {
-					verb.put("id", sverb);
+					verb.put("id", stringVerb);
 				}
 				return verb;
 			}
@@ -1881,12 +1766,13 @@ public class TrackerAsset extends BaseAsset {
 				return this.toJson();
 			}
 
-			public boolean isValid() throws Exception {
+			public boolean isValid(TrackerAsset tracker) throws Exception {
 				boolean check = true;
-				if (getParent() != null)
-					setsVerb(getsVerb());
+				if (getParent() != null) {
+					setStringVerb(getStringVerb(), tracker);
+				}
 
-				return check && TrackerAssetUtils.quickCheck(sverb);
+				return check && notNullEmptyOrNan(stringVerb);
 			}
 
 		}
@@ -1895,15 +1781,6 @@ public class TrackerAsset extends BaseAsset {
 		 * Class for Result storage.
 		 */
 		public static class TraceResult {
-			private TrackerAsset.TrackerEvent __Parent;
-
-			public TrackerAsset.TrackerEvent getParent() {
-				return __Parent;
-			}
-
-			public void setParent(TrackerAsset.TrackerEvent value) {
-				__Parent = value;
-			}
 
 			private int success = -1;
 			private int completion = -1;
@@ -1931,15 +1808,12 @@ public class TrackerAsset extends BaseAsset {
 				return res;
 			}
 
-			public void setResponse(String value) throws Exception {
-				if (getParent() == null
-						|| getParent()
-								.getTracker()
-								.getUtils()
-								.check(value,
-										"xAPI extension: response Empty or null. Ignoring",
-										"xAPI extension: response can't be empty or null",
-										ValueExtensionException.class))
+			public void setResponse(String value, TrackerAsset tracker) throws Exception {
+				if (tracker == null
+						|| check(value, tracker,
+							"xAPI extension: response Empty or null. Ignoring",
+							"xAPI extension: response can't be empty or null",
+							ValueExtensionException.class))
 					res = value;
 
 			}
@@ -1948,34 +1822,25 @@ public class TrackerAsset extends BaseAsset {
 				return score;
 			}
 
-			public void setScore(float value) throws Exception {
-				if (getParent() == null
-						|| getParent()
-								.getTracker()
-								.getUtils()
-								.check(value,
-										"xAPI extension: score null or NaN. Ignoring",
-										"xAPI extension: score can't be null or NaN.",
-										ValueExtensionException.class))
+			public void setScore(float value, TrackerAsset tracker) throws Exception {
+				if (tracker == null
+						|| check(value, tracker,
+							"xAPI extension: score null or NaN. Ignoring",
+							"xAPI extension: score can't be null or NaN.",
+							ValueExtensionException.class))
 					score = value;
-
 			}
 
-			Map<String, Object> extdir = new HashMap<String, Object>();
+			Map<String, Object> extensions = new HashMap<>();
 
 			public Map<String, Object> getExtensions() {
-				return extdir;
+				return extensions;
 			}
 
-			public void setExtensions(Map<String, Object> value)
+			public void setExtensions(Map<String, Object> value, TrackerAsset tracker)
 					throws Exception {
-				extdir = new HashMap<String, Object>();
-
-				Iterator it = value.entrySet().iterator();
-
-				while (it.hasNext()) {
-					Map.Entry<String, Object> extension = (Map.Entry<String, Object>) it
-							.next();
+				extensions = new HashMap<>();
+				for (Map.Entry<String, Object> extension : value.entrySet()) {
 
 					switch (extension.getKey().toLowerCase()) {
 					case "success":
@@ -1985,79 +1850,68 @@ public class TrackerAsset extends BaseAsset {
 						setCompletion((boolean) extension.getValue());
 						break;
 					case "response":
-						setResponse((String) extension.getValue());
+						setResponse((String) extension.getValue(), tracker);
 						break;
 					case "score":
-						setScore((float) extension.getValue());
+						setScore((float) extension.getValue(), tracker);
 						break;
 					default:
-						extdir.put(extension.getKey(), extension.getValue());
+						extensions.put(extension.getKey(), extension.getValue());
 						break;
 					}
 				}
 			}
 
 			public String toCsv() {
-				String result = ((success > -1) ? ",success"
+				StringBuilder result = new StringBuilder(((success > -1) ? ",success"
 						+ intToBoolString(success) : "")
 						+ ((completion > -1) ? ",completion"
 								+ intToBoolString(completion) : "")
-						+ ((!IsNullOrEmpty(getResponse())) ? ",response,"
+						+ ((!isNullOrEmpty(getResponse())) ? ",response,"
 								+ getResponse().replace(",", "\\,") : "")
 						+ ((!Float.isNaN(score)) ? ",score,"
-								+ Float.toString(score).replace(',', '.') : "");
+								+ Float.toString(score).replace(',', '.') : ""));
 
-				if (getExtensions() != null && getExtensions().size() > 0) {
+				if (getExtensions() != null) {
 
-					Iterator it = getExtensions().entrySet().iterator();
-
-					while (it.hasNext()) {
-						Map.Entry<String, Object> extension = (Map.Entry<String, Object>) it
-								.next();
-						result += "," + extension.getKey().replace(",", "\\,")
-								+ ",";
+					for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
+						result.append("," + extension.getKey().replace(",", "\\,") + ",");
 						if (extension.getValue() != null) {
-							if (extension.getValue().getClass() == String.class) {
-								result += extension.getValue().toString()
-										.replace(",", "\\,");
+							if (extension.getValue() instanceof String) {
+								result.append(extension.getValue().toString()
+										.replace(",", "\\,"));
 							} else if ((extension.getValue() instanceof Float)) {
-								result += Float.toString(
+								result.append(Float.toString(
 										(Float) extension.getValue()).replace(
-										',', '.');
+										',', '.'));
 							} else if ((extension.getValue() instanceof Double)) {
-								result += Double.toString(
+								result.append(Double.toString(
 										(Double) extension.getValue()).replace(
-										',', '.');
+										',', '.'));
 							} else if ((extension.getValue() instanceof Integer)) {
-								result += Integer.toString(
+								result.append(Integer.toString(
 										(Integer) extension.getValue())
-										.replace(',', '.');
+										.replace(',', '.'));
 							} else if (extension.getValue().getClass() == HashMap.class) {
-								Map<String, Object> map = (HashMap<String, Object>) extension
-										.getValue();
-								String smap = "";
-
-								Iterator it2 = ((HashMap<String, Object>) extension
-										.getValue()).entrySet().iterator();
-
-								while (it2.hasNext()) {
-									Map.Entry<String, Object> t = (Map.Entry<String, Object>) it2
-											.next();
-									smap += t.getKey()
-											+ "="
-											+ t.getValue().toString()
-													.toLowerCase() + "-";
+								@SuppressWarnings("unchecked")
+								Map<String, Object> map = (Map<String, Object>)extension.getValue();
+								StringBuilder inner = new StringBuilder();
+								for (Map.Entry<String, Object> e : map.entrySet()) {
+									 inner.append(e.getKey())
+											 .append("=")
+											 .append(e.getValue().toString().toLowerCase())
+											 .append("-");
 								}
 
-								result += smap.replaceAll("[-]+$", "");
+								result.append(inner.toString().replaceAll("[-]+$", ""));
 							} else {
-								result += String.valueOf(extension.getValue());
+								result.append(String.valueOf(extension.getValue()));
 							}
 						}
 					}
 				}
 
-				return result;
+				return result.toString();
 			}
 
 			public Map<String, Object> toJson() {
@@ -2068,7 +1922,7 @@ public class TrackerAsset extends BaseAsset {
 				if (completion != -1)
 					result.put("completion", getCompletion());
 
-				if (!IsNullOrEmpty(getResponse()))
+				if (!isNullOrEmpty(getResponse()))
 					result.put("response", getResponse());
 
 				if (!Float.isNaN(score)) {
@@ -2078,22 +1932,17 @@ public class TrackerAsset extends BaseAsset {
 				}
 
 				Map<String, Object> extensions = new HashMap<>();
-				if (getExtensions().size() > 0) {
-					Iterator it = getExtensions().entrySet().iterator();
-
-					while (it.hasNext()) {
-						Map.Entry<String, Object> extension = (Map.Entry<String, Object>) it
-								.next();
-
-						if (getExtensionIDs().containsKey(extension.getKey())) {
-							extensions.put(
-									getExtensionIDs().get(extension.getKey()),
-									extension.getValue());
-						} else {
-							extensions.put(extension.getKey(),
-									extension.getValue());
-						}
+				for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
+					if (getExtensionIDs().containsKey(extension.getKey())) {
+						extensions.put(
+								getExtensionIDs().get(extension.getKey()),
+								extension.getValue());
+					} else {
+						extensions.put(extension.getKey(),
+								extension.getValue());
 					}
+				}
+				if (!extensions.isEmpty()) {
 					result.put("extensions", extensions);
 				}
 
@@ -2120,35 +1969,34 @@ public class TrackerAsset extends BaseAsset {
 				return ret;
 			}
 
-			public boolean isValid() throws Exception {
+			public boolean isValid(TrackerAsset tracker) throws Exception {
 				boolean valid = true;
-				if (!IsNullOrEmpty(getResponse()))
-					this.setResponse(getResponse());
 
-				if (!Float.isNaN(getScore()))
-					this.setScore(getScore());
+				if (!isNullOrEmpty(getResponse())) {
+					setResponse(getResponse(), tracker);
+				}
+
+				if (!Float.isNaN(getScore())) {
+					setScore(getScore(), tracker);
+				}
 
 				Map<String, Object> result = new HashMap<String, Object>();
 				if (success != -1)
-					valid &= TrackerAssetUtils.quickCheck(success);
+					valid &= notNullEmptyOrNan(success);
 
 				if (completion != -1)
-					valid &= TrackerAssetUtils.quickCheck(completion);
+					valid &= notNullEmptyOrNan(completion);
 
-				if (!IsNullOrEmpty(getResponse()))
-					valid &= TrackerAssetUtils.quickCheck(getResponse());
+				if (!isNullOrEmpty(getResponse()))
+					valid &= notNullEmptyOrNan(getResponse());
 
 				if (!Float.isNaN(score)) {
-					valid &= TrackerAssetUtils.quickCheck(score);
+					valid &= notNullEmptyOrNan(score);
 				}
 
 				if (getExtensions() != null && getExtensions().size() > 0) {
-					Iterator it = getExtensions().entrySet().iterator();
-
-					while (it.hasNext()) {
-						Map.Entry<String, Object> extension = (Map.Entry<String, Object>) it
-								.next();
-						valid &= TrackerAssetUtils.quickCheckExtension(
+					for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
+						valid &= quickCheckExtension(
 								extension.getKey(), extension.getValue());
 					}
 				}
@@ -2160,7 +2008,7 @@ public class TrackerAsset extends BaseAsset {
 
 	}
 
-	private static boolean IsNullOrEmpty(String s) {
+	private static boolean isNullOrEmpty(String s) {
 		return s == null || s.isEmpty();
 	}
 
