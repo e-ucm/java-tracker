@@ -44,8 +44,33 @@ import eu.rageproject.asset.manager.*;
  */
 public class TrackerAssetSettings extends BaseSettings {
 
-	// settings with defaults
+	/**
+	 * Possible storage types
+	 */
+	public enum StorageTypes {
+		/** network storage */
+		net,
+		/** local storage */
+		local
+	}
 
+	/**
+	 * Possible trace formats
+	 */
+	public enum TraceFormats {
+		/** json-formatted traces */
+		json,
+		/** xml-formatted traces */
+		xml,
+		/**
+		 * An enum constant representing the xAPI option.
+		 */
+		xapi,
+		/** csv-formatted traces */
+		csv
+	}
+
+	// settings with defaults
 	/** hostname for the analytics server */
 	private String host = "localhost";
 	/** port of the analytics server */
@@ -57,9 +82,9 @@ public class TrackerAssetSettings extends BaseSettings {
 	/** endpoint to contact at the server host; such as "analytics" */
 	private String basePath = "";
 	/** how to store traces; StorageTypes.net sends them over the network */
-	private TrackerAsset.StorageTypes storageType = TrackerAsset.StorageTypes.net;
+	private StorageTypes storageType = StorageTypes.net;
 	/** trace format to use, such as xAPI, CSV, ... */
-	private TrackerAsset.TraceFormats traceFormat = TrackerAsset.TraceFormats.json;
+	private TraceFormats traceFormat = TraceFormats.json;
 	/** use a backup storage or not */
 	private boolean backupStorage = true;
 
@@ -128,19 +153,19 @@ public class TrackerAssetSettings extends BaseSettings {
 		this.basePath = basePath;
 	}
 
-	public TrackerAsset.StorageTypes getStorageType() {
+	public StorageTypes getStorageType() {
 		return storageType;
 	}
 
-	public void setStorageType(TrackerAsset.StorageTypes storageType) {
+	public void setStorageType(StorageTypes storageType) {
 		this.storageType = storageType;
 	}
 
-	public TrackerAsset.TraceFormats getTraceFormat() {
+	public TraceFormats getTraceFormat() {
 		return traceFormat;
 	}
 
-	public void setTraceFormat(TrackerAsset.TraceFormats traceFormat) {
+	public void setTraceFormat(TraceFormats traceFormat) {
 		this.traceFormat = traceFormat;
 	}
 

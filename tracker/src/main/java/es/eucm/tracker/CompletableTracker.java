@@ -18,16 +18,14 @@ package es.eucm.tracker;
 
 import es.eucm.tracker.exceptions.TargetXApiException;
 
-import java.util.HashMap;
+public class CompletableTracker {
+	private TraceProcessor tracker;
 
-public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
-	private TrackerAsset tracker;
-
-	public void setTracker(TrackerAsset tracker) {
+	public CompletableTracker(TraceProcessor tracker) {
 		this.tracker = tracker;
 	}
 
-	public enum Completable implements TrackerAsset.XApiConstant {
+	public enum Completable implements TrackerUtils.XApiConstant {
 		Game("https://w3id.org/xapi/seriousgames/activity-types/serious-game"),
 		Session("https://w3id.org/xapi/seriousgames/activity-types/session"),
 		Level("https://w3id.org/xapi/seriousgames/activity-types/level"),
@@ -53,20 +51,20 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 * @param completableId
 	 *            Completable identifier.
 	 */
-	public void initialized(String completableId) throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+	public void initialized(String completableId) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Initialized), tracker);
+					TraceVerb.Verb.Initialized));
 			trace.setTarget(new TrackerEvent.TraceObject(
 					Completable.Completable.toString().toLowerCase(),
-					completableId, tracker));
+					completableId));
 
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -78,20 +76,19 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 * @param type
 	 *            Completable type.
 	 */
-	public void initialized(String completableId, Completable type)
-			throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+	public void initialized(String completableId, Completable type) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Initialized), tracker);
+					TraceVerb.Verb.Initialized));
 			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), completableId, tracker));
+					.toString().toLowerCase(), completableId));
 
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -103,21 +100,21 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 * @param value
 	 *            New value for the completable's progress.
 	 */
-	public void progressed(String completableId, float value) throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+	public void progressed(String completableId, float value) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Progressed), tracker);
+					TraceVerb.Verb.Progressed));
 			trace.setTarget(new TrackerEvent.TraceObject(
 					Completable.Completable.toString().toLowerCase(),
-					completableId, tracker));
+					completableId));
 
 			tracker.setProgress(value);
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -131,21 +128,20 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 * @param type
 	 *            Completable type.
 	 */
-	public void progressed(String completableId, Completable type, float value)
-			throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+	public void progressed(String completableId, Completable type, float value) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Progressed), tracker);
+					TraceVerb.Verb.Progressed));
 			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), completableId, tracker));
+					.toString().toLowerCase(), completableId));
 
 			tracker.setProgress(value);
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -156,25 +152,25 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 * @param completableId
 	 *            Completable identifier.
 	 */
-	public void completed(String completableId) throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+	public void completed(String completableId) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Completed), tracker);
+					TraceVerb.Verb.Completed));
 			trace.setTarget(new TrackerEvent.TraceObject(
 					Completable.Completable.toString().toLowerCase(),
-					completableId, tracker));
+					completableId));
 
 			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
 			result.setSuccess(true);
-			result.setScore(1f, tracker);
+			result.setScore(1f);
 			trace.setResult(result);
 
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -186,25 +182,24 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 * @param type
 	 *            Completable type.
 	 */
-	public void completed(String completableId, Completable type)
-			throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+	public void completed(String completableId, Completable type) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Completed), tracker);
+					TraceVerb.Verb.Completed));
 			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), completableId, tracker));
+					.toString().toLowerCase(), completableId));
 
 			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
 			result.setSuccess(true);
-			result.setScore(1f, tracker);
+			result.setScore(1f);
 			trace.setResult(result);
 
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -219,25 +214,25 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 *            Completable success.
 	 */
 	public void completed(String completableId, Completable type,
-			boolean success) throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+			boolean success) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Completed), tracker);
+					TraceVerb.Verb.Completed));
 			trace.setTarget(new TrackerEvent.TraceObject(
 					Completable.Completable.toString().toLowerCase(),
-					completableId, tracker));
+					completableId));
 
 			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
 			result.setSuccess(success);
-			result.setScore(1f, tracker);
+			result.setScore(1f);
 			trace.setResult(result);
 
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -251,25 +246,24 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 * @param score
 	 *            Completable score.
 	 */
-	public void completed(String completableId, Completable type, float score)
-			throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+	public void completed(String completableId, Completable type, float score) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Completed), tracker);
+					TraceVerb.Verb.Completed));
 			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), completableId, tracker));
+					.toString().toLowerCase(), completableId));
 
 			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
 			result.setSuccess(true);
-			result.setScore(score, tracker);
+			result.setScore(score);
 			trace.setResult(result);
 
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
 
@@ -286,25 +280,24 @@ public class CompletableTracker implements TrackerAsset.IGameObjectTracker {
 	 *            Completable score.
 	 */
 	public void completed(String completableId, Completable type,
-			boolean success, float score) throws Exception {
-		if (TrackerUtils.check(completableId, tracker,
+			boolean success, float score) {
+		if (TrackerUtils.check(completableId,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
 			trace.setEvent(new TraceVerb(
-					TrackerAsset.Verb.Completed), tracker);
+					TraceVerb.Verb.Completed));
 			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), completableId, tracker));
+					.toString().toLowerCase(), completableId));
 
 			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
 			result.setSuccess(success);
-			result.setScore(score, tracker);
+			result.setScore(score);
 			trace.setResult(result);
 
-			tracker.trace(trace);
+			tracker.process(trace);
 		}
 	}
-
 }

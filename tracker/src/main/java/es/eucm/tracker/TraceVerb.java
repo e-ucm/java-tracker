@@ -13,29 +13,43 @@ import static es.eucm.tracker.TrackerUtils.parseEnumOrComplain;
  * Class for Verb storage.
  */
 public class TraceVerb {
-	/** the parent event, for which this is the verb */
-	private TrackerEvent parent;
+
+	/**
+	 * Values that represent the available verbs for traces.
+	 */
+	public enum Verb implements TrackerUtils.XApiConstant {
+		Initialized("http://adlnet.gov/expapi/verbs/initialized"),
+		Progressed("http://adlnet.gov/expapi/verbs/progressed"),
+		Completed("http://adlnet.gov/expapi/verbs/completed"),
+		Accessed("https://w3id.org/xapi/seriousgames/verbs/accessed"),
+		Skipped("http://id.tincanapi.com/verb/skipped"),
+		Selected("https://w3id.org/xapi/adb/verbs/selected"),
+		Unlocked("https://w3id.org/xapi/seriousgames/verbs/unlocked"),
+		Interacted("http://adlnet.gov/expapi/verbs/interacted"),
+		Used("https://w3id.org/xapi/seriousgames/verbs/used");
+		private String id;
+		Verb(String id) {
+			this.id = id;
+		}
+		@Override
+		public String getId() {
+			return id;
+		}
+	}
+
 	private static Map<String, String> xApiVerbs =
-			TrackerUtils.buildXApiMap(TrackerAsset.Verb.class);
-
-	public TrackerEvent getParent() {
-		return parent;
-	}
-
-	public void setParent(TrackerEvent value) {
-		parent = value;
-	}
+			TrackerUtils.buildXApiMap(Verb.class);
 
 	private String stringVerb = "";
-	private TrackerAsset.Verb xApiVerb = TrackerAsset.Verb.Initialized;
+	private Verb xApiVerb = Verb.Initialized;
 
 	public String getStringVerb() {
 		return stringVerb;
 	}
 
-	public void setStringVerb(String value, TrackerAsset tracker) throws TrackerException {
+	public void setStringVerb(String value) throws TrackerException {
 		stringVerb = value;
-		xApiVerb = parseEnumOrComplain(value, TrackerAsset.Verb.class, tracker,
+		xApiVerb = parseEnumOrComplain(value, Verb.class,
 				"Tracker-xAPI: Unknown definition for verb: " + value,
 				"Tracker-xAPI: Unknown definition for verb: " + value, VerbXApiException.class);
 		if (xApiVerb != null) {
@@ -43,21 +57,21 @@ public class TraceVerb {
 		}
 	}
 
-	public TrackerAsset.Verb getVerb() {
+	public Verb getVerb() {
 		return xApiVerb;
 	}
 
-	public void setVerb(TrackerAsset.Verb value) {
+	public void setVerb(Verb value) {
 		stringVerb = value.toString().toLowerCase();
 		xApiVerb = value;
 	}
 
-	public TraceVerb(TrackerAsset.Verb verb) {
+	public TraceVerb(Verb verb) {
 		setVerb(verb);
 	}
 
-	public TraceVerb(String verb, TrackerAsset tracker) throws Exception {
-		setStringVerb(verb, tracker);
+	public TraceVerb(String verb) {
+		setStringVerb(verb);
 	}
 
 	public String toCsv() {
@@ -82,13 +96,10 @@ public class TraceVerb {
 		return this.toJson();
 	}
 
-	public boolean isValid(TrackerAsset tracker) throws Exception {
+	public boolean isValid() {
 		boolean check = true;
-		if (getParent() != null) {
-			setStringVerb(getStringVerb(), tracker);
-		}
+		setStringVerb(getStringVerb());
 
 		return check && notNullEmptyOrNan(stringVerb);
 	}
-
 }
