@@ -18,6 +18,8 @@ package es.eucm.tracker;
 
 import es.eucm.tracker.exceptions.TargetXApiException;
 
+import java.util.HashMap;
+
 public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 	private TrackerAsset tracker;
 
@@ -25,9 +27,20 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 		this.tracker = tracker;
 	}
 
-	public enum Accessible {
-		/* ACCESSIBLES */
-		Screen, Area, Zone, Cutscene, Accessible
+	public enum Accessible implements TrackerAsset.XApiConstant {
+		Screen("https://w3id.org/xapi/seriousgames/activity-types/screen"),
+		Area("https://w3id.org/xapi/seriousgames/activity-types/area"),
+		Zone("https://w3id.org/xapi/seriousgames/activity-types/zone"),
+		Cutscene("https://w3id.org/xapi/seriousgames/activity-types/cutscene"),
+		Accessible("https://w3id.org/xapi/seriousgames/activity-types/accessible");
+		private String id;
+		Accessible(String id) {
+			this.id = id;
+		}
+		@Override
+		public String getId() {
+			return id;
+		}
 	}
 
 	/**
@@ -41,11 +54,11 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Accessed), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+			trace.setTarget(new TrackerEvent.TraceObject(
 					Accessible.Accessible.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);
@@ -65,11 +78,11 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Accessed), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+			trace.setTarget(new TrackerEvent.TraceObject(type
 					.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);
@@ -87,11 +100,11 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Skipped), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+			trace.setTarget(new TrackerEvent.TraceObject(
 					Accessible.Accessible.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);
@@ -111,11 +124,11 @@ public class AccessibleTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Skipped), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+			trace.setTarget(new TrackerEvent.TraceObject(type
 					.toString().toLowerCase(), reachableId, tracker));
 
 			tracker.trace(trace);

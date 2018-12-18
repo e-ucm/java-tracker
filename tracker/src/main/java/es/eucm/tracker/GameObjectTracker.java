@@ -25,9 +25,19 @@ public class GameObjectTracker implements TrackerAsset.IGameObjectTracker {
 		this.tracker = tracker;
 	}
 
-	public enum TrackedGameObject {
-		/* GAMEOBJECT */
-		Enemy, Npc, Item, GameObject
+	public enum TrackedGameObject implements TrackerAsset.XApiConstant {
+		Enemy("https://w3id.org/xapi/seriousgames/activity-types/enemy"),
+		Npc("https://w3id.org/xapi/seriousgames/activity-types/non-player-character"),
+		Item("https://w3id.org/xapi/seriousgames/activity-types/item"),
+		GameObject("https://w3id.org/xapi/seriousgames/activity-types/game-object");
+		private String id;
+		TrackedGameObject(String id) {
+			this.id = id;
+		}
+		@Override
+		public String getId() {
+			return id;
+		}
 	}
 
 	/**
@@ -41,11 +51,11 @@ public class GameObjectTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Interacted), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+			trace.setTarget(new TrackerEvent.TraceObject(
 					TrackedGameObject.GameObject.toString().toLowerCase(),
 					gameobjectId, tracker));
 
@@ -65,11 +75,11 @@ public class GameObjectTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Interacted), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+			trace.setTarget(new TrackerEvent.TraceObject(type
 					.toString().toLowerCase(), gameobjectId, tracker));
 
 			tracker.trace(trace);
@@ -87,11 +97,11 @@ public class GameObjectTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Interacted), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(
+			trace.setTarget(new TrackerEvent.TraceObject(
 					TrackedGameObject.GameObject.toString().toLowerCase(),
 					gameobjectId, tracker));
 
@@ -111,11 +121,11 @@ public class GameObjectTracker implements TrackerAsset.IGameObjectTracker {
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class)) {
-			TrackerAsset.TrackerEvent trace = new TrackerAsset.TrackerEvent();
+			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TrackerAsset.TrackerEvent.TraceVerb(
+			trace.setEvent(new TraceVerb(
 					TrackerAsset.Verb.Used), tracker);
-			trace.setTarget(new TrackerAsset.TrackerEvent.TraceObject(type
+			trace.setTarget(new TrackerEvent.TraceObject(type
 					.toString().toLowerCase(), gameobjectId, tracker));
 
 			tracker.trace(trace);

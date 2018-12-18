@@ -34,8 +34,10 @@ import static org.junit.Assert.*;
  * Tests the {@link es.eucm.tracker.TrackerAsset}
  */
 public class TrackerAssetTest {
+
 	private static final Gson gson = new Gson();
 	private static final ArrayList<HashMap<String, Object>> arraymap = new ArrayList<>();
+
 	TrackerAssetSettings settings = new TrackerAssetSettings();
 	IDataStorage storage;
 	IAppend append_storage;
@@ -1056,7 +1058,14 @@ public class TrackerAssetTest {
 		if (text.indexOf("M\n") != -1)
 			text = text.substring(text.indexOf("M\n") + 2);
 
-		ArrayList file = gson.fromJson(text, arraymap.getClass());
+		ArrayList file;
+		try {
+			file = gson.fromJson(text, arraymap.getClass());
+		} catch (Exception e) {
+			System.err.println(text);
+			fail("Error parsing json: " + e);
+			throw e;
+		}
 		Map tracejson = (Map) file.get(0);
 		for (Map.Entry<String, Object> e : ((Map<String, Object>)tracejson).entrySet()) {
 			System.err.println(e.getKey() + " -> " + e.getValue());
