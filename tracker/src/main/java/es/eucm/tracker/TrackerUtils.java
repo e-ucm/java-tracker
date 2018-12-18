@@ -25,7 +25,9 @@ import es.eucm.tracker.exceptions.ValueExtensionException;
 import eu.rageproject.asset.manager.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utilities
@@ -170,5 +172,21 @@ public class TrackerUtils {
 		}
 		complain(tracker, message, strictMessage, c, cause);
 		return null;
+	}
+
+	/**
+	 * Return a new map of XApiConstant enum-values (lowercase) to ids.
+	 * This should be cached for efficiency
+	 */
+	public static <T extends Enum<T>&TrackerAsset.XApiConstant>
+			Map<String, String> buildXApiMap(Class<T> enumType) {
+		Map<String, String> map = new HashMap<>();
+		for (T v : enumType.getEnumConstants()) {
+			// some XApiConstants (such as Extension) have elements without IDs
+			if (v.getId() != null) {
+				map.put(v.toString().toLowerCase(), v.getId());
+			}
+		}
+		return map;
 	}
 }

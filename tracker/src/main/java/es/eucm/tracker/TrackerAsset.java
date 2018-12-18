@@ -18,8 +18,6 @@ package es.eucm.tracker;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +38,10 @@ public class TrackerAsset extends BaseAsset {
 	 */
 	private static TrackerAsset INSTANCE;
 
-	private static final Gson gson = new Gson();
+	/**
+	 * JSON serializer/deserializer to use
+	 */
+	public static final Gson gson = new Gson();
 
 	/**
 	 * Filename of the settings file.
@@ -99,7 +100,7 @@ public class TrackerAsset extends BaseAsset {
 	/**
 	 * The queue of TrackerEvents to Send.
 	 */
-	private ConcurrentQueue<TrackerAsset.TrackerEvent> queue = new ConcurrentQueue<TrackerAsset.TrackerEvent>();
+	private ConcurrentQueue<TrackerEvent> queue = new ConcurrentQueue<TrackerEvent>();
 	/**
 	 * The list of traces flushed while the connection was offline
 	 */
@@ -181,10 +182,37 @@ public class TrackerAsset extends BaseAsset {
 	}
 
 	/**
+	 * An xAPI-standarized set of constants.
+	 * Each of them has a unique, URL-like ID.
+	 */
+	public interface XApiConstant {
+		/**
+		 * @return the official xAPI id for this constant
+		 */
+		String getId();
+	}
+
+	/**
 	 * Values that represent the available verbs for traces.
 	 */
-	public enum Verb {
-		Initialized, Progressed, Completed, Accessed, Skipped, Selected, Unlocked, Interacted, Used
+	public enum Verb implements XApiConstant {
+		Initialized("http://adlnet.gov/expapi/verbs/initialized"),
+		Progressed("http://adlnet.gov/expapi/verbs/progressed"),
+		Completed("http://adlnet.gov/expapi/verbs/completed"),
+		Accessed("https://w3id.org/xapi/seriousgames/verbs/accessed"),
+		Skipped("http://id.tincanapi.com/verb/skipped"),
+		Selected("https://w3id.org/xapi/adb/verbs/selected"),
+		Unlocked("https://w3id.org/xapi/seriousgames/verbs/unlocked"),
+		Interacted("http://adlnet.gov/expapi/verbs/interacted"),
+		Used("https://w3id.org/xapi/seriousgames/verbs/used");
+		private String id;
+		Verb(String id) {
+			this.id = id;
+		}
+		@Override
+		public String getId() {
+			return id;
+		}
 	}
 
 
@@ -204,36 +232,30 @@ public class TrackerAsset extends BaseAsset {
 	 *  extensions: { .../health: value, .../position: value,
 	 * .../progress: value} }
 	 */
-	public enum Extension {
+	public enum Extension implements XApiConstant {
 		/*
-		 * Special extensions,
+		 * Special extensions - no ID assigned
 		 */
-		/** special extension: score */
-		Score(true),
-		/** special extension: success */
-		Success(true),
-		/** special extension: response */
-		Response(true),
-		/** special extension: completion */
-		Completion(true),
+		Score(null),
+		Success(null),
+		Response(null),
+		Completion(null),
 		/*
-		 * Common extensions, these extensions
+		 * Common extensions
 		 */
-		/** common extension: health */
-		Health(false),
-		/** common extension: position*/
-		Position(false),
-		/** common extension: progress */
-		Progress(false);
-
-		final boolean special;
-
-		Extension(boolean special) {
-			this.special = special;
+		Health("https://w3id.org/xapi/seriousgames/extensions/health"),
+		Position("https://w3id.org/xapi/seriousgames/extensions/position"),
+		Progress("https://w3id.org/xapi/seriousgames/extensions/progress");
+		private String id;
+		Extension(String id) {
+			this.id = id;
 		}
-
+		@Override
+		public String getId() {
+			return id;
+		}
 		public boolean isSpecial() {
-			return special;
+			return id == null;
 		}
 	}
 
@@ -369,7 +391,7 @@ public class TrackerAsset extends BaseAsset {
 	 */
 	private Map<String, Object> actorObject;
 
-	private Map<String, Object> getActorObject() {
+	public Map<String, Object> getActorObject() {
 		return actorObject;
 	}
 
@@ -648,7 +670,7 @@ public class TrackerAsset extends BaseAsset {
 		this.setConnected(false);
 		this.setStarted(false);
 		this.setActorObject(null);
-		this.queue = new ConcurrentQueue<TrackerAsset.TrackerEvent>();
+		this.queue = new ConcurrentQueue<TrackerEvent>();
 		this.tracesPending = new ArrayList<>();
 	}
 
@@ -718,7 +740,7 @@ public class TrackerAsset extends BaseAsset {
 	 * Adds the given value to the Queue.
 	 * 
 	 */
-	public void trace(TrackerAsset.TrackerEvent trace) throws Exception {
+	public void trace(TrackerEvent trace) throws Exception {
 		if (!this.isStarted())
 			throw new TrackerException("Tracker Has not been started");
 
@@ -751,7 +773,7 @@ public class TrackerAsset extends BaseAsset {
 				TraceException.class);
 		if (trace) {
 			TrackerEvent te = new TrackerEvent();
-			te.setEvent(new TrackerEvent.TraceVerb(verb, this), this);
+			te.setEvent(new TraceVerb(verb, this), this);
 			te.setTarget(new TrackerEvent.TraceObject(targetType, targetId, this));
 			trace(te);
 		}
@@ -912,7 +934,7 @@ public class TrackerAsset extends BaseAsset {
 	String processTraces(List<TrackerEvent> traces, TraceFormats format)
 			throws XApiException {
 		List<String> stringsToSend = new ArrayList<>();
-		for (TrackerAsset.TrackerEvent item : traces) {
+		for (TrackerEvent item : traces) {
 			switch (format) {
 			case json:
 				stringsToSend.add(item.toJson(this));
@@ -938,7 +960,7 @@ public class TrackerAsset extends BaseAsset {
 			case xml:
 				data.insert(0, "<TrackEvents>\r\n").append("\r\n</TrackEvent>");
 				break;
-				case csv:
+			case csv:
 			default:
 				data.append("\r\n");
 				break;
@@ -1247,764 +1269,6 @@ public class TrackerAsset extends BaseAsset {
 	 */
 	public interface IGameObjectTracker {
 		void setTracker(TrackerAsset tracker);
-
-	}
-
-	/**
-	 * A tracker event.
-	 */
-	public static class TrackerEvent {
-		private static Map<String, String> verbIds = null;
-		private static Map<String, String> objectIds = null;
-		private static Map<String, String> extensionIds = null;
-		private TrackerAsset.TrackerEvent.TraceVerb verb;
-		private TrackerAsset.TrackerEvent.TraceObject target;
-		private TrackerAsset.TrackerEvent.TraceResult result;
-
-		public TrackerEvent() {
-			timeStamp = System.currentTimeMillis();
-			result = new TrackerAsset.TrackerEvent.TraceResult();
-		}
-
-		private static Map<String, String> getVerbIDs() {
-			if (verbIds == null) {
-				verbIds = new HashMap<>();
-				verbIds.put(TrackerAsset.Verb.Initialized.toString()
-						.toLowerCase(),
-						"http://adlnet.gov/expapi/verbs/initialized");
-				verbIds.put(TrackerAsset.Verb.Progressed.toString()
-						.toLowerCase(),
-						"http://adlnet.gov/expapi/verbs/progressed");
-				verbIds.put(TrackerAsset.Verb.Completed.toString()
-						.toLowerCase(),
-						"http://adlnet.gov/expapi/verbs/completed");
-				verbIds.put(
-						TrackerAsset.Verb.Accessed.toString().toLowerCase(),
-						"https://w3id.org/xapi/seriousgames/verbs/accessed");
-				verbIds.put(TrackerAsset.Verb.Skipped.toString().toLowerCase(),
-						"http://id.tincanapi.com/verb/skipped");
-				verbIds.put(
-						TrackerAsset.Verb.Selected.toString().toLowerCase(),
-						"https://w3id.org/xapi/adb/verbs/selected");
-				verbIds.put(
-						TrackerAsset.Verb.Unlocked.toString().toLowerCase(),
-						"https://w3id.org/xapi/seriousgames/verbs/unlocked");
-				verbIds.put(TrackerAsset.Verb.Interacted.toString()
-						.toLowerCase(),
-						"http://adlnet.gov/expapi/verbs/interacted");
-				verbIds.put(TrackerAsset.Verb.Used.toString().toLowerCase(),
-						"https://w3id.org/xapi/seriousgames/verbs/used");
-
-			}
-
-			return verbIds;
-		}
-
-		private static Map<String, String> getObjectIDs() {
-			if (objectIds == null) {
-				objectIds = new HashMap<>();
-
-				// Completable
-				objectIds
-						.put(CompletableTracker.Completable.Game.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/serious-game");
-				objectIds
-						.put(CompletableTracker.Completable.Session.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/session");
-				objectIds
-						.put(CompletableTracker.Completable.Level.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/level");
-				objectIds
-						.put(CompletableTracker.Completable.Quest.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/quest");
-				objectIds
-						.put(CompletableTracker.Completable.Stage.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/stage");
-				objectIds
-						.put(CompletableTracker.Completable.Combat.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/combat");
-				objectIds
-						.put(CompletableTracker.Completable.StoryNode
-								.toString().toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/story-node");
-				objectIds
-						.put(CompletableTracker.Completable.Race.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/race");
-				objectIds
-						.put(CompletableTracker.Completable.Completable
-								.toString().toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/completable");
-
-				// Accessible
-				objectIds
-						.put(AccessibleTracker.Accessible.Screen.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/screen");
-				objectIds
-						.put(AccessibleTracker.Accessible.Area.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/area");
-				objectIds
-						.put(AccessibleTracker.Accessible.Zone.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/zone");
-				objectIds
-						.put(AccessibleTracker.Accessible.Cutscene.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/cutscene");
-				objectIds
-						.put(AccessibleTracker.Accessible.Accessible.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/accessible");
-
-				// Alternative
-				objectIds.put(AlternativeTracker.Alternative.Question
-						.toString().toLowerCase(),
-						"http://adlnet.gov/expapi/activities/question");
-				objectIds
-						.put(AlternativeTracker.Alternative.Menu.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/menu");
-				objectIds
-						.put(AlternativeTracker.Alternative.Dialog.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/dialog-tree");
-				objectIds
-						.put(AlternativeTracker.Alternative.Path.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/path");
-				objectIds
-						.put(AlternativeTracker.Alternative.Arena.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/arena");
-				objectIds
-						.put(AlternativeTracker.Alternative.Alternative
-								.toString().toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/alternative");
-
-				// GameObject
-				objectIds
-						.put(GameObjectTracker.TrackedGameObject.Enemy
-								.toString().toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/enemy");
-				objectIds
-						.put(GameObjectTracker.TrackedGameObject.Npc.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/non-player-character");
-				objectIds
-						.put(GameObjectTracker.TrackedGameObject.Item
-								.toString().toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/item");
-				objectIds
-						.put(GameObjectTracker.TrackedGameObject.GameObject
-								.toString().toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/activity-types/game-object");
-			}
-
-			return objectIds;
-		}
-
-		private static Map<String, String> getExtensionIDs() {
-			if (extensionIds == null) {
-				extensionIds = new HashMap<>();
-				extensionIds.put(TrackerAsset.Extension.Health.toString()
-						.toLowerCase(),
-						"https://w3id.org/xapi/seriousgames/extensions/health");
-				extensionIds
-						.put(TrackerAsset.Extension.Position.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/extensions/position");
-				extensionIds
-						.put(TrackerAsset.Extension.Progress.toString()
-								.toLowerCase(),
-								"https://w3id.org/xapi/seriousgames/extensions/progress");
-			}
-
-			return extensionIds;
-		}
-
-		/**
-		 * Gets or sets the event.
-		 * 
-		 * The event.
-		 */
-		public TrackerAsset.TrackerEvent.TraceVerb getEvent() {
-			return verb;
-		}
-
-		public void setEvent(TrackerAsset.TrackerEvent.TraceVerb value, TrackerAsset tracker)
-				throws Exception {
-			this.verb = value;
-			this.verb.setParent(this);
-			this.verb.isValid(tracker);
-		}
-
-		/**
-		 * Gets or sets the Target for the.
-		 * 
-		 * The target.
-		 */
-		public TrackerAsset.TrackerEvent.TraceObject getTarget() {
-			return target;
-		}
-
-		public void setTarget(TrackerAsset.TrackerEvent.TraceObject value) {
-			this.target = value;
-		}
-
-		/**
-		 * Gets or sets the Result for the.
-		 * 
-		 * The Result.
-		 */
-		public TrackerAsset.TrackerEvent.TraceResult getResult() {
-			return result;
-		}
-
-		public void setResult(TrackerAsset.TrackerEvent.TraceResult value) {
-			this.result = value;
-		}
-
-		/**
-		 * Gets the Date/Time of the time stamp.
-		 * 
-		 * The time stamp.
-		 */
-		private double timeStamp;
-
-		public double getTimeStamp() {
-			return timeStamp;
-		}
-
-		/**
-		 * Converts this object to a CSV Item.
-		 * 
-		 * @return This object as a string.
-		 */
-		public String toCsv() {
-			return this.getTimeStamp()
-					+ ","
-					+ getEvent().toCsv()
-					+ ","
-					+ getTarget().toCsv()
-					+ (this.getResult() == null
-							|| isNullOrEmpty(this.getResult().toCsv()) ? ""
-							: this.getResult().toCsv());
-		}
-
-		/**
-		 * Converts this object to a JSON Item.
-		 * 
-		 * @return This object as a string.
-		 */
-		public String toJson(TrackerAsset tracker) throws XApiException {
-			Map json = new HashMap();
-			json.put("actor",
-					(tracker == null || tracker.getActorObject() == null) ?
-							new HashMap<>() : tracker.getActorObject());
-			json.put("event", getEvent().toJson());
-			json.put("target", getTarget().toJson(tracker));
-			Map<String, Object> result = getResult().toJson();
-			if (result.size() > 0)
-				json.put("result", result);
-
-			Date date = new Date(System.currentTimeMillis());
-			DateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-			formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-			String dateFormatted = formatter.format(date);
-
-			json.put("timestamp", dateFormatted);
-			return gson.toJson(json, Map.class);
-		}
-
-		/**
-		 * Converts this object to an XML Item.
-		 * 
-		 * @return This object as a string.
-		 */
-		public String toXml(TrackerAsset tracker) {
-			return ""; // "<TrackEvent \"timestamp\"=\"" +
-						// this.getTimeStamp().ToString(TimeFormat) + "\"" +
-						// " \"event\"=\"" +
-						// verbIds[this.getEvent().ToString().ToLower()] + "\""
-						// + " \"target\"=\"" + this.getTarget() + "\"" +
-						// (this.getResult() == null ||
-						// String.isNullOrEmpty(this.getResult().toXml()) ?
-						// " />" : "><![CDATA[" + this.getResult().toXml() +
-						// "]]></TrackEvent>");
-		}
-
-		/**
-		 * Converts this object to an xapi.
-		 * 
-		 * @return This object as a string.
-		 */
-		public String toXapi(TrackerAsset tracker) throws XApiException {
-			Map json = new HashMap();
-			json.put("actor",
-					(tracker == null || tracker.getActorObject() == null) ? new HashMap<>()
-							: tracker.getActorObject());
-			json.put("verb", getEvent().toXapi());
-			json.put("object", getTarget().toXapi(tracker));
-			Map<String, Object> result = getResult().toXapi();
-			if (result.size() > 0)
-				json.put("result", result);
-
-			Date date = new Date(System.currentTimeMillis());
-			DateFormat formatter = new SimpleDateFormat(
-					"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-			formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-			String dateFormatted = formatter.format(date);
-
-			json.put("timestamp", dateFormatted);
-			return gson.toJson(json, Map.class);
-		}
-
-		/**
-		 * Enquotes.
-		 * 
-		 * Both checks could be combined.
-		 * 
-		 * @param value
-		 *            The value.
-		 * @return A string.
-		 */
-		private String enquote(String value) {
-			if (value.contains("\"")) {
-				return String.format("\"%s\"", value.replace("\"", "\"\""));
-			} else // 1) Replace one quote by two quotes and enquote the whole
-					// string.
-			if (value.contains("\r\n") || value.contains(",")) {
-				return String.format("\"%s\"", value);
-			}
-
-			return value;
-		}
-
-		// 2) If the string contains a CRLF or , enquote the whole string.
-		private boolean isValid(TrackerAsset tracker) throws Exception {
-			boolean check = true;
-			check &= getEvent().isValid(tracker);
-			check &= getTarget().isValid();
-			check &= getResult().isValid(tracker);
-			return check;
-		}
-
-		/**
-		 * Class for Target storage.
-		 */
-		public static class TraceObject {
-			String type;
-			String id;
-
-			public String getType() {
-				return type;
-			}
-
-			public void setType(String value, TrackerAsset tracker) throws Exception {
-				if (tracker == null || check(value, tracker,
-					"xAPI Exception: Target Type is null or empty. Ignoring.",
-					"xAPI Exception: Target Type can't be null or empty.",
-					TargetXApiException.class))
-					type = value;
-			}
-
-			public String getID() {
-				return id;
-			}
-
-			public void setID(String value, TrackerAsset tracker) throws Exception {
-				if (tracker == null	|| check(value, tracker,
-					"xAPI Exception: Target ID is null or empty. Ignoring.",
-					"xAPI Exception: Target ID can't be null or empty.",
-					TargetXApiException.class))
-					id = value;
-
-			}
-
-			private Map<String, Object> definition;
-
-			public Map<String, Object> getDefinition() {
-				return definition;
-			}
-
-			public void setDefinition(Map<String, Object> value) {
-				definition = value;
-			}
-
-			public TraceObject(String type, String id, TrackerAsset tracker) throws Exception {
-				this.setType(type, tracker);
-				this.setID(id, tracker);
-			}
-
-			public String toCsv() {
-				return getType().replace(",", "\\,") + ","
-						+ getID().replace(",", "\\,");
-			}
-
-			public Map<String, Object> toJson(TrackerAsset tracker) throws TargetXApiException {
-				String typeKey = getType();
-
-				if (getObjectIDs().containsKey(getType())) {
-					typeKey = getObjectIDs().get(getType());
-				} else if (tracker.isStrictMode()) {
-					throw (new TargetXApiException(
-							"Tracker-xAPI: Unknown definition for target type: "
-									+ getType()));
-				} else {
-					tracker.log(
-							Severity.Warning,
-							"Tracker-xAPI: Unknown definition for target type: "
-									+ getType());
-				}
-
-				Map<String, Object> obj = new HashMap<>(), definition = new HashMap<>();
-
-				// FIXME - strongly suspect this logic ->
-				obj.put("id",
-						((tracker.getActorObject() != null) ? tracker.getObjectId() : "")
-								+ getID());
-				definition.put("type", typeKey);
-				obj.put("definition", definition);
-
-				return obj;
-			}
-
-			public String toXml() {
-				return getType() + "," + getID();
-			}
-
-			// TODO;
-			public Map<String, Object> toXapi(TrackerAsset tracker) throws TargetXApiException {
-				return this.toJson(tracker);
-			}
-
-			public boolean isValid() throws Exception {
-				return notNullEmptyOrNan(getType())
-						&& notNullEmptyOrNan(getID());
-			}
-
-		}
-
-		/**
-		 * Class for Verb storage.
-		 */
-		public static class TraceVerb {
-			/** the parent event, for which this is the verb */
-			private TrackerAsset.TrackerEvent parent;
-
-			public TrackerAsset.TrackerEvent getParent() {
-				return parent;
-			}
-
-			public void setParent(TrackerAsset.TrackerEvent value) {
-				parent = value;
-			}
-
-			private String stringVerb = "";
-			private Verb xApiVerb = Verb.Initialized;
-
-			public String getStringVerb() {
-				return stringVerb;
-			}
-
-			public void setStringVerb(String value, TrackerAsset tracker) throws TrackerException {
-				stringVerb = value;
-				xApiVerb = parseEnum(value, Verb.class, tracker,
-						"Tracker-xAPI: Unknown definition for verb: " + value,
-						"Tracker-xAPI: Unknown definition for verb: " + value, VerbXApiException.class);
-				if (xApiVerb != null) {
-					stringVerb = value.toLowerCase();
-				}
-			}
-
-			public Verb getVerb() {
-				return xApiVerb;
-			}
-
-			public void setVerb(Verb value) {
-				stringVerb = value.toString().toLowerCase();
-				xApiVerb = value;
-			}
-
-			public TraceVerb(Verb verb) {
-				setVerb(verb);
-			}
-
-			public TraceVerb(String verb, TrackerAsset tracker) throws Exception {
-				setStringVerb(verb, tracker);
-			}
-
-			public String toCsv() {
-				return getStringVerb().replace(",", "\\,");
-			}
-
-			public Map<String, Object> toJson() {
-				String id = getStringVerb();
-				Map<String, Object> verb = new HashMap<>();
-				if (getVerbIDs().containsKey(id)) {
-					verb.put("id", getVerbIDs().get(id));
-				} else {
-					verb.put("id", stringVerb);
-				}
-				return verb;
-			}
-
-			public String toXml() {
-				return "";
-			}
-
-			public Map<String, Object> toXapi() {
-				return this.toJson();
-			}
-
-			public boolean isValid(TrackerAsset tracker) throws Exception {
-				boolean check = true;
-				if (getParent() != null) {
-					setStringVerb(getStringVerb(), tracker);
-				}
-
-				return check && notNullEmptyOrNan(stringVerb);
-			}
-
-		}
-
-		/**
-		 * Class for Result storage.
-		 */
-		public static class TraceResult {
-
-			private int success = -1;
-			private int completion = -1;
-			private float score = Float.NaN;
-
-			public boolean getSuccess() {
-				return success == 1 ? true : false;
-			}
-
-			public void setSuccess(boolean value) {
-				success = value ? 1 : 0;
-			}
-
-			public boolean getCompletion() {
-				return completion == 1 ? true : false;
-			}
-
-			public void setCompletion(boolean value) {
-				completion = value ? 1 : 0;
-			}
-
-			String res = new String();
-
-			public String getResponse() {
-				return res;
-			}
-
-			public void setResponse(String value, TrackerAsset tracker) throws Exception {
-				if (tracker == null
-						|| check(value, tracker,
-							"xAPI extension: response Empty or null. Ignoring",
-							"xAPI extension: response can't be empty or null",
-							ValueExtensionException.class))
-					res = value;
-
-			}
-
-			public float getScore() {
-				return score;
-			}
-
-			public void setScore(float value, TrackerAsset tracker) throws Exception {
-				if (tracker == null
-						|| check(value, tracker,
-							"xAPI extension: score null or NaN. Ignoring",
-							"xAPI extension: score can't be null or NaN.",
-							ValueExtensionException.class))
-					score = value;
-			}
-
-			Map<String, Object> extensions = new HashMap<>();
-
-			public Map<String, Object> getExtensions() {
-				return extensions;
-			}
-
-			public void setExtensions(Map<String, Object> value, TrackerAsset tracker)
-					throws Exception {
-				extensions = new HashMap<>();
-				for (Map.Entry<String, Object> extension : value.entrySet()) {
-
-					switch (extension.getKey().toLowerCase()) {
-					case "success":
-						setSuccess((boolean) extension.getValue());
-						break;
-					case "completion":
-						setCompletion((boolean) extension.getValue());
-						break;
-					case "response":
-						setResponse((String) extension.getValue(), tracker);
-						break;
-					case "score":
-						setScore((float) extension.getValue(), tracker);
-						break;
-					default:
-						extensions.put(extension.getKey(), extension.getValue());
-						break;
-					}
-				}
-			}
-
-			public String toCsv() {
-				StringBuilder result = new StringBuilder(((success > -1) ? ",success"
-						+ intToBoolString(success) : "")
-						+ ((completion > -1) ? ",completion"
-								+ intToBoolString(completion) : "")
-						+ ((!isNullOrEmpty(getResponse())) ? ",response,"
-								+ getResponse().replace(",", "\\,") : "")
-						+ ((!Float.isNaN(score)) ? ",score,"
-								+ Float.toString(score).replace(',', '.') : ""));
-
-				if (getExtensions() != null) {
-
-					for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
-						result.append("," + extension.getKey().replace(",", "\\,") + ",");
-						if (extension.getValue() != null) {
-							if (extension.getValue() instanceof String) {
-								result.append(extension.getValue().toString()
-										.replace(",", "\\,"));
-							} else if ((extension.getValue() instanceof Float)) {
-								result.append(Float.toString(
-										(Float) extension.getValue()).replace(
-										',', '.'));
-							} else if ((extension.getValue() instanceof Double)) {
-								result.append(Double.toString(
-										(Double) extension.getValue()).replace(
-										',', '.'));
-							} else if ((extension.getValue() instanceof Integer)) {
-								result.append(Integer.toString(
-										(Integer) extension.getValue())
-										.replace(',', '.'));
-							} else if (extension.getValue().getClass() == HashMap.class) {
-								@SuppressWarnings("unchecked")
-								Map<String, Object> map = (Map<String, Object>)extension.getValue();
-								StringBuilder inner = new StringBuilder();
-								for (Map.Entry<String, Object> e : map.entrySet()) {
-									 inner.append(e.getKey())
-											 .append("=")
-											 .append(e.getValue().toString().toLowerCase())
-											 .append("-");
-								}
-
-								result.append(inner.toString().replaceAll("[-]+$", ""));
-							} else {
-								result.append(String.valueOf(extension.getValue()));
-							}
-						}
-					}
-				}
-
-				return result.toString();
-			}
-
-			public Map<String, Object> toJson() {
-				Map<String, Object> result = new HashMap<>();
-				if (success != -1)
-					result.put("success", getSuccess());
-
-				if (completion != -1)
-					result.put("completion", getCompletion());
-
-				if (!isNullOrEmpty(getResponse()))
-					result.put("response", getResponse());
-
-				if (!Float.isNaN(score)) {
-					Map<String, Object> s = new HashMap<>();
-					s.put("raw", score);
-					result.put("score", s);
-				}
-
-				Map<String, Object> extensions = new HashMap<>();
-				for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
-					if (getExtensionIDs().containsKey(extension.getKey())) {
-						extensions.put(
-								getExtensionIDs().get(extension.getKey()),
-								extension.getValue());
-					} else {
-						extensions.put(extension.getKey(),
-								extension.getValue());
-					}
-				}
-				if (!extensions.isEmpty()) {
-					result.put("extensions", extensions);
-				}
-
-				return result;
-			}
-
-			public String toXml() {
-				return "";
-			}
-
-			// TODO;
-			public Map<String, Object> toXapi() {
-				return this.toJson();
-			}
-
-			private static String intToBoolString(int property) {
-				String ret = "";
-				if (property >= 1) {
-					ret = ",true";
-				} else if (property == 0) {
-					ret = ",false";
-				}
-
-				return ret;
-			}
-
-			public boolean isValid(TrackerAsset tracker) throws Exception {
-				boolean valid = true;
-
-				if (!isNullOrEmpty(getResponse())) {
-					setResponse(getResponse(), tracker);
-				}
-
-				if (!Float.isNaN(getScore())) {
-					setScore(getScore(), tracker);
-				}
-
-				Map<String, Object> result = new HashMap<String, Object>();
-				if (success != -1)
-					valid &= notNullEmptyOrNan(success);
-
-				if (completion != -1)
-					valid &= notNullEmptyOrNan(completion);
-
-				if (!isNullOrEmpty(getResponse()))
-					valid &= notNullEmptyOrNan(getResponse());
-
-				if (!Float.isNaN(score)) {
-					valid &= notNullEmptyOrNan(score);
-				}
-
-				if (getExtensions() != null && getExtensions().size() > 0) {
-					for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
-						valid &= quickCheckExtension(
-								extension.getKey(), extension.getValue());
-					}
-				}
-
-				return valid;
-			}
-
-		}
 
 	}
 
