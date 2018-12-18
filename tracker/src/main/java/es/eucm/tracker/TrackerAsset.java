@@ -820,7 +820,7 @@ public class TrackerAsset extends BaseAsset {
 			try {
 				String url = String.format(
 						"http%s://%2$s%3$s%4$s/%5$s",
-						settings.getSecure() ? "s" : "",
+						settings.isSecure() ? "s" : "",
 						settings.getHost(),
 						port == 80 ? "" : String.format(":%d", port),
 						isNullOrEmpty(settings.getBasePath().replaceAll(
@@ -872,7 +872,7 @@ public class TrackerAsset extends BaseAsset {
 				unsentTraces.addAll(traces);
 			}
 			// if backup requested, save a copy
-			if (settings.getBackupStorage()) {
+			if (settings.isBackupStorage()) {
 				IDataStorage storage = getInterface(IDataStorage.class);
 				IAppend appendStorage = getInterface(IAppend.class);
 				if (queue.getCount() > 0) {
