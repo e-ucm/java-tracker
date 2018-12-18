@@ -46,7 +46,7 @@ public class JavaBridge implements IBridge, ILog, IWebServiceRequest {
 	public JavaBridge() {
 	}
 
-	public void Log(Severity severity, String msg) {
+	public void log(Severity severity, String msg) {
 		{
 			if (msg == null || msg.isEmpty()) {
 				System.out.println("");

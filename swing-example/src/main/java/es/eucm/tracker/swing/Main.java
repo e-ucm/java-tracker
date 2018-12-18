@@ -38,8 +38,8 @@ public class Main extends JFrame {
 
 		tracker.setBridge(new JavaBridge() {
 			@Override
-			public void Log(Severity severity, String msg) {
-				super.Log(severity, msg);
+			public void log(Severity severity, String msg) {
+				super.log(severity, msg);
 				textArea.setText(textArea.getText() + "\n\n " + (++infoCount)
 						+ " -> " + severity + ": " + msg);
 			}

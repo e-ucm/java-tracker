@@ -178,7 +178,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 			settings.setStorageType(TrackerAssetSettings.StorageTypes.local);
 			settings.setTraceFormat(TrackerAssetSettings.TraceFormats.csv);
 			settings.setBatchSize(10);
-			SaveSettings(settingsFileName);
+			saveSettings(settingsFileName);
 		}
 
 		accessibleTracker = new AccessibleTracker(this);

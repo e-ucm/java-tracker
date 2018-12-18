@@ -86,7 +86,7 @@ public class TesterBridge implements IBridge, ILog, IDataStorage, IAppend,
 			files.put(fileId, fileData);
 	}
 
-	public void Log(Severity severity, String msg) {
+	public void log(Severity severity, String msg) {
 		{
 			if (msg == null || msg.isEmpty()) {
 				System.out.println("");
