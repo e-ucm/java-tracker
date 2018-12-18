@@ -43,222 +43,152 @@ import eu.rageproject.asset.manager.*;
  * A tracker asset settings.
  */
 public class TrackerAssetSettings extends BaseSettings {
+
+	// settings with defaults
+
+	/** hostname for the analytics server */
+	private String host = "localhost";
+	/** port of the analytics server */
+	private int port = 3000;
+	/** use https? */
+	private boolean secure = false;
+	/** size of batches to send */
+	private Integer batchSize = 2;
+	/** endpoint to contact at the server host; such as "analytics" */
+	private String basePath = "";
+	/** how to store traces; StorageTypes.net sends them over the network */
+	private TrackerAsset.StorageTypes storageType = TrackerAsset.StorageTypes.net;
+	/** trace format to use, such as xAPI, CSV, ... */
+	private TrackerAsset.TraceFormats traceFormat = TrackerAsset.TraceFormats.json;
+	/** use a backup storage or not */
+	private boolean backupStorage = true;
+
+	// settings with defaults set in constructor
+	/** file for logs */
+	private String logFile;
+	/** backup log file */
+	private String backupFile;
+
+	// attributes that must be set prior to use
+	/** token used to identify user; generated on login */
+	private String userToken;
+	/** id of player */
+	private String playerId;
+	/** analytics bucket for traces; identifies game version + experiment/class/whatever */
+	private String trackingCode;
+
 	/**
-	 * Initializes a new instance of the AssetPackage.TrackerAssetSettings
-	 * class.
+	 * Constructor
 	 */
 	public TrackerAssetSettings() {
-		super();
-		// Apply 'Factory' defaults.
-		//
-		setHost("localhost");
-		setPort(3000);
-		setSecure(false);
-		setBatchSize(2);
-		String timestamp = String.valueOf(System.currentTimeMillis());
-		setLogFile(timestamp + ".log");
-		setBackupStorage(true);
-		setBackupFile(timestamp + "_backup.log");
+		String timestamp = "" + System.currentTimeMillis();
+		logFile = timestamp + ".log";
+		backupFile = timestamp + "_backup.log";
 	}
 
-	/**
-	 * Gets or sets the host.
-	 * 
-	 * The host.
-	 */
-	private String __Host = "";
+	// getters & setters - generated automatically
 
 	public String getHost() {
-		return __Host;
+		return host;
 	}
 
-	public void setHost(String value) {
-		__Host = value;
+	public void setHost(String host) {
+		this.host = host;
 	}
-
-	/**
-	 * Gets or sets the host.
-	 * 
-	 * The host.
-	 */
-	private int __Port = -1;
 
 	public int getPort() {
-		return __Port;
+		return port;
 	}
 
-	public void setPort(int value) {
-		__Port = value;
+	public void setPort(int port) {
+		this.port = port;
 	}
 
-	/**
-	 * Gets or sets a value indicating whether to use http or https.
-	 * 
-	 * true if secure, false if not.
-	 */
-	private boolean __Secure = false;
-
-	public boolean getSecure() {
-		return __Secure;
+	public boolean isSecure() {
+		return secure;
 	}
 
-	public void setSecure(boolean value) {
-		__Secure = value;
+	public void setSecure(boolean secure) {
+		this.secure = secure;
 	}
-
-	/**
-	 * Gets or sets the full pathname of the base file.
-	 * 
-	 * Should either be empty or else start with a /. Should not include a
-	 * trailing /.
-	 * 
-	 * The full pathname of the base file.
-	 */
-	private String __BasePath = new String();
-
-	public String getBasePath() {
-		return __BasePath;
-	}
-
-	public void setBasePath(String value) {
-		__BasePath = value;
-	}
-
-	/**
-	 * Gets or sets the user Authentication token.
-	 * 
-	 * The user token.
-	 */
-	private String __UserToken = new String();
-
-	public String getUserToken() {
-		return __UserToken;
-	}
-
-	public void setUserToken(String value) {
-		__UserToken = value;
-	}
-
-	/**
-	 * Gets or sets the user PlayerId (Anonymous or Identified)
-	 * 
-	 * The user token.
-	 */
-	private String __PlayerId = new String();
-
-	public String getPlayerId() {
-		return __PlayerId;
-	}
-
-	public void setPlayerId(String value) {
-		__PlayerId = value;
-	}
-
-	/**
-	 * Gets or sets the game tracking code.
-	 * 
-	 * The tracking code.
-	 */
-	private String __TrackingCode = new String();
-
-	public String getTrackingCode() {
-		return __TrackingCode;
-	}
-
-	public void setTrackingCode(String value) {
-		__TrackingCode = value;
-	}
-
-	/**
-	 * Gets or sets the type of the storage.
-	 * 
-	 * The type of the storage.
-	 */
-	private TrackerAsset.StorageTypes __StorageType = TrackerAsset.StorageTypes.net;
-
-	public TrackerAsset.StorageTypes getStorageType() {
-		return __StorageType;
-	}
-
-	public void setStorageType(TrackerAsset.StorageTypes value) {
-		__StorageType = value;
-	}
-
-	/**
-	 * Save in Backup Storage
-	 * 
-	 * If true, backup storage is enabled.
-	 */
-	private boolean __BackupStorage = true;
-
-	public boolean getBackupStorage() {
-		return __BackupStorage;
-	}
-
-	public void setBackupStorage(boolean value) {
-		__BackupStorage = value;
-	}
-
-	/**
-	 * Gets or sets the trace format.
-	 * 
-	 * The trace format.
-	 */
-	private TrackerAsset.TraceFormats __TraceFormat = TrackerAsset.TraceFormats.json;
-
-	public TrackerAsset.TraceFormats getTraceFormat() {
-		return __TraceFormat;
-	}
-
-	public void setTraceFormat(TrackerAsset.TraceFormats value) {
-		__TraceFormat = value;
-	}
-
-	/**
-	 * Gets or sets the maximum size of the batch to be flushed.
-	 * 
-	 * A value of 0 results in no limit on the batch size.
-	 * 
-	 * The maximum size of the batch.
-	 */
-	private Integer __BatchSize = 4;
 
 	public Integer getBatchSize() {
-		return __BatchSize;
+		return batchSize;
 	}
 
-	public void setBatchSize(Integer value) {
-		__BatchSize = value;
+	public void setBatchSize(Integer batchSize) {
+		this.batchSize = batchSize;
 	}
 
-	/**
-	 * Gets or sets the log file.
-	 * 
-	 * The log file.
-	 */
-	private String __LogFile = new String();
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
+	}
+
+	public TrackerAsset.StorageTypes getStorageType() {
+		return storageType;
+	}
+
+	public void setStorageType(TrackerAsset.StorageTypes storageType) {
+		this.storageType = storageType;
+	}
+
+	public TrackerAsset.TraceFormats getTraceFormat() {
+		return traceFormat;
+	}
+
+	public void setTraceFormat(TrackerAsset.TraceFormats traceFormat) {
+		this.traceFormat = traceFormat;
+	}
+
+	public boolean isBackupStorage() {
+		return backupStorage;
+	}
+
+	public void setBackupStorage(boolean backupStorage) {
+		this.backupStorage = backupStorage;
+	}
 
 	public String getLogFile() {
-		return __LogFile;
+		return logFile;
 	}
 
-	public void setLogFile(String value) {
-		__LogFile = value;
+	public void setLogFile(String logFile) {
+		this.logFile = logFile;
 	}
-
-	/**
-	 * Gets or sets the log's backup file.
-	 * 
-	 * The log file.
-	 */
-	private String __BackupFile = new String();
 
 	public String getBackupFile() {
-		return __BackupFile;
+		return backupFile;
 	}
 
-	public void setBackupFile(String value) {
-		__BackupFile = value;
+	public void setBackupFile(String backupFile) {
+		this.backupFile = backupFile;
 	}
 
+	public String getUserToken() {
+		return userToken;
+	}
+
+	public void setUserToken(String userToken) {
+		this.userToken = userToken;
+	}
+
+	public String getPlayerId() {
+		return playerId;
+	}
+
+	public void setPlayerId(String playerId) {
+		this.playerId = playerId;
+	}
+
+	public String getTrackingCode() {
+		return trackingCode;
+	}
+
+	public void setTrackingCode(String trackingCode) {
+		this.trackingCode = trackingCode;
+	}
 }
