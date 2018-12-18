@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//
-// Translated by CS2J (http://www.cs2j.com): 05/11/2018 15:29:16
-//
 
 package es.eucm.tracker;
 
