@@ -17,15 +17,14 @@ After a game is developed, a common need is to know how the players play, what i
   ```
 4. Create a new TrackerAsset by:
   ```java
-  TrackerAsset tracker = new TrackerAsset();
+  TrackerAsset tracker = TrackerAsset.getInstance();
   ```
   
 5. Set up a bridge for creating connects with the server
   ```java
   // Set bridge, for instance the one defined at the tracker tester app
   tracker.setBridge(new JavaBridge());
-  
-   ```
+  ```
 
 6. Further configuration of the tracker can be done with `TrackerAssetSettings()`:
   ```java
@@ -39,7 +38,6 @@ After a game is developed, a common need is to know how the players play, what i
   settings.setBasePath("/api/");
 
   tracker.setSettings(settings);
-
   ```
 7. Optionally, login with user
 1. Start the tracker by using `tracker.start()`
@@ -64,26 +62,25 @@ There are two possible ways for sending traces:
 
 ```java
 // Simple trace
-TrackerAsset.getInstance().getGameObject().used("GameObjectID", GameObjectTracker.TrackedGameObject.Item);
+tracker.getGameObject().used("GameObjectID", GameObjectTracker.TrackedGameObject.Item);
 
 // Trace with extension
-TrackerAsset.getInstance().setVar("extension1", "value1");
-TrackerAsset.getInstance().getAccessible().skipped("AccesibleID2", AccessibleTracker.Accessible.Screen);
+tracker.setVar("extension1", "value1");
+tracker.getAccessible().skipped("AccesibleID2", AccessibleTracker.Accessible.Screen);
 
-// Complex trace
-// Including response, score, success, completion and several extensions
-TrackerAsset.getInstance().setResponse("TheResponse");
-TrackerAsset.getInstance().setScore(0.123f);
-TrackerAsset.getInstance().setSuccess(false);
-TrackerAsset.getInstance().setCompletion(true);
-TrackerAsset.getInstance().setVar("extension1", "value1");
-TrackerAsset.getInstance().setVar("extension2", "value2");
-TrackerAsset.getInstance().setVar("extension3", 3);
-TrackerAsset.getInstance().setVar("extension4", 4.56f);
-TrackerAsset.getInstance().actionTrace("selected", "zone", "ObjectID3");
+// Complex trace, including response, score, success, completion and several extensions
+tracker.setResponse("TheResponse");
+tracker.setScore(0.123f);
+tracker.setSuccess(false);
+tracker.setCompletion(true);
+tracker.setVar("extension1", "value1");
+tracker.setVar("extension2", "value2");
+tracker.setVar("extension3", 3);
+tracker.setVar("extension4", 4.56f);
+tracker.actionTrace("selected", "zone", "ObjectID3");
 
 // Sending the traces
-TrackerAsset.getInstance().flush();
+tracker.flush();
 
 ```
 
@@ -127,19 +124,19 @@ Usage example for the tracking of an in-game quest. We decided to use a [Complet
 // Completable
 
 // Initialized
-TrackerAsset.getInstance().getCompletable().initialized("MyGameQuestId", CompletableTracker.Completable.Quest);
+tracker.getCompletable().initialized("MyGameQuestId", CompletableTracker.Completable.Quest);
 
 // Progressed
 float progress = 0.5f;
-TrackerAsset.getInstance().getCompletable().progressed("MyGameQuestId", CompletableTracker.Completable.Quest, progress);
+tracker.getCompletable().progressed("MyGameQuestId", CompletableTracker.Completable.Quest, progress);
 
 // Completed
-TrackerAsset.getInstance().getCompletable().completed("MyGameQuestId", CompletableTracker.Completable.Quest);
+tracker.getCompletable().completed("MyGameQuestId", CompletableTracker.Completable.Quest);
 
 // Completed with success and score
 boolean success = true;
 float score = 08f;
-TrackerAsset.getInstance().getCompletable().completed("MyGameQuestId", CompletableTracker.Completable.Quest, success, score);
+tracker.getCompletable().completed("MyGameQuestId", CompletableTracker.Completable.Quest, success, score);
 
 ```
 #### Accessible
@@ -151,11 +148,11 @@ Usage example for tracking the player's movement enterging the _'MainMenu'_ and 
 
 // Accessed
 // The player accessed the 'MainMenu' screen
-TrackerAsset.getInstance().getAccessible().accessed("MainMenu", AccessibleTracker.Accessible.Screen);
+tracker.getAccessible().accessed("MainMenu", AccessibleTracker.Accessible.Screen);
 
 // Skipped
 // The player skipped the 'Intro' cutscene
-TrackerAsset.getInstance().getAccessible().skipped("Intro", AccessibleTracker.Accessible.Cutscene);
+tracker.getAccessible().skipped("Intro", AccessibleTracker.Accessible.Cutscene);
 
 ```
 
@@ -168,11 +165,11 @@ Usage example for the tracking the player's choices during a conversation and un
 
 // Selected 
 // The player selected the 'Ivan' answer for the question 'What's his name?'
-TrackerAsset.getInstance().getAlternative().selected("what's his name?", "Ivan", AlternativeTracker.Alternative.Question);
+tracker.getAlternative().selected("what's his name?", "Ivan", AlternativeTracker.Alternative.Question);
 
 // Unlocked
 // The player unlocked 'Combat Mode' for the menu 'Menus/Start'
-TrackerAsset.getInstance().getAlternative().unlocked("Menus/Start", "Combat Mode", AlternativeTracker.Alternative.Menu);
+tracker.getAlternative().unlocked("Menus/Start", "Combat Mode", AlternativeTracker.Alternative.Menu);
 
 ```
 
@@ -185,11 +182,11 @@ Usage example for the tracking the player's with a NPC villager and using a heal
 
 // Interacted 
 // The player interacted with an NPC
-TrackerAsset.getInstance().getGameObject().interacted("NPC/Villager", GameObjectTracker.TrackedGameObject.Npc);
+tracker.getGameObject().interacted("NPC/Villager", GameObjectTracker.TrackedGameObject.Npc);
 
 // Used
 // The player used an item
-TrackerAsset.getInstance().getGameObject().used("Item/HealthPotion", GameObjectTracker.TrackedGameObject.Item);
+tracker.getGameObject().used("Item/HealthPotion", GameObjectTracker.TrackedGameObject.Item);
 
 ```
 
