@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static es.eucm.tracker.TrackerUtils.notNullEmptyOrNan;
-import static es.eucm.tracker.TrackerUtils.parseEnum;
+import static es.eucm.tracker.TrackerUtils.parseEnumOrComplain;
 
 /**
  * Class for Verb storage.
@@ -35,7 +35,7 @@ public class TraceVerb {
 
 	public void setStringVerb(String value, TrackerAsset tracker) throws TrackerException {
 		stringVerb = value;
-		xApiVerb = parseEnum(value, TrackerAsset.Verb.class, tracker,
+		xApiVerb = parseEnumOrComplain(value, TrackerAsset.Verb.class, tracker,
 				"Tracker-xAPI: Unknown definition for verb: " + value,
 				"Tracker-xAPI: Unknown definition for verb: " + value, VerbXApiException.class);
 		if (xApiVerb != null) {

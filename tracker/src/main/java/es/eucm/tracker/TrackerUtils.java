@@ -157,9 +157,10 @@ public class TrackerUtils {
 	/**
 	 * Complains if the input is not a valid enum; also returns result, if any.
 	 */
-	public static <E extends Enum<E>> E parseEnum(String text, Class<E> enumType,
-			TrackerAsset tracker, String message, String strictMessage,
-			Class<? extends TrackerException> c) throws TrackerException {
+	public static <E extends Enum<E>> E parseEnumOrComplain(
+			String text, Class<E> enumType,
+            TrackerAsset tracker, String message, String strictMessage,
+            Class<? extends TrackerException> c) throws TrackerException {
 		Exception cause = null;
 		try {
 			for (E enumValue : enumType.getEnumConstants()) {
