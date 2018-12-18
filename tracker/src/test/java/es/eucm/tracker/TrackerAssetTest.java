@@ -45,15 +45,15 @@ public class TrackerAssetTest {
 	TesterBridge bridge;
 
 	private void initTracker(String format) throws Exception {
-		initTracker(format, TrackerAsset.StorageTypes.local, null);
+		initTracker(format, TrackerAssetSettings.StorageTypes.local, null);
 	}
 
-	private void initTracker(String format, TrackerAsset.StorageTypes st,
+	private void initTracker(String format, TrackerAssetSettings.StorageTypes st,
 			TesterBridge bridge) throws Exception {
 		TrackerAsset.getInstance().stop();
 		Path current = Paths.get(System.getProperty("user.dir"));
 
-		settings.setTraceFormat(TrackerAsset.TraceFormats.valueOf(format));
+		settings.setTraceFormat(TrackerAssetSettings.TraceFormats.valueOf(format));
 
 		settings.setStorageType(st);
 		TrackerAsset.getInstance().setSettings(settings);
@@ -65,7 +65,7 @@ public class TrackerAssetTest {
 		storage = getInterface(IDataStorage.class);
 		append_storage = getInterface(IAppend.class);
 		log = (ILog) TrackerAsset.getInstance().getBridge();
-		TrackerAsset.getInstance().setStrictMode(true);
+		TrackerUtils.setStrictMode(true);
 		TrackerAsset.getInstance().clear();
 		TrackerAsset.getInstance().start();
 	}
@@ -73,7 +73,7 @@ public class TrackerAssetTest {
 	@Test
 	public void actionTraceTest() throws Exception {
 		initTracker("csv");
-		TrackerAsset.getInstance().setStrictMode(false);
+		TrackerUtils.setStrictMode(false);
 		TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
 		checkCSVTrace("Verb,Type,ID");
 		TrackerAsset.getInstance().actionTrace("Verb", "Ty,pe", "ID");
@@ -83,7 +83,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().actionTrace("Ve,rb", "Type", "ID");
 		checkCSVTrace("Ve\\,rb,Type,ID");
 		initTracker("csv");
-		TrackerAsset.getInstance().setStrictMode(true);
+		TrackerUtils.setStrictMode(true);
 
 		try {
 			TrackerAsset.getInstance().actionTrace(null, "Type", "ID");
@@ -123,7 +123,7 @@ public class TrackerAssetTest {
 
 		cleanStorage();
 		initTracker("xapi");
-		TrackerAsset.getInstance().setStrictMode(false);
+		TrackerUtils.setStrictMode(false);
 		TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
@@ -450,7 +450,7 @@ public class TrackerAssetTest {
 		exception = null;
 
 		initTracker("csv");
-		TrackerAsset.getInstance().setStrictMode(false);
+		TrackerUtils.setStrictMode(false);
 		TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
 		checkCSVTrace("Verb,Type,ID");
 		TrackerAsset.getInstance().actionTrace("Verb", "Ty,pe", "ID");
@@ -476,7 +476,7 @@ public class TrackerAssetTest {
 		assertNull(exception);
 		exception = null;
 		initTracker("csv");
-		TrackerAsset.getInstance().setStrictMode(true);
+		TrackerUtils.setStrictMode(true);
 		try {
 			TrackerAsset.getInstance().setVar("k", "");
 		} catch (ValueExtensionException e) {
@@ -555,13 +555,15 @@ public class TrackerAssetTest {
 	@Test
 	public void testTrace_Generic_Csv_Stored_WithComma() throws Exception {
 		initTracker("csv");
-		TrackerAsset.getInstance().setStrictMode(false);
+
+		TrackerUtils.setStrictMode(false);
 		TrackerAsset.getInstance().setVar("e1", "ex,2");
 		TrackerAsset.getInstance().setVar("e,1", "ex,2,");
 		TrackerAsset.getInstance().setVar("e3", "e3");
 		TrackerAsset.getInstance().actionTrace("verb", "target", "id");
 		TrackerAsset.getInstance().flush();
 		checkCSVStoredTrace("verb,target,id,e1,ex\\,2,e\\,1,ex\\,2\\,,e3,e3");
+		TrackerUtils.setStrictMode(true);
 	}
 
 	@Test
@@ -1186,7 +1188,7 @@ public class TrackerAssetTest {
 
 	@Test
 	public void testTraceSendingSync() throws Exception {
-		initTracker("xapi", TrackerAsset.StorageTypes.net, null);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, null);
 		storage.delete("netstorage");
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
@@ -1233,7 +1235,7 @@ public class TrackerAssetTest {
 
 	@Test
 	public void testTraceSending_IntermitentConnection() throws Exception {
-		initTracker("xapi", TrackerAsset.StorageTypes.net, null);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, null);
 		storage.delete("netstorage");
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
@@ -1273,7 +1275,7 @@ public class TrackerAssetTest {
 
 	@Test
 	public void testBackupSync_IntermitentConnection() throws Exception {
-		initTracker("xapi", TrackerAsset.StorageTypes.net, null);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, null);
 		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 		enqueueTrace01();
@@ -1314,7 +1316,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().stop();
 		bridge = new TesterBridge();
 		bridge.setConnected(false);
-		initTracker("xapi", TrackerAsset.StorageTypes.net, bridge);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, bridge);
 		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 
@@ -1365,7 +1367,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().stop();
 		bridge = new TesterBridge();
 		bridge.setConnected(false);
-		initTracker("csv", TrackerAsset.StorageTypes.net, bridge);
+		initTracker("csv", TrackerAssetSettings.StorageTypes.net, bridge);
 		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 		// Flush sin connected

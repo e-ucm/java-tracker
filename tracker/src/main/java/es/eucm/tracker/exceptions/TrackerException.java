@@ -19,7 +19,7 @@
 
 package es.eucm.tracker.exceptions;
 
-public class TrackerException extends Exception {
+public class TrackerException extends RuntimeException {
 
 	public TrackerException(String message) {
 		super(message);

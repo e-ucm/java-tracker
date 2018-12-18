@@ -58,11 +58,9 @@ public class TrackerEvent {
 		return verb;
 	}
 
-	public void setEvent(TraceVerb value, TrackerAsset tracker)
-			throws Exception {
+	public void setEvent(TraceVerb value) {
 		this.verb = value;
-		this.verb.setParent(this);
-		this.verb.isValid(tracker);
+		this.verb.isValid();
 	}
 
 	/**
@@ -209,11 +207,11 @@ public class TrackerEvent {
 	}
 
 	// 2) If the string contains a CRLF or , enquote the whole string.
-	private boolean isValid(TrackerAsset tracker) throws Exception {
+	private boolean isValid() throws Exception {
 		boolean check = true;
-		check &= getEvent().isValid(tracker);
+		check &= getEvent().isValid();
 		check &= getTarget().isValid();
-		check &= getResult().isValid(tracker);
+		check &= getResult().isValid();
 		return check;
 	}
 
@@ -221,15 +219,15 @@ public class TrackerEvent {
 	 * Class for Target storage.
 	 */
 	public static class TraceObject {
-		String type;
-		String id;
+		private String type;
+		private String id;
 
 		public String getType() {
 			return type;
 		}
 
-		public void setType(String value, TrackerAsset tracker) throws Exception {
-			if (tracker == null || check(value, tracker,
+		public void setType(String value) {
+			if (check(value,
 				"xAPI Exception: Target Type is null or empty. Ignoring.",
 				"xAPI Exception: Target Type can't be null or empty.",
 				TargetXApiException.class))
@@ -240,8 +238,8 @@ public class TrackerEvent {
 			return id;
 		}
 
-		public void setID(String value, TrackerAsset tracker) throws Exception {
-			if (tracker == null	|| check(value, tracker,
+		public void setID(String value) {
+			if (check(value,
 				"xAPI Exception: Target ID is null or empty. Ignoring.",
 				"xAPI Exception: Target ID can't be null or empty.",
 				TargetXApiException.class))
@@ -249,19 +247,9 @@ public class TrackerEvent {
 
 		}
 
-		private Map<String, Object> definition;
-
-		public Map<String, Object> getDefinition() {
-			return definition;
-		}
-
-		public void setDefinition(Map<String, Object> value) {
-			definition = value;
-		}
-
-		public TraceObject(String type, String id, TrackerAsset tracker) throws Exception {
-			this.setType(type, tracker);
-			this.setID(id, tracker);
+		public TraceObject(String type, String id){
+			this.setType(type);
+			this.setID(id);
 		}
 
 		public String toCsv() {
@@ -269,20 +257,17 @@ public class TrackerEvent {
 					+ getID().replace(",", "\\,");
 		}
 
-		public Map<String, Object> toJson(TrackerAsset tracker) throws TargetXApiException {
+		public Map<String, Object> toJson(TrackerAsset tracker) {
 			String typeKey = getType();
 
 			if (getObjectIDs().containsKey(getType())) {
 				typeKey = getObjectIDs().get(getType());
-			} else if (tracker.isStrictMode()) {
-				throw (new TargetXApiException(
-						"Tracker-xAPI: Unknown definition for target type: "
-								+ getType()));
 			} else {
-				tracker.log(
-						Severity.Warning,
-						"Tracker-xAPI: Unknown definition for target type: "
-								+ getType());
+				String complaint = "Tracker-xAPI: Unknown definition for target type: " +
+						getType();
+
+				complain(complaint, complaint + " - ignored",
+						TargetXApiException.class, null);
 			}
 
 			Map<String, Object> obj = new HashMap<>(), definition = new HashMap<>();
@@ -302,7 +287,7 @@ public class TrackerEvent {
 		}
 
 		// TODO;
-		public Map<String, Object> toXapi(TrackerAsset tracker) throws TargetXApiException {
+		public Map<String, Object> toXapi(TrackerAsset tracker) {
 			return this.toJson(tracker);
 		}
 
@@ -344,12 +329,11 @@ public class TrackerEvent {
 			return res;
 		}
 
-		public void setResponse(String value, TrackerAsset tracker) throws Exception {
-			if (tracker == null
-					|| check(value, tracker,
-						"xAPI extension: response Empty or null. Ignoring",
-						"xAPI extension: response can't be empty or null",
-						ValueExtensionException.class))
+		public void setResponse(String value) {
+			if (check(value,
+					"xAPI extension: response Empty or null. Ignoring",
+					"xAPI extension: response can't be empty or null",
+					ValueExtensionException.class))
 				res = value;
 
 		}
@@ -358,9 +342,8 @@ public class TrackerEvent {
 			return score;
 		}
 
-		public void setScore(float value, TrackerAsset tracker) throws Exception {
-			if (tracker == null
-					|| check(value, tracker,
+		public void setScore(float value) {
+			if (check(value,
 						"xAPI extension: score null or NaN. Ignoring",
 						"xAPI extension: score can't be null or NaN.",
 						ValueExtensionException.class))
@@ -373,8 +356,7 @@ public class TrackerEvent {
 			return extensions;
 		}
 
-		public void setExtensions(Map<String, Object> value, TrackerAsset tracker)
-				throws Exception {
+		public void setExtensions(Map<String, Object> value) {
 			extensions = new HashMap<>();
 			for (Map.Entry<String, Object> extension : value.entrySet()) {
 
@@ -386,10 +368,10 @@ public class TrackerEvent {
 					setCompletion((boolean) extension.getValue());
 					break;
 				case "response":
-					setResponse((String) extension.getValue(), tracker);
+					setResponse((String) extension.getValue());
 					break;
 				case "score":
-					setScore((float) extension.getValue(), tracker);
+					setScore((float) extension.getValue());
 					break;
 				default:
 					extensions.put(extension.getKey(), extension.getValue());
@@ -501,16 +483,16 @@ public class TrackerEvent {
 			return ret;
 		}
 
-		public boolean isValid(TrackerAsset tracker) throws Exception {
+		public boolean isValid() throws Exception {
 			boolean valid = true;
 
 			// FIXME --> these are mostly redundant
 			if (notNullEmptyOrNan(getResponse())) {
-				setResponse(getResponse(), tracker);
+				setResponse(getResponse());
 			}
 
 			if (notNullEmptyOrNan(getScore())) {
-				setScore(getScore(), tracker);
+				setScore(getScore());
 			}
 
 			// FIXME --> these two do nothing useful

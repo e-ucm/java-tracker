@@ -80,7 +80,7 @@ public class Main extends JFrame {
 				settings.setHost(hostField.getText());
 				settings.setPort(443);
 				settings.setSecure(true);
-				settings.setTraceFormat(TrackerAsset.TraceFormats.xapi);
+				settings.setTraceFormat(TrackerAssetSettings.TraceFormats.xapi);
 				settings.setBasePath("/api/");
 
 				tracker.setSettings(settings);
