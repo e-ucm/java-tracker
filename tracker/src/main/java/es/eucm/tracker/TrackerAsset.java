@@ -236,7 +236,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	/**
 	 * Flushes the queue.
 	 */
-	public void flush() throws XApiException {
+	public void flush() {
 		processQueue();
 	}
 
@@ -443,7 +443,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	/**
 	 * Exit the tracker before closing to guarantee the thread closing.
 	 */
-	public void exit() throws XApiException {
+	public void exit() {
 		exiting = true;
 		flush();
 	}
@@ -640,7 +640,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	/**
 	 * Process the queue.
 	 */
-	private void processQueue() throws XApiException {
+	private void processQueue() {
 		if (!started) {
 			log(Severity.Warning,
 					"Refusing to send traces without starting tracker (Active is False, should be True)");
@@ -701,8 +701,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 		return traces;
 	}
 
-	String processTraces(List<TrackerEvent> traces, TrackerAssetSettings.TraceFormats format)
-			throws XApiException {
+	String processTraces(List<TrackerEvent> traces, TrackerAssetSettings.TraceFormats format) {
 		List<String> stringsToSend = new ArrayList<>();
 		for (TrackerEvent item : traces) {
 			switch (format) {
@@ -758,7 +757,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 		return tracesPending.size() == 0;
 	}
 
-	boolean sendUnloggedTraces() throws XApiException {
+	boolean sendUnloggedTraces() {
 		if (unsentTraces.size() > 0 && actorObject != null) {
 			String data = processTraces(unsentTraces,
 					settings.getTraceFormat());
@@ -821,7 +820,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	 * @param success
 	 *            If set to {@code true} means it has been a success.
 	 */
-	public void setSuccess(boolean success) throws Exception {
+	public void setSuccess(boolean success) {
 		setVar(Extension.Success.toString().toLowerCase(), success);
 	}
 
@@ -831,7 +830,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	 * @param score
 	 *            Score, (Recomended between 0 and 1)
 	 */
-	public void setScore(float score) throws Exception {
+	public void setScore(float score) {
 		if (score < 0 || score > 1)
 			log(Severity.Warning,
 					"Tracker: Score recommended between 0 and 1 (Current: "
@@ -847,7 +846,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	 * @param response
 	 *            Response.
 	 */
-	public void setResponse(String response) throws Exception {
+	public void setResponse(String response) {
 		addExtension(Extension.Response.toString().toLowerCase(), response);
 	}
 
@@ -858,7 +857,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	 * @param completion
 	 *            If set to {@code true} the trace action has been completed.
 	 */
-	public void setCompletion(boolean completion) throws Exception {
+	public void setCompletion(boolean completion) {
 		setVar(Extension.Completion.toString().toLowerCase(), completion);
 	}
 
@@ -888,7 +887,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	 * @param z
 	 *            The z coordinate.
 	 */
-	public void setPosition(float x, float y, float z) throws Exception {
+	public void setPosition(float x, float y, float z) {
 		boolean valid =  ! (Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z));
 		if ( ! checkIsTrue(valid,
 				"Tracker: x, y or z cannot be null.",
@@ -906,7 +905,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	 * @param health
 	 *            Health.
 	 */
-	public void setHealth(float health) throws Exception {
+	public void setHealth(float health) {
 		if (check(health,
 			"Tracker: Health cannot be null, ignoring.",
 			"Tracker: Health cannot be null.",

@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//
-// Translated by CS2J (http://www.cs2j.com): 05/11/2018 15:29:15
-//
-
 package es.eucm.tracker.exceptions;
 
 public class VerbXApiException extends XApiException {
+
+	/**
+	 * @see java.io.Serializable
+	 */
+	private static final long serialVersionUID = -5406594311008002223L;
+
 	public VerbXApiException(String message) {
 		super(message);
 	}
+
 	public VerbXApiException(String message, Throwable cause) {
 		super(message, cause);
 	}
+
 }
