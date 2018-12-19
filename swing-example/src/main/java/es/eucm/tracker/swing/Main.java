@@ -98,7 +98,7 @@ public class Main {
 	private JPanel customTraceOptionsPanel;
 	
 	public Main() {
-		tracker = TrackerAsset.getInstance();
+		tracker = new TrackerAsset();
 		tracker.setBridge(new JavaBridge() {
 			@Override
 			public void log(Severity severity, String msg) {

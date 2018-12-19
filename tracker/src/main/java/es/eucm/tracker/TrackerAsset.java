@@ -156,7 +156,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	/**
 	 * Private constructor, only called (once) from getInstance()
 	 */
-	private TrackerAsset() {
+	public TrackerAsset() {
 		TrackerUtils.setLogger(new Logger() {
 			@Override
 			public void log(Severity severity, String message) {
