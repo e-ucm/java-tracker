@@ -27,16 +27,24 @@ public class GameObjectTracker {
 	}
 
 	public enum TrackedGameObject implements TrackerUtils.XApiConstant {
-		Enemy("https://w3id.org/xapi/seriousgames/activity-types/enemy"),
-		Npc("https://w3id.org/xapi/seriousgames/activity-types/non-player-character"),
-		Item("https://w3id.org/xapi/seriousgames/activity-types/item"),
-		GameObject("https://w3id.org/xapi/seriousgames/activity-types/game-object");
+		Enemy("enemy"),
+		Npc("non-player-character"),
+		Item("item"),
+		GameObject("game-object");
+
 		private String id;
+		
 		TrackedGameObject(String id) {
 			this.id = id;
 		}
+		
 		@Override
 		public String getId() {
+			return ACTIVITY_TYPES_BASE_IRI+id;
+		}
+
+		@Override
+		public String getSimpleName() {
 			return id;
 		}
 	}

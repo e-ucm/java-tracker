@@ -13,28 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package es.eucm.tracker;
 
-import es.eucm.tracker.exceptions.TargetXApiException;
-import es.eucm.tracker.exceptions.ValueExtensionException;
-
-public class AlternativeTracker {
+public class AlternativeTracker extends BaseTracker {
 	private TraceProcessor tracker;
 
 	public enum Alternative implements TrackerUtils.XApiConstant {
-		Question("http://adlnet.gov/expapi/activities/question"),
-		Menu("https://w3id.org/xapi/seriousgames/activity-types/menu"),
-		Dialog("https://w3id.org/xapi/seriousgames/activity-types/dialog-tree"),
-		Path("https://w3id.org/xapi/seriousgames/activity-types/path"),
-		Arena("https://w3id.org/xapi/seriousgames/activity-types/arena"),
-		Alternative("https://w3id.org/xapi/seriousgames/activity-types/alternative");
+		Question("http://adlnet.gov/expapi/activities/", "question"),
+		Menu(ACTIVITY_TYPES_BASE_IRI, "menu"),
+		Dialog(ACTIVITY_TYPES_BASE_IRI, "dialog-tree"),
+		Path(ACTIVITY_TYPES_BASE_IRI, "path"),
+		Arena(ACTIVITY_TYPES_BASE_IRI, "arena"),
+		Alternative(ACTIVITY_TYPES_BASE_IRI, "alternative");
+
+		private String baseIri;
+		
 		private String id;
-		Alternative(String id) {
+		
+		Alternative(String baseIri, String id) {
+			this.baseIri = baseIri;
 			this.id = id;
 		}
+		
 		@Override
 		public String getId() {
+			return baseIri+id;
+		}
+
+		@Override
+		public String getSimpleName() {
 			return id;
 		}
 	}
@@ -52,31 +59,7 @@ public class AlternativeTracker {
 	 *            Option identifier.
 	 */
 	public void selected(String alternativeId, String optionId) {
-		boolean check = true;
-		check &= TrackerUtils.check(alternativeId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class);
-		check &= TrackerUtils.check(optionId,
-				"xAPI Exception: Selected alternative is null or empty",
-				"xAPI Exception: Selected alternative can't be null or empty",
-				ValueExtensionException.class);
-		if (check) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Selected));
-			trace.setTarget(new TrackerEvent.TraceObject(
-					Alternative.Alternative.toString().toLowerCase(),
-					alternativeId));
-
-			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
-			result.setResponse(optionId);
-			trace.setResult(result);
-
-			tracker.process(trace);
-		}
-
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Selected), Alternative.Alternative, optionId, alternativeId));
 	}
 
 	/**
@@ -90,30 +73,7 @@ public class AlternativeTracker {
 	 *            Alternative type.
 	 */
 	public void selected(String alternativeId, String optionId, Alternative type) {
-		boolean check = true;
-		check &= TrackerUtils.check(alternativeId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class);
-		check &= TrackerUtils.check(optionId,
-				"xAPI Exception: Selected alternative is null or empty",
-				"xAPI Exception: Selected alternative can't be null or empty",
-				ValueExtensionException.class);
-		if (check) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Selected));
-			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), alternativeId));
-
-			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
-			result.setResponse(optionId);
-			trace.setResult(result);
-
-			tracker.process(trace);
-		}
-
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Selected), type, optionId, alternativeId));
 	}
 
 	/**
@@ -125,30 +85,7 @@ public class AlternativeTracker {
 	 *            Option identifier.
 	 */
 	public void unlocked(String alternativeId, String optionId) {
-		boolean check = true;
-		check &= TrackerUtils.check(alternativeId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class);
-		check &= TrackerUtils.check(optionId,
-				"xAPI Exception: Selected alternative is null or empty",
-				"xAPI Exception: Selected alternative can't be null or empty",
-				ValueExtensionException.class);
-		if (check) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Unlocked));
-			trace.setTarget(new TrackerEvent.TraceObject(
-					Alternative.Alternative.toString().toLowerCase(),
-					alternativeId));
-
-			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
-			result.setResponse(optionId);
-			trace.setResult(result);
-
-			tracker.process(trace);
-		}
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Unlocked), Alternative.Alternative, optionId, alternativeId));
 	}
 
 	/**
@@ -161,30 +98,7 @@ public class AlternativeTracker {
 	 * @param type
 	 *            Alternative type.
 	 */
-	public void unlocked(String alternativeId, String optionId, Alternative type) {
-		boolean check = true;
-		check &= TrackerUtils.check(alternativeId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class);
-		check &= TrackerUtils.check(optionId,
-				"xAPI Exception: Selected alternative is null or empty",
-				"xAPI Exception: Selected alternative can't be null or empty",
-				ValueExtensionException.class);
-		if (check) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Unlocked));
-			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), alternativeId));
-
-			TrackerEvent.TraceResult result = new TrackerEvent.TraceResult();
-			result.setResponse(optionId);
-			trace.setResult(result);
-
-			tracker.process(trace);
-		}
+	public void unlocked(String alternativeId, String optionId, Alternative type) {	
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Unlocked), type, optionId, alternativeId));
 	}
-
 }

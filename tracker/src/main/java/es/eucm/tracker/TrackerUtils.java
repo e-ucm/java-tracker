@@ -62,10 +62,23 @@ public class TrackerUtils {
 	 * Each of them has a unique, URL-like ID.
 	 */
 	public interface XApiConstant {
+		
+		public static final String ACTIVITY_TYPES_BASE_IRI = "https://w3id.org/xapi/seriousgames/activity-types/";
+		
+		public static final String VERBS_BASE_IRI = "https://w3id.org/xapi/seriousgames/verbs/";
+		
+		public static final String EXTENSIONS_BASE_IRI = "https://w3id.org/xapi/seriousgames/extensions/";
+
+		
 		/**
 		 * @return the official xAPI id for this constant
 		 */
-		String getId();
+		public String getId();
+		
+		/**
+		 * @return the simple xAPI id (last part of the IRI) for this constant
+		 */
+		public String getSimpleName();
 	}
 
 	/** disallows instantiation */

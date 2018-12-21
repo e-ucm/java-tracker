@@ -130,24 +130,37 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 		/*
 		 * Special extensions - no ID assigned
 		 */
-		Score(null),
-		Success(null),
-		Response(null),
-		Completion(null),
+		Score(null, null),
+		Success(null, null),
+		Response(null, null),
+		Completion(null, null),
+		
 		/*
 		 * Common extensions
 		 */
-		Health("https://w3id.org/xapi/seriousgames/extensions/health"),
-		Position("https://w3id.org/xapi/seriousgames/extensions/position"),
-		Progress("https://w3id.org/xapi/seriousgames/extensions/progress");
+		Health(EXTENSIONS_BASE_IRI, "health"),
+		Position(EXTENSIONS_BASE_IRI, "position"),
+		Progress(EXTENSIONS_BASE_IRI, "progress");
+		
+		private String baseIri;
+		
 		private String id;
-		Extension(String id) {
+		
+		Extension(String baseIri, String id) {
+			this.baseIri = baseIri;
 			this.id = id;
 		}
+		
 		@Override
 		public String getId() {
+			return baseIri+id;
+		}
+
+		@Override
+		public String getSimpleName() {
 			return id;
 		}
+		
 		public boolean isSpecial() {
 			return id == null;
 		}

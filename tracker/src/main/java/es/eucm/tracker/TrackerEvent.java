@@ -16,7 +16,10 @@
 
 package es.eucm.tracker;
 
-import es.eucm.tracker.exceptions.*;
+import static es.eucm.tracker.TrackerUtils.check;
+import static es.eucm.tracker.TrackerUtils.complain;
+import static es.eucm.tracker.TrackerUtils.notNullEmptyOrNan;
+import static es.eucm.tracker.TrackerUtils.quickCheckExtension;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,7 +28,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static es.eucm.tracker.TrackerUtils.*;
+import es.eucm.tracker.AlternativeTracker.Alternative;
+import es.eucm.tracker.CompletableTracker.Completable;
+import es.eucm.tracker.TrackerUtils.XApiConstant;
+import es.eucm.tracker.exceptions.TargetXApiException;
+import es.eucm.tracker.exceptions.ValueExtensionException;
+import es.eucm.tracker.exceptions.XApiException;
 
 /**
  * A tracker event.
@@ -262,6 +270,10 @@ public class TrackerEvent {
 
 		}
 
+		public TraceObject(XApiConstant type, String targetId) {
+				this(type.getSimpleName(), targetId);
+		}
+		
 		public TraceObject(String type, String id){
 			this.setType(type);
 			this.setID(id);

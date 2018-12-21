@@ -16,9 +16,7 @@
 
 package es.eucm.tracker;
 
-import es.eucm.tracker.exceptions.TargetXApiException;
-
-public class AccessibleTracker {
+public class AccessibleTracker extends BaseTracker {
 	private TraceProcessor tracker;
 
 	public AccessibleTracker(TraceProcessor tracker) {
@@ -26,17 +24,26 @@ public class AccessibleTracker {
 	}
 
 	public enum Accessible implements TrackerUtils.XApiConstant {
-		Screen("https://w3id.org/xapi/seriousgames/activity-types/screen"),
-		Area("https://w3id.org/xapi/seriousgames/activity-types/area"),
-		Zone("https://w3id.org/xapi/seriousgames/activity-types/zone"),
-		Cutscene("https://w3id.org/xapi/seriousgames/activity-types/cutscene"),
-		Accessible("https://w3id.org/xapi/seriousgames/activity-types/accessible");
+		
+		Screen("screen"),
+		Area("area"),
+		Zone("zone"),
+		Cutscene("cutscene"),
+		Accessible("accessible");
+		
 		private String id;
+		
 		Accessible(String id) {
 			this.id = id;
 		}
+		
 		@Override
 		public String getId() {
+			return ACTIVITY_TYPES_BASE_IRI+id;
+		}
+
+		@Override
+		public String getSimpleName() {
 			return id;
 		}
 	}
@@ -47,20 +54,8 @@ public class AccessibleTracker {
 	 * @param reachableId
 	 *            Reachable identifier.
 	 */
-	public void accessed(String reachableId) throws Exception {
-		if (TrackerUtils.check(reachableId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class)) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Accessed));
-			trace.setTarget(new TrackerEvent.TraceObject(
-					Accessible.Accessible.toString().toLowerCase(), reachableId));
-
-			tracker.process(trace);
-		}
+	public void accessed(String reachableId) {
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Accessed), Accessible.Accessible, reachableId));
 	}
 
 	/**
@@ -72,19 +67,7 @@ public class AccessibleTracker {
 	 *            Reachable type.
 	 */
 	public void accessed(String reachableId, Accessible type) {
-		if (TrackerUtils.check(reachableId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class)) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Accessed));
-			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), reachableId));
-
-			tracker.process(trace);
-		}
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Accessed), type, reachableId));
 	}
 
 	/**
@@ -93,20 +76,8 @@ public class AccessibleTracker {
 	 * @param reachableId
 	 *            Reachable identifier.
 	 */
-	public void skipped(String reachableId) throws Exception {
-		if (TrackerUtils.check(reachableId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class)) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Skipped));
-			trace.setTarget(new TrackerEvent.TraceObject(
-					Accessible.Accessible.toString().toLowerCase(), reachableId));
-
-			tracker.process(trace);
-		}
+	public void skipped(String reachableId) {
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Skipped), Accessible.Accessible, reachableId));
 	}
 
 	/**
@@ -117,20 +88,9 @@ public class AccessibleTracker {
 	 * @param type
 	 *            Reachable type.
 	 */
-	public void skipped(String reachableId, Accessible type) throws Exception {
-		if (TrackerUtils.check(reachableId,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class)) {
-			TrackerEvent trace = new TrackerEvent();
-
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Skipped));
-			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), reachableId));
-
-			tracker.process(trace);
-		}
+	public void skipped(String reachableId, Accessible type) {
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Skipped), type, reachableId));
 	}
+
 
 }

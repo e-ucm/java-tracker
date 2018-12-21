@@ -34,21 +34,32 @@ public class TraceVerb {
 	 * Values that represent the available verbs for traces.
 	 */
 	public enum Verb implements TrackerUtils.XApiConstant {
-		Initialized("http://adlnet.gov/expapi/verbs/initialized"),
-		Progressed("http://adlnet.gov/expapi/verbs/progressed"),
-		Completed("http://adlnet.gov/expapi/verbs/completed"),
-		Accessed("https://w3id.org/xapi/seriousgames/verbs/accessed"),
-		Skipped("http://id.tincanapi.com/verb/skipped"),
-		Selected("https://w3id.org/xapi/adb/verbs/selected"),
-		Unlocked("https://w3id.org/xapi/seriousgames/verbs/unlocked"),
-		Interacted("http://adlnet.gov/expapi/verbs/interacted"),
-		Used("https://w3id.org/xapi/seriousgames/verbs/used");
+		Initialized("http://adlnet.gov/expapi/verbs/", "initialized"),
+		Progressed("http://adlnet.gov/expapi/verbs/", "progressed"),
+		Completed("http://adlnet.gov/expapi/verbs/", "completed"),
+		Accessed(VERBS_BASE_IRI, "accessed"),
+		Skipped("http://id.tincanapi.com/verb/", "skipped"),
+		Selected("https://w3id.org/xapi/adb/verbs/", "selected"),
+		Unlocked(VERBS_BASE_IRI, "unlocked"),
+		Interacted("http://adlnet.gov/expapi/verbs/", "interacted"),
+		Used(VERBS_BASE_IRI, "used");
+
+		private String baseIri;
+		
 		private String id;
-		Verb(String id) {
+		
+		Verb(String baseIri, String id) {
+			this.baseIri = baseIri;
 			this.id = id;
 		}
+		
 		@Override
 		public String getId() {
+			return baseIri+id;
+		}
+
+		@Override
+		public String getSimpleName() {
 			return id;
 		}
 	}
