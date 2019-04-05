@@ -351,8 +351,10 @@ public class TrackerAssetTest {
 	public void testObsoleteMethods() throws Exception {
 		initTracker("xapi");
 		Exception exception = null;
+
+		exception = null;
 		try {
-			TrackerAsset.getInstance().trace("");
+			TrackerAsset.getInstance().actionTrace("1", "2", null);
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -360,7 +362,7 @@ public class TrackerAssetTest {
 		assertNotNull(exception);
 		exception = null;
 		try {
-			TrackerAsset.getInstance().trace("1");
+			TrackerAsset.getInstance().actionTrace("1", "2", "");
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -368,89 +370,19 @@ public class TrackerAssetTest {
 		assertNotNull(exception);
 		exception = null;
 		try {
-			TrackerAsset.getInstance().trace("1,2");
+			TrackerAsset.getInstance().actionTrace("", "", "");
 		} catch (TraceException e) {
 			exception = e;
 		}
 		;
 		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("1,2,3,4");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("1", "2");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("1", "2", null);
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("1", "2", "");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("", "", "");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("1", "2", "3", "4");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace(null, null);
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("1,2,3,4");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().trace("1,2,3");
-			TrackerAsset.getInstance().flush();
-		} catch (VerbXApiException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
+		
+		
 		exception = null;
 
 		initTracker("csv");
 		TrackerUtils.setStrictMode(false);
+
 		TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
 		checkCSVTrace("Verb,Type,ID");
 		TrackerAsset.getInstance().actionTrace("Verb", "Ty,pe", "ID");
@@ -458,14 +390,6 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().actionTrace("Verb", "Type", "I,D");
 		checkCSVTrace("Verb,Type,I\\,D");
 		TrackerAsset.getInstance().actionTrace("Ve,rb", "Type", "ID");
-		checkCSVTrace("Ve\\,rb,Type,ID");
-		TrackerAsset.getInstance().trace("Verb,Type,ID");
-		checkCSVTrace("Verb,Type,ID");
-		TrackerAsset.getInstance().trace("Verb,Ty\\,pe,ID");
-		checkCSVTrace("Verb,Ty\\,pe,ID");
-		TrackerAsset.getInstance().trace("Verb,Type,I\\,D");
-		checkCSVTrace("Verb,Type,I\\,D");
-		TrackerAsset.getInstance().trace("Ve\\,rb,Type,ID");
 		checkCSVTrace("Ve\\,rb,Type,ID");
 		try {
 			TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");

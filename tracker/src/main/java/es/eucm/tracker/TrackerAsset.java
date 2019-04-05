@@ -463,52 +463,6 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	}
 
 	/**
-	 * Adds a full trace to the queue, ignoring current extensions.
-	 * 
-	 * @param trace
-	 *            A comma separated string with the values of the trace
-	 */
-	public void trace(String trace) throws Exception {
-		if (trace == null || "".equals(trace))
-			throw new TraceException("Trace is be empty or null");
-
-		List<String> parts = parseCSV(trace);
-		if (parts.size() != 3)
-			throw new TraceException(
-					"Trace length must be 3 (verb,target_type,target_id)");
-
-		actionTrace(parts.get(0), parts.get(1), parts.get(2));
-	}
-
-	/**
-	 * Adds a trace with the specified values
-	 * 
-	 * @param values
-	 *            Values of the trace.
-	 */
-	public void trace(String... values) {
-		/*
-		 * if (strictMode) { Debug.LogWarning
-		 * ("Tracker: Trace() method is Obsolete. Ignoring"); return; } else {
-		 */
-		if (values.length != 3) {
-			throw new TraceException(
-					"Tracker: Trace must have at least 3 arguments: " +
-							"a verb, a target type and a target ID");
-		}
-
-		for (int i = 0; i < values.length; i++) {
-			if (!check(values[i],
-					"Tracker: Trace param " + i	+ " is null or empty, ignoring trace.",
-					"Tracker: Trace param " + i + " is null or empty",
-					TraceException.class)) {
-				return;
-			}
-		}
-		actionTrace(values[0], values[1], values[2]);
-	}
-
-	/**
 	 * Adds the given value to the Queue.
 	 */
 	public void trace(TrackerEvent trace) {
