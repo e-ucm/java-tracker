@@ -115,10 +115,6 @@ public class TraceVerb {
 		return verb;
 	}
 
-	public String toXml() {
-		return "";
-	}
-
 	public Map<String, Object> toXapi() {
 		return this.toJson();
 	}

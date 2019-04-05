@@ -36,8 +36,6 @@ public class TrackerSettings {
 	public enum TraceFormats {
 		/** json-formatted traces */
 		JSON,
-		/** xml-formatted traces */
-		XML,
 		/**
 		 * An enum constant representing the xAPI option.
 		 */

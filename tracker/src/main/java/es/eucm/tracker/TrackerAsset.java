@@ -714,9 +714,6 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 			case JSON:
 				stringsToSend.add(item.toJson(this));
 				break;
-			case XML:
-				stringsToSend.add(item.toXml(this));
-				break;
 			case XAPI:
 				stringsToSend.add(item.toXapi(this));
 				break;
@@ -731,9 +728,6 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 			case JSON:
 			case XAPI:
 				data.insert(0, "[\r\n").append("\r\n]");
-				break;
-			case XML:
-				data.insert(0, "<TrackEvents>\r\n").append("\r\n</TrackEvent>");
 				break;
 			case CSV:
 			default:

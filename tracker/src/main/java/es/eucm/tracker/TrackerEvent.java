@@ -166,23 +166,6 @@ public class TrackerEvent {
 	}
 
 	/**
-	 * Converts this object to an XML Item.
-	 *
-	 * @return This object as a string.
-	 */
-	public String toXml(TrackerAsset tracker) {
-		return ""; // "<TrackEvent \"timestamp\"=\"" +
-					// this.getTimeStamp().ToString(TimeFormat) + "\"" +
-					// " \"event\"=\"" +
-					// verbIds[this.getEvent().ToString().ToLower()] + "\""
-					// + " \"target\"=\"" + this.getTarget() + "\"" +
-					// (this.getResult() == null ||
-					// String.isNullOrEmpty(this.getResult().toXml()) ?
-					// " />" : "><![CDATA[" + this.getResult().toXml() +
-					// "]]></TrackEvent>");
-	}
-
-	/**
 	 * Converts this object to an xapi.
 	 *
 	 * @return This object as a string.
@@ -307,10 +290,6 @@ public class TrackerEvent {
 			obj.put("definition", definition);
 
 			return obj;
-		}
-
-		public String toXml() {
-			return getType() + "," + getID();
 		}
 
 		// TODO;
@@ -488,10 +467,6 @@ public class TrackerEvent {
 			}
 
 			return result;
-		}
-
-		public String toXml() {
-			return "";
 		}
 
 		// TODO;
