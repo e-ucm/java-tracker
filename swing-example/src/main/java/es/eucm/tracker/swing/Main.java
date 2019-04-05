@@ -345,7 +345,7 @@ public class Main {
 			settings.setHost(hostField.getText());
 			settings.setPort(443);
 			settings.setSecure(true);
-			settings.setTraceFormat(TrackerAssetSettings.TraceFormats.xapi);
+			settings.setTraceFormat(TrackerAssetSettings.TraceFormats.XAPI);
 			settings.setBasePath("/api/");
 
 			tracker.setSettings(settings);

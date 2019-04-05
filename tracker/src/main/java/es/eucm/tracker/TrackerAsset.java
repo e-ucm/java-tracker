@@ -188,8 +188,8 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 			settings.setBasePath("/api/");
 			settings.setUserToken("");
 			settings.setTrackingCode("");
-			settings.setStorageType(TrackerAssetSettings.StorageTypes.local);
-			settings.setTraceFormat(TrackerAssetSettings.TraceFormats.csv);
+			settings.setStorageType(TrackerAssetSettings.StorageTypes.LOCAL);
+			settings.setTraceFormat(TrackerAssetSettings.TraceFormats.CSV);
 			settings.setBatchSize(10);
 			saveSettings(settingsFileName);
 		}
@@ -352,10 +352,10 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	public void start() {
 		started = true;
 		switch (settings.getStorageType()) {
-			case net:
+			case NET:
 				connect();
 				break;
-			case local: {
+			case LOCAL: {
 				// Allow LocalStorage if a Bridge is implementing IDataStorage.
 				//
 				IDataStorage tmp = getInterface(IDataStorage.class);
@@ -684,7 +684,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 				IDataStorage storage = getInterface(IDataStorage.class);
 				IAppend appendStorage = getInterface(IAppend.class);
 				if (queue.getCount() > 0) {
-					String rawData = processTraces(traces, TrackerAssetSettings.TraceFormats.csv);
+					String rawData = processTraces(traces, TrackerAssetSettings.TraceFormats.CSV);
 					if (appendStorage != null) {
 						appendStorage
 								.Append(settings.getBackupFile(), rawData);
@@ -718,13 +718,13 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 		List<String> stringsToSend = new ArrayList<>();
 		for (TrackerEvent item : traces) {
 			switch (format) {
-			case json:
+			case JSON:
 				stringsToSend.add(item.toJson(this));
 				break;
-			case xml:
+			case XML:
 				stringsToSend.add(item.toXml(this));
 				break;
-			case xapi:
+			case XAPI:
 				stringsToSend.add(item.toXapi(this));
 				break;
 			default:
@@ -735,14 +735,14 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 		}
 		StringBuilder data = new StringBuilder(String.join(",\r\n", stringsToSend));
 		switch (format) {
-			case json:
-			case xapi:
+			case JSON:
+			case XAPI:
 				data.insert(0, "[\r\n").append("\r\n]");
 				break;
-			case xml:
+			case XML:
 				data.insert(0, "<TrackEvents>\r\n").append("\r\n</TrackEvent>");
 				break;
-			case csv:
+			case CSV:
 			default:
 				data.append("\r\n");
 				break;
@@ -786,7 +786,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 
 	boolean sendTraces(String data) {
 		switch (settings.getStorageType()) {
-		case local:
+		case LOCAL:
 			IDataStorage storage = getInterface(IDataStorage.class);
 			IAppend append_storage = getInterface(IAppend.class);
 			if (storage != null) {
@@ -801,7 +801,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 			}
 
 			break;
-		case net:
+		case NET:
 			Map<String, String> headers = new HashMap<>();
 			headers.put("Content-Type", "application/json");
 			headers.put("Authorization",

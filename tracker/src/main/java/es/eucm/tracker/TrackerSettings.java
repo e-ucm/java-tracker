@@ -25,9 +25,9 @@ public class TrackerSettings {
 	 */
 	public enum StorageTypes {
 		/** network storage */
-		net,
+		NET,
 		/** local storage */
-		local
+		LOCAL
 	}
 
 	/**
@@ -35,15 +35,15 @@ public class TrackerSettings {
 	 */
 	public enum TraceFormats {
 		/** json-formatted traces */
-		json,
+		JSON,
 		/** xml-formatted traces */
-		xml,
+		XML,
 		/**
 		 * An enum constant representing the xAPI option.
 		 */
-		xapi,
+		XAPI,
 		/** csv-formatted traces */
-		csv
+		CSV
 	}
 
 	// settings with defaults
@@ -58,9 +58,9 @@ public class TrackerSettings {
 	/** endpoint to contact at the server host; such as "analytics" */
 	private String basePath = "";
 	/** how to store traces; StorageTypes.net sends them over the network */
-	private StorageTypes storageType = StorageTypes.net;
+	private StorageTypes storageType = StorageTypes.NET;
 	/** trace format to use, such as xAPI, CSV, ... */
-	private TraceFormats traceFormat = TraceFormats.json;
+	private TraceFormats traceFormat = TraceFormats.JSON;
 	/** use a backup storage or not */
 	private boolean backupStorage = true;
 

@@ -45,7 +45,7 @@ public class TrackerAssetTest {
 	TesterBridge bridge;
 
 	private void initTracker(String format) throws Exception {
-		initTracker(format, TrackerAssetSettings.StorageTypes.local, null);
+		initTracker(format, TrackerAssetSettings.StorageTypes.LOCAL, null);
 	}
 
 	private void initTracker(String format, TrackerAssetSettings.StorageTypes st,
@@ -1188,7 +1188,7 @@ public class TrackerAssetTest {
 
 	@Test
 	public void testTraceSendingSync() throws Exception {
-		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, null);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.NET, null);
 		storage.delete("netstorage");
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
@@ -1235,7 +1235,7 @@ public class TrackerAssetTest {
 
 	@Test
 	public void testTraceSending_IntermitentConnection() throws Exception {
-		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, null);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.NET, null);
 		storage.delete("netstorage");
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
@@ -1275,7 +1275,7 @@ public class TrackerAssetTest {
 
 	@Test
 	public void testBackupSync_IntermitentConnection() throws Exception {
-		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, null);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.NET, null);
 		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 		enqueueTrace01();
@@ -1316,7 +1316,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().stop();
 		bridge = new TesterBridge();
 		bridge.setConnected(false);
-		initTracker("xapi", TrackerAssetSettings.StorageTypes.net, bridge);
+		initTracker("xapi", TrackerAssetSettings.StorageTypes.NET, bridge);
 		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 
@@ -1367,7 +1367,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().stop();
 		bridge = new TesterBridge();
 		bridge.setConnected(false);
-		initTracker("csv", TrackerAssetSettings.StorageTypes.net, bridge);
+		initTracker("csv", TrackerAssetSettings.StorageTypes.NET, bridge);
 		storage.delete("netstorage");
 		storage.delete(settings.getBackupFile());
 		// Flush sin connected
