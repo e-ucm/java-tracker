@@ -382,7 +382,7 @@ public class Main {
 					tracker.actionTrace(verb, objectType, objectId);
 				}
 
-				tracker.requestFlush();
+				tracker.flush();
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

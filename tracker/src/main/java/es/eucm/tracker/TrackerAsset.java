@@ -254,13 +254,6 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	}
 
 	/**
-	 * Flushes the queue.
-	 */
-	public void requestFlush() throws XApiException {
-		flush();
-	}
-
-	/**
 	 * Login with a Username and Password.
 	 * 
 	 * After this call, the Success method will extract the token from the

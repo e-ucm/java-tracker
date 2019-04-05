@@ -441,7 +441,7 @@ public class TrackerAssetTest {
 		exception = null;
 		try {
 			TrackerAsset.getInstance().trace("1,2,3");
-			TrackerAsset.getInstance().requestFlush();
+			TrackerAsset.getInstance().flush();
 		} catch (VerbXApiException e) {
 			exception = e;
 		}
