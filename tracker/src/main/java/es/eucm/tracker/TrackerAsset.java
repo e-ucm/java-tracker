@@ -31,7 +31,7 @@ import static es.eucm.tracker.TrackerUtils.*;
 /**
  * A tracker asset.
  */
-public class TrackerAsset extends BaseAsset implements TraceProcessor {
+public class TrackerAsset extends BaseAsset {
 
 	/** Unique instance */
 	private static TrackerAsset INSTANCE;
@@ -194,10 +194,11 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 			saveSettings(settingsFileName);
 		}
 
-		accessibleTracker = new AccessibleTracker(this);
-		alternativeTracker = new AlternativeTracker(this);
-		completableTracker = new CompletableTracker(this);
-		gameObjectTracker = new GameObjectTracker(this);
+		TraceProcessor bridge = new TraceProcessorBridge();
+		accessibleTracker = new AccessibleTracker(bridge);
+		alternativeTracker = new AlternativeTracker(bridge);
+		completableTracker = new CompletableTracker(bridge);
+		gameObjectTracker = new GameObjectTracker(bridge);
 	}
 
 	/**
@@ -475,15 +476,6 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 		}
 
 		queue.enqueue(trace);
-	}
-
-	/**
-	 * Processes a trace, by storing or sending it.
-	 * @param trace to add
-	 */
-	@Override
-	public void process(TrackerEvent trace) {
-		trace(trace);
 	}
 
 	/**
@@ -816,22 +808,6 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	}
 
 	/**
-	 * Sets the progress of the action.
-	 * 
-	 * @param progress
-	 *            Progress. (Recomended between 0 and 1)
-	 */
-	@Override
-	public void setProgress(float progress) {
-		if (progress < 0 || progress > 1)
-			log(Severity.Warning,
-					"Tracker: Progress recommended between 0 and 1 (Current: "
-							+ progress + ")");
-
-		setVar(Extension.Progress.toString().toLowerCase(), progress);
-	}
-
-	/**
 	 * Sets the coords where the trace takes place.
 	 * 
 	 * @param x
@@ -945,5 +921,33 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 
 	public GameObjectTracker getGameObject() {
 		return gameObjectTracker;
+	}
+	
+	private class TraceProcessorBridge implements TraceProcessor {
+		
+		/**
+		 * Processes a trace, by storing or sending it.
+		 * @param trace to add
+		 */
+		@Override
+		public void process(TrackerEvent trace) {
+			trace(trace);
+		}
+		
+		/**
+		 * Sets the progress of the action.
+		 * 
+		 * @param progress
+		 *            Progress. (Recomended between 0 and 1)
+		 */
+		@Override
+		public void setProgress(float progress) {
+			if (progress < 0 || progress > 1)
+				log(Severity.Warning,
+						"Tracker: Progress recommended between 0 and 1 (Current: "
+								+ progress + ")");
+
+			setVar(Extension.Progress.toString().toLowerCase(), progress);
+		}		
 	}
 }

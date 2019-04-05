@@ -19,7 +19,7 @@ package es.eucm.tracker;
 /**
  * An object that can process traces
  */
-public interface TraceProcessor {
+interface TraceProcessor {
 	/**
 	 * Adds a trace to the queue.
 	 * @param trace to add
