@@ -490,7 +490,7 @@ public class TrackerAsset extends BaseAsset implements TraceProcessor {
 	 * Adds a trace with verb, target and targeit
 	 * 
 	 */
-	public void actionTrace(String verb, String targetType, String targetId) {
+	public void trace(String verb, String targetType, String targetId) {
 		boolean trace = true;
 		trace &= check(verb,
 				"Tracker: Trace verb can't be null, ignoring. ",

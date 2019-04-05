@@ -74,48 +74,48 @@ public class TrackerAssetTest {
 	public void actionTraceTest() throws Exception {
 		initTracker("csv");
 		TrackerUtils.setStrictMode(false);
-		TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
+		TrackerAsset.getInstance().trace("Verb", "Type", "ID");
 		checkCSVTrace("Verb,Type,ID");
-		TrackerAsset.getInstance().actionTrace("Verb", "Ty,pe", "ID");
+		TrackerAsset.getInstance().trace("Verb", "Ty,pe", "ID");
 		checkCSVTrace("Verb,Ty\\,pe,ID");
-		TrackerAsset.getInstance().actionTrace("Verb", "Type", "I,D");
+		TrackerAsset.getInstance().trace("Verb", "Type", "I,D");
 		checkCSVTrace("Verb,Type,I\\,D");
-		TrackerAsset.getInstance().actionTrace("Ve,rb", "Type", "ID");
+		TrackerAsset.getInstance().trace("Ve,rb", "Type", "ID");
 		checkCSVTrace("Ve\\,rb,Type,ID");
 		initTracker("csv");
 		TrackerUtils.setStrictMode(true);
 
 		try {
-			TrackerAsset.getInstance().actionTrace(null, "Type", "ID");
+			TrackerAsset.getInstance().trace(null, "Type", "ID");
 		} catch (TraceException te) {
 			assertNotNull(te);
 		}
 		try {
-			TrackerAsset.getInstance().actionTrace("Verb", null, "ID");
-		} catch (TraceException te) {
-			assertNotNull(te);
-		}
-		;
-		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "Type", null);
+			TrackerAsset.getInstance().trace("Verb", null, "ID");
 		} catch (TraceException te) {
 			assertNotNull(te);
 		}
 		;
 		try {
-			TrackerAsset.getInstance().actionTrace("", "Type", "ID");
+			TrackerAsset.getInstance().trace("Verb", "Type", null);
 		} catch (TraceException te) {
 			assertNotNull(te);
 		}
 		;
 		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "", "ID");
+			TrackerAsset.getInstance().trace("", "Type", "ID");
 		} catch (TraceException te) {
 			assertNotNull(te);
 		}
 		;
 		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "Type", "");
+			TrackerAsset.getInstance().trace("Verb", "", "ID");
+		} catch (TraceException te) {
+			assertNotNull(te);
+		}
+		;
+		try {
+			TrackerAsset.getInstance().trace("Verb", "Type", "");
 		} catch (TraceException te) {
 			assertNotNull(te);
 		}
@@ -124,7 +124,7 @@ public class TrackerAssetTest {
 		cleanStorage();
 		initTracker("xapi");
 		TrackerUtils.setStrictMode(false);
-		TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
+		TrackerAsset.getInstance().trace("Verb", "Type", "ID");
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 		if (text.indexOf("M\n") != -1)
@@ -147,7 +147,7 @@ public class TrackerAssetTest {
 		Exception exception = null;
 
 		try {
-			TrackerAsset.getInstance().actionTrace(null, "Type", "ID");
+			TrackerAsset.getInstance().trace(null, "Type", "ID");
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -155,7 +155,7 @@ public class TrackerAssetTest {
 		assertNotNull(exception);
 		exception = null;
 		try {
-			TrackerAsset.getInstance().actionTrace("Verb", null, "ID");
+			TrackerAsset.getInstance().trace("Verb", null, "ID");
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -163,32 +163,7 @@ public class TrackerAssetTest {
 		assertNotNull(exception);
 		exception = null;
 		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "Type", null);
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-
-		try {
-			TrackerAsset.getInstance().actionTrace("", "Type", "ID");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "", "ID");
-		} catch (TraceException e) {
-			exception = e;
-		}
-		;
-		assertNotNull(exception);
-		exception = null;
-		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "Type", "");
+			TrackerAsset.getInstance().trace("Verb", "Type", null);
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -197,7 +172,32 @@ public class TrackerAssetTest {
 		exception = null;
 
 		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
+			TrackerAsset.getInstance().trace("", "Type", "ID");
+		} catch (TraceException e) {
+			exception = e;
+		}
+		;
+		assertNotNull(exception);
+		exception = null;
+		try {
+			TrackerAsset.getInstance().trace("Verb", "", "ID");
+		} catch (TraceException e) {
+			exception = e;
+		}
+		;
+		assertNotNull(exception);
+		exception = null;
+		try {
+			TrackerAsset.getInstance().trace("Verb", "Type", "");
+		} catch (TraceException e) {
+			exception = e;
+		}
+		;
+		assertNotNull(exception);
+		exception = null;
+
+		try {
+			TrackerAsset.getInstance().trace("Verb", "Type", "ID");
 		} catch (VerbXApiException e) {
 			exception = e;
 		}
@@ -354,7 +354,7 @@ public class TrackerAssetTest {
 
 		exception = null;
 		try {
-			TrackerAsset.getInstance().actionTrace("1", "2", null);
+			TrackerAsset.getInstance().trace("1", "2", null);
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -362,7 +362,7 @@ public class TrackerAssetTest {
 		assertNotNull(exception);
 		exception = null;
 		try {
-			TrackerAsset.getInstance().actionTrace("1", "2", "");
+			TrackerAsset.getInstance().trace("1", "2", "");
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -370,7 +370,7 @@ public class TrackerAssetTest {
 		assertNotNull(exception);
 		exception = null;
 		try {
-			TrackerAsset.getInstance().actionTrace("", "", "");
+			TrackerAsset.getInstance().trace("", "", "");
 		} catch (TraceException e) {
 			exception = e;
 		}
@@ -383,16 +383,16 @@ public class TrackerAssetTest {
 		initTracker("csv");
 		TrackerUtils.setStrictMode(false);
 
-		TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
+		TrackerAsset.getInstance().trace("Verb", "Type", "ID");
 		checkCSVTrace("Verb,Type,ID");
-		TrackerAsset.getInstance().actionTrace("Verb", "Ty,pe", "ID");
+		TrackerAsset.getInstance().trace("Verb", "Ty,pe", "ID");
 		checkCSVTrace("Verb,Ty\\,pe,ID");
-		TrackerAsset.getInstance().actionTrace("Verb", "Type", "I,D");
+		TrackerAsset.getInstance().trace("Verb", "Type", "I,D");
 		checkCSVTrace("Verb,Type,I\\,D");
-		TrackerAsset.getInstance().actionTrace("Ve,rb", "Type", "ID");
+		TrackerAsset.getInstance().trace("Ve,rb", "Type", "ID");
 		checkCSVTrace("Ve\\,rb,Type,ID");
 		try {
-			TrackerAsset.getInstance().actionTrace("Verb", "Type", "ID");
+			TrackerAsset.getInstance().trace("Verb", "Type", "ID");
 		} catch (Exception e) {
 			exception = e;
 		}
@@ -484,7 +484,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().setVar("e1", "ex,2");
 		TrackerAsset.getInstance().setVar("e,1", "ex,2,");
 		TrackerAsset.getInstance().setVar("e3", "e3");
-		TrackerAsset.getInstance().actionTrace("verb", "target", "id");
+		TrackerAsset.getInstance().trace("verb", "target", "id");
 		TrackerAsset.getInstance().flush();
 		checkCSVStoredTrace("verb,target,id,e1,ex\\,2,e\\,1,ex\\,2\\,,e3,e3");
 		TrackerUtils.setStrictMode(true);
@@ -1033,14 +1033,14 @@ public class TrackerAssetTest {
 	}
 
 	private void enqueueTrace01() throws Exception {
-		TrackerAsset.getInstance().actionTrace("accessed", "gameobject",
+		TrackerAsset.getInstance().trace("accessed", "gameobject",
 				"ObjectID");
 	}
 
 	private void enqueueTrace02() throws Exception {
 		TrackerAsset.getInstance().setResponse("TheResponse");
 		TrackerAsset.getInstance().setScore(0.123f);
-		TrackerAsset.getInstance().actionTrace("initialized", "game",
+		TrackerAsset.getInstance().trace("initialized", "game",
 				"ObjectID2");
 	}
 
@@ -1053,7 +1053,7 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().setVar("extension2", "value2");
 		TrackerAsset.getInstance().setVar("extension3", 3);
 		TrackerAsset.getInstance().setVar("extension4", 4.56f);
-		TrackerAsset.getInstance().actionTrace("selected", "zone", "ObjectID3");
+		TrackerAsset.getInstance().trace("selected", "zone", "ObjectID3");
 	}
 
 	private void checkCSVTrace(String trace) throws Exception {

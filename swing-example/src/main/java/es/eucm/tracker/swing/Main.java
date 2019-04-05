@@ -379,7 +379,7 @@ public class Main {
 					String verb = verbField.getText();
 					String objectType = objectTypeField.getText();
 					String objectId = objectIdField.getText();
-					tracker.actionTrace(verb, objectType, objectId);
+					tracker.trace(verb, objectType, objectId);
 				}
 
 				tracker.flush();
