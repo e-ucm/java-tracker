@@ -16,17 +16,37 @@
 
 package es.eucm.tracker;
 
+import static es.eucm.tracker.TrackerUtils.check;
+import static es.eucm.tracker.TrackerUtils.checkExtension;
+import static es.eucm.tracker.TrackerUtils.checkIsTrue;
+import static es.eucm.tracker.TrackerUtils.isNullOrEmpty;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
-import es.eucm.tracker.exceptions.*;
-import eu.rageproject.asset.manager.*;
 
-import static es.eucm.tracker.TrackerUtils.*;
+import es.eucm.tracker.TrackerUtils.Logger;
+import es.eucm.tracker.TrackerUtils.XApiConstant;
+import es.eucm.tracker.exceptions.TraceException;
+import es.eucm.tracker.exceptions.TrackerException;
+import es.eucm.tracker.exceptions.ValueExtensionException;
+import es.eucm.tracker.exceptions.XApiException;
+import eu.rageproject.asset.manager.BaseAsset;
+import eu.rageproject.asset.manager.IAppend;
+import eu.rageproject.asset.manager.IDataStorage;
+import eu.rageproject.asset.manager.ISettings;
+import eu.rageproject.asset.manager.IWebServiceRequest;
+import eu.rageproject.asset.manager.RequestResponse;
+import eu.rageproject.asset.manager.RequestSettings;
+import eu.rageproject.asset.manager.Severity;
 
 /**
  * A tracker asset.
@@ -44,9 +64,6 @@ public class TrackerAsset extends BaseAsset {
 
 	/** Settings. */
 	private TrackerAssetSettings settings = null;
-
-	/** The TimeStamp Format */
-	private static final String timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
 	/** Set to indicate that the tracker must finish. */
 	private boolean exiting = false;
@@ -366,7 +383,7 @@ public class TrackerAsset extends BaseAsset {
 		started = true;
 		switch (settings.getStorageType()) {
 			case NET:
-				connect();
+				doStart();
 				break;
 			case LOCAL: {
 				// Allow LocalStorage if a Bridge is implementing IDataStorage.
@@ -379,7 +396,7 @@ public class TrackerAsset extends BaseAsset {
 		}
 	}
 
-	private void connect() {
+	private void doStart() {
 		Map<String, String> headers = new HashMap<>();
 		String body = "";
 		// ! The UserToken might get swapped for a better one during response
@@ -617,7 +634,7 @@ public class TrackerAsset extends BaseAsset {
 					"Refusing to send traces without starting tracker (Active is False, should be True)");
 			return;
 		} else if (!active) {
-			connect();
+			doStart();
 		}
 
 		if (queue.getCount() > 0 ||
