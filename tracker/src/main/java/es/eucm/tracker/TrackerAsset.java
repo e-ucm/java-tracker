@@ -110,6 +110,8 @@ public class TrackerAsset extends BaseAsset {
 	/** actor object, extracted from JSON inside Success() */
 	private Map<String, Object> actorObject;
 
+	private TrackerEventMarshaller marshaller;
+
 	/**
 	 * Values that represent the different extensions for traces.
 	 *
@@ -177,21 +179,25 @@ public class TrackerAsset extends BaseAsset {
 			}
 		});
 
+		// BEGIN - XXX workaround for BaseAsset#loadSettings(String)
 		settings = new TrackerAssetSettings();
+		// END
+		
 		if (loadSettings(settingsFileName)) {
 			// settings loaded
 		} else {
 			// settings not found: make up some defaults
-			settings.setSecure(true);
-			settings.setHost("rage.e-ucm.es");
-			settings.setPort(443);
-			settings.setBasePath("/api/");
-			settings.setUserToken("");
-			settings.setTrackingCode("");
-			settings.setStorageType(TrackerAssetSettings.StorageTypes.LOCAL);
-			settings.setTraceFormat(TrackerAssetSettings.TraceFormats.CSV);
-			settings.setBatchSize(10);
-			saveSettings(settingsFileName);
+			TrackerAssetSettings defaultSettings = new TrackerAssetSettings();
+			defaultSettings.setSecure(true);
+			defaultSettings.setHost("rage.e-ucm.es");
+			defaultSettings.setPort(443);
+			defaultSettings.setBasePath("/api/");
+			defaultSettings.setUserToken("");
+			defaultSettings.setTrackingCode("");
+			defaultSettings.setStorageType(TrackerAssetSettings.StorageTypes.LOCAL);
+			defaultSettings.setTraceFormat(TrackerAssetSettings.TraceFormats.CSV);
+			defaultSettings.setBatchSize(10);
+			setSettings(defaultSettings);
 		}
 
 		TraceProcessor bridge = new TraceProcessorBridge();
@@ -211,20 +217,33 @@ public class TrackerAsset extends BaseAsset {
 		return INSTANCE;
 	}
 
-	/**
-	 * Gets or sets options for controlling the operation. Besides the toXml()
-	 * and fromXml() methods, we never use this property but use it's correctly
-	 * typed backing field 'settings' instead. This property should go into each
-	 * asset having Settings of its own. The actual class used should be derived
-	 * from BaseAsset (and not directly from ISetting). The settings.
-	 */
+	@Override
 	public ISettings getSettings() {
-		return settings;
+		return this.settings;
 	}
 
-	public void setSettings(ISettings value) {
-		settings = value instanceof TrackerAssetSettings ?
-				(TrackerAssetSettings) value : null;
+	@Override
+	public void setSettings(ISettings settings) {
+		if (! (settings instanceof TrackerAssetSettings) ) {
+			throw new IllegalArgumentException("settings must be an instance of: "+TrackerAssetSettings.class.getName());
+		}
+		
+		if (started) {
+			throw new IllegalStateException("Settings must not be changed after the tracker has been started");
+		}
+		
+		this.settings = (TrackerAssetSettings)settings;
+		switch(this.settings.getTraceFormat()) {
+			case JSON:
+				this.marshaller = new JsonTrackerEventMarshaller();
+			case XAPI:
+				this.marshaller = new XapiTrackerEventMarshaller();
+				break;
+			case CSV:
+			default:
+				this.marshaller = new CsvTrackerEventMarshaller();
+				break;
+		}
 	}
 
 	/**
@@ -656,18 +675,7 @@ public class TrackerAsset extends BaseAsset {
 	String processTraces(List<TrackerEvent> traces, TrackerAssetSettings.TraceFormats format) {
 		List<String> stringsToSend = new ArrayList<>();
 		for (TrackerEvent item : traces) {
-			switch (format) {
-			case JSON:
-				stringsToSend.add(item.toJson(this));
-				break;
-			case XAPI:
-				stringsToSend.add(item.toXapi(this));
-				break;
-			default:
-				stringsToSend.add(item.toCsv());
-				break;
-
-			}
+			stringsToSend.add(this.marshaller.marshal(item, this));
 		}
 		StringBuilder data = new StringBuilder(String.join(",\r\n", stringsToSend));
 		switch (format) {

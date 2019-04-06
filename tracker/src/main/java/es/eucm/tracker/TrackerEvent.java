@@ -21,55 +21,30 @@ import static es.eucm.tracker.TrackerUtils.complain;
 import static es.eucm.tracker.TrackerUtils.notNullEmptyOrNan;
 import static es.eucm.tracker.TrackerUtils.quickCheckExtension;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
-import es.eucm.tracker.AlternativeTracker.Alternative;
-import es.eucm.tracker.CompletableTracker.Completable;
 import es.eucm.tracker.TrackerUtils.XApiConstant;
 import es.eucm.tracker.exceptions.TargetXApiException;
 import es.eucm.tracker.exceptions.ValueExtensionException;
-import es.eucm.tracker.exceptions.XApiException;
 
 /**
  * A tracker event.
  */
 public class TrackerEvent {
 
-	private static Map<String, String> objectIds = null;
-	private static Map<String, String> extensionIds = TrackerUtils.buildXApiMap(
-			TrackerAsset.Extension.class);
 	private TraceVerb verb;
 	private TraceObject target;
 	private TraceResult result;
 
 	public TrackerEvent() {
-		timeStamp = System.currentTimeMillis();
-		result = new TraceResult();
+		this(Instant.now());
 	}
-
-	private static Map<String, String> getObjectIDs() {
-		if (objectIds == null) {
-			objectIds = new HashMap<>();
-
-			objectIds.putAll(TrackerUtils.buildXApiMap(
-					CompletableTracker.Completable.class));
-
-			objectIds.putAll(TrackerUtils.buildXApiMap(
-					AccessibleTracker.Accessible.class));
-
-			objectIds.putAll(TrackerUtils.buildXApiMap(
-					AlternativeTracker.Alternative.class));
-
-			objectIds.putAll(TrackerUtils.buildXApiMap(
-					GameObjectTracker.TrackedGameObject.class));
-		}
-
-		return objectIds;
+	
+	public TrackerEvent(Instant timestamp) {
+		this.timeStamp = timestamp;
+		this.result = new TraceResult();
 	}
 
 	/**
@@ -117,108 +92,10 @@ public class TrackerEvent {
 	 *
 	 * The time stamp.
 	 */
-	private double timeStamp;
+	private Instant timeStamp;
 
-	public double getTimeStamp() {
+	public Instant getTimeStamp() {
 		return timeStamp;
-	}
-
-	/**
-	 * Converts this object to a CSV Item.
-	 *
-	 * @return This object as a string.
-	 */
-	public String toCsv() {
-		boolean goodResultCSV = ! (getResult() == null) &&
-				notNullEmptyOrNan(getResult().toCsv());
-		return getTimeStamp()
-				+ ","
-				+ getEvent().toCsv()
-				+ ","
-				+ getTarget().toCsv()
-				+ (goodResultCSV ? getResult().toCsv() : "");
-	}
-
-	/**
-	 * Converts this object to a JSON Item.
-	 *
-	 * @return This object as a string.
-	 */
-	public String toJson(TrackerAsset tracker) throws XApiException {
-		Map json = new HashMap<String, Object>();
-		json.put("actor",
-				(tracker == null || tracker.getActorObject() == null) ?
-						new HashMap<>() : tracker.getActorObject());
-		json.put("event", getEvent().toJson());
-		json.put("target", getTarget().toJson(tracker));
-		Map<String, Object> result = getResult().toJson();
-		if (result.size() > 0)
-			json.put("result", result);
-
-		Date date = new Date(System.currentTimeMillis());
-		DateFormat formatter = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-		String dateFormatted = formatter.format(date);
-
-		json.put("timestamp", dateFormatted);
-		return TrackerAsset.gson.toJson(json, Map.class);
-	}
-
-	/**
-	 * Converts this object to an xapi.
-	 *
-	 * @return This object as a string.
-	 */
-	public String toXapi(TrackerAsset tracker) throws XApiException {
-		Map json = new HashMap();
-		json.put("actor",
-				(tracker == null || tracker.getActorObject() == null) ? new HashMap<>()
-						: tracker.getActorObject());
-		json.put("verb", getEvent().toXapi());
-		json.put("object", getTarget().toXapi(tracker));
-		Map<String, Object> result = getResult().toXapi();
-		if (result.size() > 0)
-			json.put("result", result);
-
-		Date date = new Date(System.currentTimeMillis());
-		DateFormat formatter = new SimpleDateFormat(
-				"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-		String dateFormatted = formatter.format(date);
-
-		json.put("timestamp", dateFormatted);
-		return TrackerAsset.gson.toJson(json, Map.class);
-	}
-
-	/**
-	 * Enquotes.
-	 *
-	 * Both checks could be combined.
-	 *
-	 * @param value
-	 *            The value.
-	 * @return A string.
-	 */
-	private String enquote(String value) {
-		if (value.contains("\"")) {
-			return String.format("\"%s\"", value.replace("\"", "\"\""));
-		} else // 1) Replace one quote by two quotes and enquote the whole
-				// string.
-		if (value.contains("\r\n") || value.contains(",")) {
-			return String.format("\"%s\"", value);
-		}
-
-		return value;
-	}
-
-	// 2) If the string contains a CRLF or , enquote the whole string.
-	private boolean isValid() throws Exception {
-		boolean check = true;
-		check &= getEvent().isValid();
-		check &= getTarget().isValid();
-		check &= getResult().isValid();
-		return check;
 	}
 
 	/**
@@ -262,41 +139,6 @@ public class TrackerEvent {
 			this.setID(id);
 		}
 
-		public String toCsv() {
-			return getType().replace(",", "\\,") + ","
-					+ getID().replace(",", "\\,");
-		}
-
-		public Map<String, Object> toJson(TrackerAsset tracker) {
-			String typeKey = getType();
-
-			if (getObjectIDs().containsKey(getType())) {
-				typeKey = getObjectIDs().get(getType());
-			} else {
-				String complaint = "Tracker-xAPI: Unknown definition for target type: " +
-						getType();
-
-				complain(complaint, complaint + " - ignored",
-						TargetXApiException.class, null);
-			}
-
-			Map<String, Object> obj = new HashMap<>(), definition = new HashMap<>();
-
-			// FIXME - strongly suspect this logic ->
-			obj.put("id",
-					((tracker.getActorObject() != null) ? tracker.getObjectId() : "")
-							+ getID());
-			definition.put("type", typeKey);
-			obj.put("definition", definition);
-
-			return obj;
-		}
-
-		// TODO;
-		public Map<String, Object> toXapi(TrackerAsset tracker) {
-			return this.toJson(tracker);
-		}
-
 		public boolean isValid() throws Exception {
 			return notNullEmptyOrNan(getType())
 					&& notNullEmptyOrNan(getID());
@@ -309,27 +151,27 @@ public class TrackerEvent {
 	 */
 	public static class TraceResult {
 
-		private int success = -1;
-		private int completion = -1;
-		private float score = Float.NaN;
+		private Boolean success;
+		private Boolean completion;
+		private Float score;
+		private String res;
 
 		public boolean getSuccess() {
-			return success == 1 ? true : false;
+		  return success != null && success;
 		}
 
 		public void setSuccess(boolean value) {
-			success = value ? 1 : 0;
+			this.success = value;
 		}
 
 		public boolean getCompletion() {
-			return completion == 1 ? true : false;
+			return completion != null && completion;
 		}
 
 		public void setCompletion(boolean value) {
-			completion = value ? 1 : 0;
+			this.completion = value;
 		}
 
-		String res = new String();
 
 		public String getResponse() {
 			return res;
@@ -344,11 +186,11 @@ public class TrackerEvent {
 
 		}
 
-		public float getScore() {
+		public Float getScore() {
 			return score;
 		}
 
-		public void setScore(float value) {
+		public void setScore(Float value) {
 			if (check(value,
 						"xAPI extension: score null or NaN. Ignoring",
 						"xAPI extension: score can't be null or NaN.",
@@ -386,105 +228,6 @@ public class TrackerEvent {
 			}
 		}
 
-		public String toCsv() {
-			StringBuilder result = new StringBuilder(((success > -1) ? ",success"
-					+ intToBoolString(success) : "")
-					+ ((completion > -1) ? ",completion"
-							+ intToBoolString(completion) : "")
-					+ ((notNullEmptyOrNan(getResponse())) ? ",response,"
-							+ getResponse().replace(",", "\\,") : "")
-					+ ((notNullEmptyOrNan(score)) ? ",score,"
-							+ Float.toString(score).replace(',', '.') : ""));
-
-			if (getExtensions() != null) {
-
-				for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
-					result.append("," + extension.getKey().replace(",", "\\,") + ",");
-					if (extension.getValue() != null) {
-						if (extension.getValue() instanceof String) {
-							result.append(extension.getValue().toString()
-									.replace(",", "\\,"));
-						} else if ((extension.getValue() instanceof Float)) {
-							result.append(Float.toString(
-									(Float) extension.getValue()).replace(
-									',', '.'));
-						} else if ((extension.getValue() instanceof Double)) {
-							result.append(Double.toString(
-									(Double) extension.getValue()).replace(
-									',', '.'));
-						} else if ((extension.getValue() instanceof Integer)) {
-							result.append(Integer.toString(
-									(Integer) extension.getValue())
-									.replace(',', '.'));
-						} else if (extension.getValue().getClass() == HashMap.class) {
-							@SuppressWarnings("unchecked")
-							Map<String, Object> map = (Map<String, Object>)extension.getValue();
-							StringBuilder inner = new StringBuilder();
-							for (Map.Entry<String, Object> e : map.entrySet()) {
-								 inner.append(e.getKey())
-										 .append("=")
-										 .append(e.getValue().toString().toLowerCase())
-										 .append("-");
-							}
-
-							result.append(inner.toString().replaceAll("[-]+$", ""));
-						} else {
-							result.append(String.valueOf(extension.getValue()));
-						}
-					}
-				}
-			}
-
-			return result.toString();
-		}
-
-		public Map<String, Object> toJson() {
-			Map<String, Object> result = new HashMap<>();
-			if (success != -1)
-				result.put("success", getSuccess());
-
-			if (completion != -1)
-				result.put("completion", getCompletion());
-
-			if (notNullEmptyOrNan(getResponse()))
-				result.put("response", getResponse());
-
-			if (!Float.isNaN(score)) {
-				Map<String, Object> s = new HashMap<>();
-				s.put("raw", score);
-				result.put("score", s);
-			}
-
-			Map<String, Object> extensions = new HashMap<>();
-			for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
-				String xApiKey = extensionIds.get(extension.getKey());
-				extensions.put(xApiKey != null ?
-							xApiKey : extension.getKey(),
-							extension.getValue());
-			}
-			if (!extensions.isEmpty()) {
-				result.put("extensions", extensions);
-			}
-
-			return result;
-		}
-
-		// TODO;
-		public Map<String, Object> toXapi() {
-			return this.toJson();
-		}
-
-		private static String intToBoolString(int property) {
-			String ret = "";
-			if (property >= 1) {
-				ret = ",true";
-			} else if (property == 0) {
-				ret = ",false";
-			}
-
-			return ret;
-		}
-
 		public boolean isValid() throws Exception {
 			boolean valid = true;
 
@@ -498,10 +241,10 @@ public class TrackerEvent {
 			}
 
 			// FIXME --> these two do nothing useful
-			if (success != -1)
+			if (success)
 				valid &= notNullEmptyOrNan(success);
 
-			if (completion != -1)
+			if (completion)
 				valid &= notNullEmptyOrNan(completion);
 
 			valid &= notNullEmptyOrNan(getResponse());

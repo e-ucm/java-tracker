@@ -64,8 +64,6 @@ public class TraceVerb {
 		}
 	}
 
-	private static Map<String, String> xApiVerbs =
-			TrackerUtils.buildXApiMap(Verb.class);
 
 	private String stringVerb = "";
 	private Verb xApiVerb = Verb.Initialized;
@@ -99,24 +97,6 @@ public class TraceVerb {
 
 	public TraceVerb(String verb) {
 		setStringVerb(verb);
-	}
-
-	public String toCsv() {
-		return getStringVerb().replace(",", "\\,");
-	}
-
-	public Map<String, Object> toJson() {
-		String originalId = getStringVerb();
-		String xApiVerbId = xApiVerbs.get(originalId);
-
-		Map<String, Object> verb = new HashMap<>();
-		verb.put("id", xApiVerbId != null ? xApiVerbId : originalId);
-
-		return verb;
-	}
-
-	public Map<String, Object> toXapi() {
-		return this.toJson();
 	}
 
 	public boolean isValid() {

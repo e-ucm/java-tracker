@@ -117,13 +117,15 @@ class BaseTracker {
 				verb = defaultVerb;
 		}
 
+		TrackerEvent generatedTrace = null;
 		if ( check ) {
 			final TrackerEvent trace = new TrackerEvent();
 			trace.setEvent(verb);
 			trace.setTarget(target);
 			result.ifPresent(r -> trace.setResult(r));
+			generatedTrace = trace;
 		}
 		
-		return null;
+		return generatedTrace;
 	}
 }
