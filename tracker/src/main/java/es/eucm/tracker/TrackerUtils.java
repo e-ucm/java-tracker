@@ -175,10 +175,10 @@ public class TrackerUtils {
 	}
 
 	public static boolean notNullEmptyOrNan(Object value) {
-		boolean bad =
-				(value == null) ||
-				(value instanceof String && "".equals(value)) ||
-				(value instanceof Float && Float.isNaN((Float) value));
+		boolean bad = (value == null)
+				|| (value instanceof String && "".equals(value))
+				|| (value instanceof Float && ((Float)value).isNaN())
+				|| (value instanceof Double && ((Double)value).isNaN());
 		return ! bad;
 	}
 
