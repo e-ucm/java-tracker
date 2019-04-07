@@ -19,16 +19,13 @@ package es.eucm.tracker;
 import es.eucm.tracker.exceptions.TrackerException;
 import es.eucm.tracker.exceptions.VerbXApiException;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static es.eucm.tracker.TrackerUtils.notNullEmptyOrNan;
 import static es.eucm.tracker.TrackerUtils.parseEnumOrComplain;
 
 /**
  * Class for Verb storage.
  */
-public class TraceVerb {
+public class TraceVerb implements Comparable<TraceVerb> {
 
 	/**
 	 * Values that represent the available verbs for traces.
@@ -104,5 +101,32 @@ public class TraceVerb {
 		setStringVerb(getStringVerb());
 
 		return check && notNullEmptyOrNan(stringVerb);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((xApiVerb == null) ? 0 : xApiVerb.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TraceVerb other = (TraceVerb) obj;
+		if (xApiVerb != other.xApiVerb)
+			return false;
+		return true;
+	}
+
+	@Override
+	public int compareTo(TraceVerb o) {
+		return xApiVerb.compareTo(o.xApiVerb);
 	}
 }

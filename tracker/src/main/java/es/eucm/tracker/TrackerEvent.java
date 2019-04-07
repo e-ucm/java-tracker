@@ -17,12 +17,15 @@
 package es.eucm.tracker;
 
 import static es.eucm.tracker.TrackerUtils.check;
-import static es.eucm.tracker.TrackerUtils.complain;
 import static es.eucm.tracker.TrackerUtils.notNullEmptyOrNan;
 import static es.eucm.tracker.TrackerUtils.quickCheckExtension;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import es.eucm.tracker.TrackerUtils.XApiConstant;
@@ -32,7 +35,9 @@ import es.eucm.tracker.exceptions.ValueExtensionException;
 /**
  * A tracker event.
  */
-public class TrackerEvent {
+public class TrackerEvent implements Comparable<TrackerEvent> {
+	
+	public static final TrackerEventIgnoreTimestampComparator TIMESTAMP_IGNORED_COMPARATOR = new TrackerEventIgnoreTimestampComparator();
 
 	private TraceVerb verb;
 	private TraceObject target;
@@ -98,10 +103,76 @@ public class TrackerEvent {
 		return timeStamp;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
+		result = prime * result + ((target == null) ? 0 : target.hashCode());
+		result = prime * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
+		result = prime * result + ((verb == null) ? 0 : verb.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TrackerEvent other = (TrackerEvent) obj;
+		if (timeStamp == null) {
+			if (other.timeStamp != null)
+				return false;
+		} else if (!timeStamp.equals(other.timeStamp))
+			return false;
+		if (verb == null) {
+			if (other.verb != null)
+				return false;
+		} else if (!verb.equals(other.verb))
+			return false;
+		if (target == null) {
+			if (other.target != null)
+				return false;
+		} else if (!target.equals(other.target))
+			return false;
+		if (result == null) {
+			if (other.result != null)
+				return false;
+		} else if (!result.equals(other.result))
+			return false;
+		return true;
+	}
+
+	@Override
+	public int compareTo(TrackerEvent o) {
+		int result = 0;
+		
+		if ((result = this.timeStamp.compareTo(o.timeStamp)) != 0) {
+			return result;
+		}
+		
+		if ((result = this.verb.compareTo(o.verb)) != 0) {
+			return result;
+		}
+		
+		if ((result = this.target.compareTo(o.target)) != 0) {
+			return result;
+		}
+		
+		if ((result = this.result.compareTo(o.result)) != 0) {
+			return result;
+		}		
+		
+		return result;
+	}
+
 	/**
 	 * Class for Target storage.
 	 */
-	public static class TraceObject {
+	public static class TraceObject implements Comparable<TraceObject> {
 		private String type;
 		private String id;
 
@@ -144,34 +215,79 @@ public class TrackerEvent {
 					&& notNullEmptyOrNan(getID());
 		}
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((id == null) ? 0 : id.hashCode());
+			result = prime * result + ((type == null) ? 0 : type.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TraceObject other = (TraceObject) obj;
+			if (id == null) {
+				if (other.id != null)
+					return false;
+			} else if (!id.equals(other.id))
+				return false;
+			if (type == null) {
+				if (other.type != null)
+					return false;
+			} else if (!type.equals(other.type))
+				return false;
+			return true;
+		}
+
+		@Override
+		public int compareTo(TraceObject o) {
+			int result = this.id.compareTo(o.id);
+			
+			if (result == 0) {
+				result = this.type.compareTo(o.type);
+			}
+			
+			return result;
+		}
 	}
 
 	/**
 	 * Class for Result storage.
 	 */
-	public static class TraceResult {
+	public static class TraceResult implements Comparable<TraceResult> {
 
 		private Boolean success;
+		
 		private Boolean completion;
+		
 		private Float score;
+
 		private String res;
 
-		public boolean getSuccess() {
-		  return success != null && success;
+		private Map<String, Object> extensions = new HashMap<>();
+
+		public Boolean getSuccess() {
+		  return success;
 		}
 
-		public void setSuccess(boolean value) {
+		public void setSuccess(Boolean value) {
 			this.success = value;
 		}
 
-		public boolean getCompletion() {
-			return completion != null && completion;
+		public Boolean getCompletion() {
+			return completion;
 		}
 
-		public void setCompletion(boolean value) {
+		public void setCompletion(Boolean value) {
 			this.completion = value;
 		}
-
 
 		public String getResponse() {
 			return res;
@@ -198,8 +314,6 @@ public class TrackerEvent {
 				score = value;
 		}
 
-		Map<String, Object> extensions = new HashMap<>();
-
 		public Map<String, Object> getExtensions() {
 			return extensions;
 		}
@@ -219,7 +333,7 @@ public class TrackerEvent {
 					setResponse((String) extension.getValue());
 					break;
 				case "score":
-					setScore((float) extension.getValue());
+					setScore((Float) extension.getValue());
 					break;
 				default:
 					extensions.put(extension.getKey(), extension.getValue());
@@ -261,6 +375,172 @@ public class TrackerEvent {
 			return valid;
 		}
 
-	}
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((completion == null) ? 0 : completion.hashCode());
+			result = prime * result + ((extensions == null) ? 0 : extensions.hashCode());
+			result = prime * result + ((res == null) ? 0 : res.hashCode());
+			result = prime * result + ((score == null) ? 0 : score.hashCode());
+			result = prime * result + ((success == null) ? 0 : success.hashCode());
+			return result;
+		}
 
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TraceResult other = (TraceResult) obj;
+			if (completion == null) {
+				if (other.completion != null)
+					return false;
+			} else if (!completion.equals(other.completion))
+				return false;
+			if (extensions == null) {
+				if (other.extensions != null)
+					return false;
+			} else if (!extensions.equals(other.extensions))
+				return false;
+			if (res == null) {
+				if (other.res != null)
+					return false;
+			} else if (!res.equals(other.res))
+				return false;
+			if (score == null) {
+				if (other.score != null)
+					return false;
+			} else if (!score.equals(other.score))
+				return false;
+			if (success == null) {
+				if (other.success != null)
+					return false;
+			} else if (!success.equals(other.success))
+				return false;
+			return true;
+		}
+
+		@Override
+		public int compareTo(TraceResult o) {
+			int result = 0;
+			
+			if (success == null && o.success == null) {
+				result = 0;
+			} else if (success == null && o.success != null) {
+				return -1;
+			} else if (success != null && o.success == null) {
+				return 1;
+			} else {
+				result = success.compareTo(o.success);
+			}
+			
+			if (result == 0) {				
+				if (completion == null && o.completion == null) {
+					result = 0;
+				} else if (completion == null && o.completion != null) {
+					return -1;
+				} else if (completion != null && o.completion == null) {
+					return 1;
+				} else {
+					result = completion.compareTo(o.completion);
+				}				
+			}
+			
+			if (result == 0) {				
+				if (score == null && o.score == null) {
+					result = 0;
+				} else if (score == null && o.score != null) {
+					return -1;
+				} else if (score != null && o.score == null) {
+					return 1;
+				} else {
+					result = score.compareTo(o.score);
+				}				
+			}
+			
+			if (result == 0) {				
+				if (res == null && o.res == null) {
+					result = 0;
+				} else if (res == null && o.res != null) {
+					return -1;
+				} else if (res != null && o.res == null) {
+					return 1;
+				} else {
+					result = res.compareTo(o.res);
+				}				
+			}
+			
+			if (result == 0) {				
+				if (extensions == null && o.extensions == null) {
+					result = 0;
+				} else if (extensions == null && o.extensions != null) {
+					return -1;
+				} else if (extensions != null && o.extensions == null) {
+					return 1;
+				} else {
+					result = extensions.size() - o.extensions.size();
+					if (result != 0) {
+						return result;
+					}
+					
+					List<Map.Entry<String, Object>> orderedEntries = new ArrayList<>();
+					orderedEntries.addAll(extensions.entrySet());
+					orderedEntries.sort(Comparator.comparing((Map.Entry<String, Object> e) -> e.getKey()));
+
+					List<Map.Entry<String, Object>> oOrderedEntries = new ArrayList<>();
+					oOrderedEntries.addAll(o.extensions.entrySet());
+					oOrderedEntries.sort(Comparator.comparing((Map.Entry<String, Object> e) -> e.getKey()));
+					
+					Iterator<Map.Entry<String, Object>> entriesIterator = orderedEntries.iterator();
+					Iterator<Map.Entry<String, Object>> oEntriesIterator = oOrderedEntries.iterator();
+					Map.Entry<String, Object> entry, oEntry;
+					
+					while (result == 0 && entriesIterator.hasNext()) {
+						entry = entriesIterator.next();
+						oEntry = oEntriesIterator.next();
+						if ((result = entry.getKey().compareTo(oEntry.getKey())) != 0) {
+							Object value = entry.getValue();
+							Object oValue = entry.getValue();
+							if (value.getClass().equals(oValue.getClass()) && value instanceof Comparable && oValue instanceof Comparable) {
+								@SuppressWarnings({ "unchecked", "rawtypes" })
+								Comparable<Comparable> c1 = (Comparable<Comparable>)value;
+								@SuppressWarnings({ "unchecked", "rawtypes" })
+								Comparable<Comparable> c2 = (Comparable<Comparable>)oValue;
+								result = c1.compareTo(c2);
+							} else {
+								result = value.hashCode() - oValue.hashCode();
+							}
+						}
+					}
+				}				
+			}
+			
+			return result;
+		}
+	}
+	
+	public static class TrackerEventIgnoreTimestampComparator implements Comparator<TrackerEvent> {
+		@Override
+		public int compare(TrackerEvent o1, TrackerEvent o2) {
+			int result = 0;
+			
+			if ((result = o1.verb.compareTo(o2.verb)) != 0) {
+				return result;
+			}
+			
+			if ((result = o1.target.compareTo(o2.target)) != 0) {
+				return result;
+			}
+			
+			if ((result = o1.result.compareTo(o2.result)) != 0) {
+				return result;
+			}		
+			
+			return result;
+		}		
+	}
 }
