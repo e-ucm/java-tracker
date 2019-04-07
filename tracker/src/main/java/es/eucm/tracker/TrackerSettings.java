@@ -52,7 +52,7 @@ public class TrackerSettings {
 	/** use https? */
 	private boolean secure = false;
 	/** size of batches to send */
-	private Integer batchSize = 2;
+	private int batchSize = 2;
 	/** endpoint to contact at the server host; such as "analytics" */
 	private String basePath = "";
 	/** how to store traces; StorageTypes.net sends them over the network */
@@ -111,11 +111,11 @@ public class TrackerSettings {
 		this.secure = secure;
 	}
 
-	public Integer getBatchSize() {
+	public int getBatchSize() {
 		return batchSize;
 	}
 
-	public void setBatchSize(Integer batchSize) {
+	public void setBatchSize(int batchSize) {
 		this.batchSize = batchSize;
 	}
 
