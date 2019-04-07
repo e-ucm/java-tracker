@@ -694,15 +694,15 @@ public class TrackerAsset extends BaseAsset {
 		for (TrackerEvent item : traces) {
 			stringsToSend.add(this.marshaller.marshal(item, this));
 		}
-		StringBuilder data = new StringBuilder(String.join(",\r\n", stringsToSend));
+		StringBuilder data = new StringBuilder(String.join(","+TrackerEventMarshaller.LINE_SEPARATOR, stringsToSend));
 		switch (format) {
 			case JSON:
 			case XAPI:
-				data.insert(0, "[\r\n").append("\r\n]");
+				data.insert(0, "["+TrackerEventMarshaller.LINE_SEPARATOR).append(TrackerEventMarshaller.LINE_SEPARATOR+"]");
 				break;
 			case CSV:
 			default:
-				data.append("\r\n");
+				data.append(TrackerEventMarshaller.LINE_SEPARATOR);
 				break;
 		}
 		return data.toString();
@@ -751,8 +751,8 @@ public class TrackerAsset extends BaseAsset {
 				String previous = storage.exists(settings.getLogFile()) ? storage
 						.load(settings.getLogFile()) : "";
 				if (previous.length() > 0) {
-					previous = previous.replace("\r\n]", ",\r\n");
-					data = data.replace("[\r\n", "");
+					previous = previous.replace(TrackerEventMarshaller.LINE_SEPARATOR+"]", ","+TrackerEventMarshaller.LINE_SEPARATOR);
+					data = data.replace("["+TrackerEventMarshaller.LINE_SEPARATOR, "");
 				}
 
 				storage.save(settings.getLogFile(), previous + data);
@@ -764,7 +764,7 @@ public class TrackerAsset extends BaseAsset {
 			headers.put("Content-Type", "application/json");
 			headers.put("Authorization",
 					String.format("%s", settings.getUserToken()));
-			log(Severity.Information, "\r\n" + data);
+			log(Severity.Information, TrackerEventMarshaller.LINE_SEPARATOR + data);
 			RequestResponse response = issueRequest(
 					"proxy/gleaner/collector/track", "POST", headers, data);
 			if (response.GetResultAllowed()) {
