@@ -40,7 +40,7 @@ public class ConcurrentQueue<T> {
 		this.queue = new LinkedList<T>();
 	}
 
-	public T[] peek(Integer n) {
+	public List<T> peek(Integer n) {
 		synchronized (syncLock) {
 			{
 				n = Math.min((Integer) queue.size(), n);
@@ -51,7 +51,7 @@ public class ConcurrentQueue<T> {
 				}
 
 				// puede fallar
-				return (T[]) tmp.toArray();
+				return tmp;
 			}
 		}
 	}

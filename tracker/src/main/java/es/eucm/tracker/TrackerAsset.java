@@ -685,7 +685,7 @@ public class TrackerAsset extends BaseAsset {
 		Integer cnt = settings.getBatchSize() == 0 ? Integer.MAX_VALUE
 				: settings.getBatchSize();
 		cnt = Math.min(queue.getCount(), cnt);
-		List<TrackerEvent> traces = Arrays.asList(queue.peek(cnt));
+		List<TrackerEvent> traces = queue.peek(cnt);
 		return traces;
 	}
 
