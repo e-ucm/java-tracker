@@ -249,6 +249,17 @@ public class TrackerUtils {
 		return map;
 	}
 
+	public static <T extends Enum<T> & XApiConstant> Map<String, XApiConstant> buildReverseXApiMap(Class<T> enumType) {
+		Map<String, XApiConstant> map = new HashMap<>();
+		for (T v : enumType.getEnumConstants()) {
+			// some XApiConstants (such as Extension) have elements without IDs
+			if (v.getId() != null) {
+				map.put(v.toString().toLowerCase(), v);
+			}
+		}
+		return map;
+	}
+	
 	/**
 	 * @param string to check
 	 * @return true iff the string is either null or empty
