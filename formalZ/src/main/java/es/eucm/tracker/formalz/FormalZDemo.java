@@ -66,7 +66,7 @@ public class FormalZDemo {
 		settings.setSecure(true);
 		settings.setTraceFormat(TrackerAssetSettings.TraceFormats.XAPI);
 		settings.setBasePath("/api/");
-		settings.setTrackingCode("5c8fe8d75e3d6c0080bfa9cbnia2r6s4k39");
+		settings.setTrackingCode("5cab7a146dc3d90077df7093iix5zom6kb8");
 
 		return settings;
 	}
@@ -81,28 +81,30 @@ public class FormalZDemo {
 
 		int maxWaves = getRandomInt(4, 8);
 		int accumulatedGameplayDuration = 0;		
-		int previous_time = 0;
+		int previousTime = 0;
 		for (int currentWave = 0; currentWave < maxWaves; currentWave++) {
 			System.out.println("---------- wave: " + currentWave + " ----------");
-			
+
 			accumulatedGameplayDuration += getRandomInt(30, 120);
 			
-			int current_time = accumulatedGameplayDuration - previous_time;
+			int currentTime = accumulatedGameplayDuration - previousTime;
 
 			float progress = ((float)currentWave) / (maxWaves-1);
-			float proximity = 1.0f - progress;
+			float distance = 1.0f - progress;
+
+			int maxWritingDuration = (int)Math.floor(currentTime * 0.3f);
 
 			// Build pre-condition
 			tracker.setVar("time", accumulatedGameplayDuration);
-			int prewritingtime =  getRandomInt(10, (int)Math.floor(current_time * 0.3));
-			tracker.setVar("writing_time", prewritingtime);
-			sendBuiltCondition("pre", modifyNumber(proximity, 0.2f));
+			int preWritingDuration =  getRandomInt(10, maxWritingDuration);
+			tracker.setVar("writing_time", preWritingDuration);
+			sendBuiltCondition("pre", randomAround(distance, 0.2f));
 
 			// Build post-codition
 			tracker.setVar("time", accumulatedGameplayDuration);
-			int postwritingtime =  getRandomInt(10, (int) Math.floor(current_time * 0.3));
-			tracker.setVar("writing_time", postwritingtime);
-			sendBuiltCondition("post", modifyNumber(proximity, 0.2f));
+			int postWritingDuration =  getRandomInt(10, maxWritingDuration);
+			tracker.setVar("writing_time", postWritingDuration);
+			sendBuiltCondition("post", randomAround(distance, 0.2f));
 
 			// Build towers
 			int possibletowers = getRandomInt(0, (gameState.money / TOWER_COST));
@@ -111,11 +113,11 @@ public class FormalZDemo {
 			}
 
 			// Check pre-post
-			doWave(accumulatedGameplayDuration, current_time - prewritingtime - postwritingtime - 10, proximity);
+			doWave(accumulatedGameplayDuration, currentTime - preWritingDuration - postWritingDuration - 10, distance);
 
 			// Send game progress
 			sendGameProgress(progress);
-			previous_time = accumulatedGameplayDuration;
+			previousTime = accumulatedGameplayDuration;
 		}
 
 		sendGameEnd();
@@ -131,7 +133,7 @@ public class FormalZDemo {
 		tracker.getCompletable().progressed("level1", Completable.Level, progress);
 	}
 
-	private void doWave(int time, int duration, float proximity) {
+	private void doWave(int time, int duration, float distance) {
 		sendWaveStart();
 
 		int difficulty = 5;
@@ -146,7 +148,7 @@ public class FormalZDemo {
 			sendLiveLost(i/5);
 		}
 
-		sendWaveEnd(proximity);
+		sendWaveEnd(distance);
 	}
 
 
@@ -168,9 +170,9 @@ public class FormalZDemo {
 		tracker.getCompletable().initialized("wave", Completable.Stage);
 	}
 
-	private void sendWaveEnd(float proximity) {
+	private void sendWaveEnd(float distance) {
 		appendGameState();
-		tracker.getCompletable().completed("wave", Completable.Stage, proximity == 1);
+		tracker.getCompletable().completed("wave", Completable.Stage, distance == 1);
 	}
 	
 	private void buildTower() {
@@ -180,11 +182,11 @@ public class FormalZDemo {
 		}
 	}
 
-	private void sendBuiltCondition(String type, float proximity) {
-		tracker.setSuccess(proximity == 0);
-		tracker.setScore(proximity);
+	private void sendBuiltCondition(String type, float distance) {
+		tracker.setSuccess(distance == 0);
+		tracker.setScore(distance);
 
-		int complexity = (int) (3 - Math.ceil(proximity * 3));
+		int complexity = (int) (3 - Math.ceil(distance * 3));
 		tracker.getAlternative().selected(type, getRandomAssert(complexity), Alternative.Question);
 	}
 
@@ -224,12 +226,12 @@ public class FormalZDemo {
 		return result;
 	}
 	
-	private float modifyNumber(float number, float quantity) {
+	private float randomAround(float number, float interval) {
 		if(number == 0.0f) {
 			return number;
 		}
 			
-		return ((float)getRandomInt((int)Math.max(number - quantity, 0)*100, (int)Math.min(number + quantity, 1)*100)) / 100;
+		return ((float)getRandomInt((int)(Math.max(number - interval, 0)*100), (int)(Math.min(number + interval, 1)*100))) / 100;
 	}
 
 	private int getRandomInt(int min, int max) {
