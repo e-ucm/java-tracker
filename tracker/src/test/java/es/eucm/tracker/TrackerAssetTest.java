@@ -91,77 +91,6 @@ public class TrackerAssetTest {
 	}
 
 	@Test
-	public void actionTraceTest() throws Exception {
-		initTracker("CSV");
-		TrackerUtils.setStrictMode(false);
-		TrackerAsset.getInstance().trace("Verb", "Type", "ID");
-		checkCSVTrace("0,Verb,Type,ID");
-		TrackerAsset.getInstance().trace("Verb", "Ty,pe", "ID");
-		checkCSVTrace("0,Verb,Ty\\,pe,ID");
-		TrackerAsset.getInstance().trace("Verb", "Type", "I,D");
-		checkCSVTrace("0,Verb,Type,I\\,D");
-		TrackerAsset.getInstance().trace("Ve,rb", "Type", "ID");
-		checkCSVTrace("0,Ve\\,rb,Type,ID");
-		initTracker("CSV");
-		TrackerUtils.setStrictMode(true);
-
-		try {
-			TrackerAsset.getInstance().trace(null, "Type", "ID");
-		} catch (TraceException te) {
-			assertNotNull(te);
-		}
-		try {
-			TrackerAsset.getInstance().trace("Verb", null, "ID");
-		} catch (TraceException te) {
-			assertNotNull(te);
-		}
-		;
-		try {
-			TrackerAsset.getInstance().trace("Verb", "Type", null);
-		} catch (TraceException te) {
-			assertNotNull(te);
-		}
-		;
-		try {
-			TrackerAsset.getInstance().trace("", "Type", "ID");
-		} catch (TraceException te) {
-			assertNotNull(te);
-		}
-		;
-		try {
-			TrackerAsset.getInstance().trace("Verb", "", "ID");
-		} catch (TraceException te) {
-			assertNotNull(te);
-		}
-		;
-		try {
-			TrackerAsset.getInstance().trace("Verb", "Type", "");
-		} catch (TraceException te) {
-			assertNotNull(te);
-		}
-		;
-
-		cleanStorage();
-		initTracker("XAPI");
-		TrackerUtils.setStrictMode(false);
-		TrackerAsset.getInstance().trace("Verb", "Type", "ID");
-		TrackerAsset.getInstance().flush();
-		String text = storage.load(settings.getLogFile());
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
-
-		ArrayList file = gson.fromJson(text, arraymap.getClass());
-		Map tracejson = (Map) file.get(file.size() - 1);
-		assertEquals(tracejson.entrySet().size(), 4);
-		assertEquals(((Map) tracejson.get("object")).get("id"), "ID");
-		assertEquals(
-				((Map) ((Map) tracejson.get("object")).get("definition"))
-						.get("type"),
-				"Type");
-		assertEquals(((Map) tracejson.get("verb")).get("id"), "Verb");
-	}
-
-	@Test
 	public void testNullImputs() throws Exception {
 		initTracker("XAPI");
 		Exception exception = null;
@@ -403,21 +332,6 @@ public class TrackerAssetTest {
 		initTracker("CSV");
 		TrackerUtils.setStrictMode(false);
 
-		TrackerAsset.getInstance().trace("Verb", "Type", "ID");
-		checkCSVTrace("Verb,Type,ID");
-		TrackerAsset.getInstance().trace("Verb", "Ty,pe", "ID");
-		checkCSVTrace("Verb,Ty\\,pe,ID");
-		TrackerAsset.getInstance().trace("Verb", "Type", "I,D");
-		checkCSVTrace("Verb,Type,I\\,D");
-		TrackerAsset.getInstance().trace("Ve,rb", "Type", "ID");
-		checkCSVTrace("Ve\\,rb,Type,ID");
-		try {
-			TrackerAsset.getInstance().trace("Verb", "Type", "ID");
-		} catch (Exception e) {
-			exception = e;
-		}
-		;
-		assertNull(exception);
 		exception = null;
 		initTracker("CSV");
 		TrackerUtils.setStrictMode(true);
@@ -497,28 +411,12 @@ public class TrackerAssetTest {
 	}
 
 	@Test
-	public void testTrace_Generic_Csv_Stored_WithComma() throws Exception {
-		initTracker("CSV");
-
-		TrackerUtils.setStrictMode(false);
-		TrackerAsset.getInstance().setVar("e1", "ex,2");
-		TrackerAsset.getInstance().setVar("e,1", "ex,2,");
-		TrackerAsset.getInstance().setVar("e3", "e3");
-		TrackerAsset.getInstance().trace("verb", "target", "id");
-		TrackerAsset.getInstance().flush();
-		checkCSVStoredTrace("verb,target,id,e1,ex\\,2,e\\,1,ex\\,2\\,,e3,e3");
-		TrackerUtils.setStrictMode(true);
-	}
-
-	@Test
 	public void testTrace_Generic_XApi_Stored_01() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(file.size() - 1);
@@ -540,9 +438,6 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
-
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(file.size() - 1);
 		assertEquals(tracejson.entrySet().size(), 5);
@@ -553,7 +448,7 @@ public class TrackerAssetTest {
 				"https://w3id.org/xapi/seriousgames/activity-types/serious-game");
 		assertEquals(((Map) tracejson.get("verb")).get("id"),
 				"http://adlnet.gov/expapi/verbs/initialized");
-		assertEquals(((Map) tracejson.get("result")).size(), 2);
+		assertEquals(((Map<?,?>) tracejson.get("result")).size(), 2);
 		assertEquals(((Map) tracejson.get("result")).get("response"),
 				"TheResponse");
 		assertEquals(
@@ -568,9 +463,6 @@ public class TrackerAssetTest {
 		enqueueTrace03();
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(file.size() - 1);
@@ -620,9 +512,6 @@ public class TrackerAssetTest {
 		enqueueTrace03();
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
@@ -715,9 +604,6 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
-
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
@@ -739,9 +625,6 @@ public class TrackerAssetTest {
 				.skipped("AccesibleID2", AccessibleTracker.Accessible.Screen);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
@@ -793,9 +676,6 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
-
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 5);
@@ -822,9 +702,6 @@ public class TrackerAssetTest {
 						AlternativeTracker.Alternative.Question);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
@@ -890,9 +767,6 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
-
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
@@ -916,9 +790,6 @@ public class TrackerAssetTest {
 						CompletableTracker.Completable.Stage, 0.34f);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
@@ -947,9 +818,6 @@ public class TrackerAssetTest {
 						CompletableTracker.Completable.Race, true, 0.54f);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
@@ -1001,9 +869,6 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
-//		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-//			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 1);
-
 		ArrayList file;
 		try {
 			file = gson.fromJson(text, ArrayList.class);
@@ -1036,9 +901,6 @@ public class TrackerAssetTest {
 				.used("GameObjectID2", GameObjectTracker.TrackedGameObject.Item);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
-
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
@@ -1157,9 +1019,6 @@ public class TrackerAssetTest {
 		TrackerAsset.getInstance().flush();
 		String text = storage.load("netstorage");
 
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
-
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
@@ -1203,8 +1062,6 @@ public class TrackerAssetTest {
 		enqueueTrace01();
 		TrackerAsset.getInstance().flush();
 		String text = storage.load("netstorage");
-		if (text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) != -1)
-			text = text.substring(text.indexOf(TrackerEventMarshaller.LINE_SEPARATOR) + 2);
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);

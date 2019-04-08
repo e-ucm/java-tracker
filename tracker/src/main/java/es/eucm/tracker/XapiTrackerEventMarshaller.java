@@ -17,4 +17,19 @@ package es.eucm.tracker;
 
 class XapiTrackerEventMarshaller extends JsonTrackerEventMarshaller {
 
+	@Override
+	protected String getActorKey() {
+		return "actor";
+	}
+
+	@Override
+	protected String getVerbKey() {
+		return "verb";
+	}
+
+	@Override
+	protected String getTargetKey() {
+		return "object";
+	}
+
 }

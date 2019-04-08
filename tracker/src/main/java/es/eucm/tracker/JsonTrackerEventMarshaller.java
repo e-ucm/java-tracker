@@ -30,11 +30,11 @@ import es.eucm.tracker.exceptions.TargetXApiException;
 
 class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 
-	private static Map<String, String> xApiVerbs = TrackerUtils.buildXApiMap(Verb.class);
-	private static Map<String, String> extensionIds = TrackerUtils.buildXApiMap(TrackerAsset.Extension.class);
-	private static Map<String, String> objectIds;
+	protected static Map<String, String> xApiVerbs = TrackerUtils.buildXApiMap(Verb.class);
+	protected static Map<String, String> extensionIds = TrackerUtils.buildXApiMap(TrackerAsset.Extension.class);
+	protected static Map<String, String> objectIds;
 
-	private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ISO_INSTANT;
+	protected static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ISO_INSTANT;
 
 	static {
 		objectIds = new HashMap<>();
@@ -59,7 +59,7 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		return json;
 	}
 
-	private void actorToJson(Map<String, Object> object, TrackerAsset tracker) {
+	protected void actorToJson(Map<String, Object> object, TrackerAsset tracker) {
 		Map<String, Object> actor = Collections.emptyMap();
 		if (tracker != null) {
 			Map<String, Object> currentActor = tracker.getActorObject();
@@ -67,10 +67,14 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 				actor = currentActor;
 			}
 		}
-		object.put("actor", actor);
+		object.put(getActorKey(), actor);
+	}
+	
+	protected String getActorKey() {
+		return "actor";
 	}
 
-	private void verbToJson(Map<String, Object> object, TraceVerb verb) {
+	protected void verbToJson(Map<String, Object> object, TraceVerb verb) {
 		String originalId = verb.getStringVerb();
 		String xApiVerbId = xApiVerbs.get(originalId);
 		String id = xApiVerbId != null ? xApiVerbId : originalId;
@@ -78,10 +82,14 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		Map<String, Object> jsonVerb = new HashMap<>();
 		jsonVerb.put("id", id);
 
-		object.put("verb", jsonVerb);
+		object.put(getVerbKey(), jsonVerb);
+	}
+	
+	protected String getVerbKey() {
+		return "verb";
 	}
 
-	private void targetToJson(TrackerAsset tracker, Map<String, Object> object, TraceObject target) {
+	protected void targetToJson(TrackerAsset tracker, Map<String, Object> object, TraceObject target) {
 		String type = target.getType();
 		if (objectIds.containsKey(type)) {
 			type = objectIds.get(type);
@@ -97,10 +105,14 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		// XXX SMELL FIXME - strongly suspect this logic ->
 		jsonTarget.put("id", ((tracker.getActorObject() != null) ? tracker.getObjectId() : "") + target.getID());
 
-		object.put("target", jsonTarget);
+		object.put(getTargetKey(), jsonTarget);
+	}
+	
+	protected String getTargetKey() {
+		return "target";
 	}
 
-	private void resultToJson(Map<String, Object> object, TraceResult result) {
+	protected void resultToJson(Map<String, Object> object, TraceResult result) {
 		Map<String, Object> jsonResult = new HashMap<>();
 
 		Boolean success = result.getSuccess();
@@ -140,7 +152,11 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		}
 
 		if (jsonResult.size() > 0) {
-			jsonResult.put("result", result);
+			object.put(getResultKey(), jsonResult);
 		}
+	}
+	
+	private String getResultKey() {
+		return "result";
 	}
 }

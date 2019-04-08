@@ -72,7 +72,7 @@ public class CompletableTracker extends BaseTracker {
 	 */
 	public void initialized(String completableId, Completable type) {
 		tracker.process(generateInitializedTrace(new TraceVerb(
-				TraceVerb.Verb.Initialized), Completable.Completable, completableId));
+				TraceVerb.Verb.Initialized), type, completableId));
 	}
 
 
