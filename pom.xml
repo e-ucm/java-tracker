@@ -72,7 +72,10 @@
   
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	    </properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+	
     <pluginRepositories>
         <pluginRepository>
             <id>nexus-oss-maven-plugin-snapshots</id>
@@ -87,6 +90,21 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+	<repositories>
+		<repository>
+            <id>nexus-oss--snapshots</id>
+            <name>Sonatype Nexus OSS maven snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+	</repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -112,15 +130,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                    </configuration>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
