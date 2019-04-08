@@ -24,7 +24,7 @@
 
     <parent>
         <relativePath>../pom.xml</relativePath>
-		<groupId>es.eucm.tracker</groupId>
+		<groupId>es.e-ucm.tracker</groupId>
 		<artifactId>tracker-parent</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </parent>
@@ -41,7 +41,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>es.eucm.tracker</groupId>
+            <groupId>es.e-ucm.tracker</groupId>
             <artifactId>tracker</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
