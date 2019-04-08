@@ -126,6 +126,7 @@
         <module>build-tools</module>
         <module>tracker</module>
         <module>swing-example</module>
+        <module>formalZ</module>
     </modules>
 
     <build>
