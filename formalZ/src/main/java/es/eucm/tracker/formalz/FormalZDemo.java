@@ -67,6 +67,8 @@ public class FormalZDemo {
 		settings.setTraceFormat(TrackerAssetSettings.TraceFormats.XAPI);
 		settings.setBasePath("/api/");
 		settings.setTrackingCode("5cab7a146dc3d90077df7093iix5zom6kb8");
+		// Comment out this setting and provided a user token to send data for an actual analytics user
+		//settings.setUserToken("XXXXX");
 
 		return settings;
 	}
