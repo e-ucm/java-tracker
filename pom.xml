@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2016 e-UCM (http://www.e-ucm.es/)
+    Copyright © 2019-20 e-UCM (http://www.e-ucm.es/)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@
                     <configuration>
                         <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
                         <properties>
-                            <project.inceptionYear>2016</project.inceptionYear>
+                            <project.inceptionYear>2019-20</project.inceptionYear>
                             <owner>e-UCM</owner>
                             <email>http://www.e-ucm.es/</email>
                         </properties>
