@@ -24,7 +24,7 @@
 
     <groupId>es.e-ucm.tracker</groupId>
     <artifactId>tracker-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
 
     <name>Java xAPI Tracker Parent</name>
@@ -193,7 +193,7 @@
 						<dependency>
 							<groupId>es.e-ucm.tracker</groupId>
 							<artifactId>build-tools</artifactId>
-							<version>0.0.1-SNAPSHOT</version>
+							<version>0.1.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
