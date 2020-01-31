@@ -31,28 +31,35 @@ public class TraceVerb implements Comparable<TraceVerb> {
 	 * Values that represent the available verbs for traces.
 	 */
 	public enum Verb implements TrackerUtils.XApiConstant {
-		Initialized("http://adlnet.gov/expapi/verbs/", "initialized"),
-		Progressed("http://adlnet.gov/expapi/verbs/", "progressed"),
-		Completed("http://adlnet.gov/expapi/verbs/", "completed"),
-		Accessed(VERBS_BASE_IRI, "accessed"),
-		Skipped("http://id.tincanapi.com/verb/", "skipped"),
-		Selected("https://w3id.org/xapi/adb/verbs/", "selected"),
-		Unlocked(VERBS_BASE_IRI, "unlocked"),
-		Interacted("http://adlnet.gov/expapi/verbs/", "interacted"),
-		Used(VERBS_BASE_IRI, "used");
+		Initialized("http://adlnet.gov/expapi/verbs/",
+				"initialized"), Progressed("http://adlnet.gov/expapi/verbs/",
+						"progressed"), Completed(
+								"http://adlnet.gov/expapi/verbs/",
+								"completed"), Accessed(VERBS_BASE_IRI,
+										"accessed"), Skipped(
+												"http://id.tincanapi.com/verb/",
+												"skipped"), Selected(
+														"https://w3id.org/xapi/adb/verbs/",
+														"selected"), Unlocked(
+																VERBS_BASE_IRI,
+																"unlocked"), Interacted(
+																		"http://adlnet.gov/expapi/verbs/",
+																		"interacted"), Used(
+																				VERBS_BASE_IRI,
+																				"used");
 
 		private String baseIri;
-		
+
 		private String id;
-		
+
 		Verb(String baseIri, String id) {
 			this.baseIri = baseIri;
 			this.id = id;
 		}
-		
+
 		@Override
 		public String getId() {
-			return baseIri+id;
+			return baseIri + id;
 		}
 
 		@Override
@@ -60,7 +67,6 @@ public class TraceVerb implements Comparable<TraceVerb> {
 			return id;
 		}
 	}
-
 
 	private String stringVerb = "";
 	private Verb xApiVerb = Verb.Initialized;
@@ -73,7 +79,8 @@ public class TraceVerb implements Comparable<TraceVerb> {
 		stringVerb = value;
 		xApiVerb = parseEnumOrComplain(value, Verb.class,
 				"Tracker-xAPI: Unknown definition for verb: " + value,
-				"Tracker-xAPI: Unknown definition for verb: " + value, VerbXApiException.class);
+				"Tracker-xAPI: Unknown definition for verb: " + value,
+				VerbXApiException.class);
 		if (xApiVerb != null) {
 			stringVerb = value.toLowerCase();
 		}
@@ -107,7 +114,8 @@ public class TraceVerb implements Comparable<TraceVerb> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((xApiVerb == null) ? 0 : xApiVerb.hashCode());
+		result = prime * result
+				+ ((xApiVerb == null) ? 0 : xApiVerb.hashCode());
 		return result;
 	}
 

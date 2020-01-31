@@ -19,25 +19,25 @@ public class AlternativeTracker extends BaseTracker {
 	private TraceProcessor tracker;
 
 	public enum Alternative implements TrackerUtils.XApiConstant {
-		Question("http://adlnet.gov/expapi/activities/", "question"),
-		Menu(ACTIVITY_TYPES_BASE_IRI, "menu"),
-		Dialog(ACTIVITY_TYPES_BASE_IRI, "dialog-tree"),
-		Path(ACTIVITY_TYPES_BASE_IRI, "path"),
-		Arena(ACTIVITY_TYPES_BASE_IRI, "arena"),
-		Alternative(ACTIVITY_TYPES_BASE_IRI, "alternative");
+		Question("http://adlnet.gov/expapi/activities/", "question"), Menu(
+				ACTIVITY_TYPES_BASE_IRI,
+				"menu"), Dialog(ACTIVITY_TYPES_BASE_IRI, "dialog-tree"), Path(
+						ACTIVITY_TYPES_BASE_IRI, "path"), Arena(
+								ACTIVITY_TYPES_BASE_IRI, "arena"), Alternative(
+										ACTIVITY_TYPES_BASE_IRI, "alternative");
 
 		private String baseIri;
-		
+
 		private String id;
-		
+
 		Alternative(String baseIri, String id) {
 			this.baseIri = baseIri;
 			this.id = id;
 		}
-		
+
 		@Override
 		public String getId() {
-			return baseIri+id;
+			return baseIri + id;
 		}
 
 		@Override
@@ -59,7 +59,8 @@ public class AlternativeTracker extends BaseTracker {
 	 *            Option identifier.
 	 */
 	public void selected(String alternativeId, String optionId) {
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Selected), Alternative.Alternative, optionId, alternativeId));
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Selected),
+				Alternative.Alternative, optionId, alternativeId));
 	}
 
 	/**
@@ -72,8 +73,10 @@ public class AlternativeTracker extends BaseTracker {
 	 * @param type
 	 *            Alternative type.
 	 */
-	public void selected(String alternativeId, String optionId, Alternative type) {
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Selected), type, optionId, alternativeId));
+	public void selected(String alternativeId, String optionId,
+			Alternative type) {
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Selected),
+				type, optionId, alternativeId));
 	}
 
 	/**
@@ -85,7 +88,8 @@ public class AlternativeTracker extends BaseTracker {
 	 *            Option identifier.
 	 */
 	public void unlocked(String alternativeId, String optionId) {
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Unlocked), Alternative.Alternative, optionId, alternativeId));
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Unlocked),
+				Alternative.Alternative, optionId, alternativeId));
 	}
 
 	/**
@@ -98,7 +102,9 @@ public class AlternativeTracker extends BaseTracker {
 	 * @param type
 	 *            Alternative type.
 	 */
-	public void unlocked(String alternativeId, String optionId, Alternative type) {	
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Unlocked), type, optionId, alternativeId));
+	public void unlocked(String alternativeId, String optionId,
+			Alternative type) {
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Unlocked),
+				type, optionId, alternativeId));
 	}
 }

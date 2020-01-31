@@ -22,9 +22,12 @@ package es.eucm.tracker;
 interface TraceProcessor {
 	/**
 	 * Adds a trace to the queue.
-	 * @param trace to add
+	 * 
+	 * @param trace
+	 *            to add
 	 */
 	void process(TrackerEvent trace);
+
 	/**
 	 * Allows progress to be set
 	 */

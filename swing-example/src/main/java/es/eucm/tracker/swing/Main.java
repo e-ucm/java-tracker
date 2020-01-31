@@ -53,18 +53,18 @@ import eu.rageproject.asset.manager.Severity;
 public class Main {
 
 	private static final float SETTING_LABEL_WIDTH = 0.5f;
-	
+
 	private static final float SETTING_FIELD_WIDTH = 1.0f;
-	
+
 	private static final int SETTING_PADDING_X = 10;
-	
+
 	public static void main(String[] args) {
 		Main app = new Main();
 		app.launch();
 	}
-	
+
 	private TrackerAsset tracker;
-	
+
 	private int infoCount = 0;
 
 	private JFrame window;
@@ -87,7 +87,7 @@ public class Main {
 
 	private JRadioButton checkCompleted;
 
-	private JRadioButton checkManual; 
+	private JRadioButton checkManual;
 
 	private JTextField verbField;
 
@@ -96,7 +96,7 @@ public class Main {
 	private JTextField objectIdField;
 
 	private JPanel customTraceOptionsPanel;
-	
+
 	public Main() {
 		tracker = new TrackerAsset();
 		tracker.setBridge(new JavaBridge() {
@@ -108,18 +108,18 @@ public class Main {
 		});
 
 	}
-	
+
 	private void launch() {
-		SwingUtilities.invokeLater(()->{
+		SwingUtilities.invokeLater(() -> {
 			createAndShowGUI();
 		});
 	}
-	
+
 	private void appendLogMessage(Severity severity, String msg) {
-		SwingUtilities.invokeLater(()->{
-			log.setText(log.getText() + "\n\n " + (++infoCount)
-					+ " -> " + severity + ": " + msg);
-		});		
+		SwingUtilities.invokeLater(() -> {
+			log.setText(log.getText() + "\n\n " + (++infoCount) + " -> "
+					+ severity + ": " + msg);
+		});
 	}
 
 	public void createAndShowGUI() {
@@ -127,55 +127,52 @@ public class Main {
 		window.setTitle("Tracker GUI Example");
 
 		Container root = window.getContentPane();
-		
+
 		root.setLayout(new BorderLayout());
 
 		JPanel mainNorthPanel = new JPanel();
-		mainNorthPanel.setLayout(new BoxLayout(mainNorthPanel, BoxLayout.PAGE_AXIS));
-		
+		mainNorthPanel
+				.setLayout(new BoxLayout(mainNorthPanel, BoxLayout.PAGE_AXIS));
+
 		// Settings and Login & Start panel
 		JPanel settingsAndStartPanel = new JPanel(new FlowLayout());
-		settingsAndStartPanel.setBorder(BorderFactory.createTitledBorder("1.- Settings & Start"));
+		settingsAndStartPanel.setBorder(
+				BorderFactory.createTitledBorder("1.- Settings & Start"));
 		settingsAndStartPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		mainNorthPanel.add(settingsAndStartPanel);
-		
+
 		hostField = new JTextField(30);
-		hostField.setText("analytics-test.e-ucm.es");
+		hostField.setText("analytics.example.com");
 
 		trackingCodeField = new JTextField(30);
 		trackingCodeField.setText("5bef140d35d17e0082ae3279a1z1noomz1");
-		
+
 		usernameField = new JTextField(20);
 		passwordField = new JTextField(20);
-		
+
 		settingsAndStartPanel.add(createSettingsPanel(new Component[][] {
-				new Component[] {new JLabel("Host:"), hostField},
-				new Component[] {new JLabel("Tracking Code:"), trackingCodeField},
-				new Component[] {new JLabel("Username:"), usernameField},
-				new Component[] {new JLabel("Password:"), passwordField}
-		}));
-		
+				new Component[] { new JLabel("Host:"), hostField },
+				new Component[] { new JLabel("Tracking Code:"),
+						trackingCodeField },
+				new Component[] { new JLabel("Username:"), usernameField },
+				new Component[] { new JLabel("Password:"), passwordField } }));
 
 		// Buttons panel
 		JButton startButton = new JButton("Login & Start");
 		startButton.addActionListener(new LoginAndStartAction());
 		settingsAndStartPanel.add(startButton);
-		
-		
+
 		// Other options
-		
+
 		JPanel verbPanel = new JPanel(new BorderLayout());
 		verbPanel.setBorder(BorderFactory.createTitledBorder("2.- Verb"));
 		verbPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		mainNorthPanel.add(verbPanel);
-		
 
-		
 		JPanel verbOptionsPanel = new JPanel(new FlowLayout());
 		verbOptionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		verbPanel.add(verbOptionsPanel, BorderLayout.NORTH);
 
-		
 		ButtonGroup optsGroup = new ButtonGroup();
 
 		checkSelected = new JRadioButton("Selected");
@@ -215,39 +212,39 @@ public class Main {
 		objectIdField = new JTextField(30);
 		objectIdField.setText("mainMenu");
 		objectIdField.setEnabled(false);
-		
+
 		customTraceOptionsPanel = createSettingsPanel(new Component[][] {
-			new Component[] {new JLabel("Verb:"), verbField},
-			new Component[] {new JLabel("Object Type:"), objectTypeField},
-			new Component[] {new JLabel("Object Id:"), objectIdField}
-		});
-		customTraceOptionsPanel.setBorder(BorderFactory.createTitledBorder("Custom trace"));
+				new Component[] { new JLabel("Verb:"), verbField },
+				new Component[] { new JLabel("Object Type:"), objectTypeField },
+				new Component[] { new JLabel("Object Id:"), objectIdField } });
+		customTraceOptionsPanel
+				.setBorder(BorderFactory.createTitledBorder("Custom trace"));
 		customTraceOptionsPanel.setEnabled(false);
 		verbPanel.add(customTraceOptionsPanel, BorderLayout.CENTER);
 
 		root.add(mainNorthPanel, BorderLayout.NORTH);
 		root.add(createLogPanel(), BorderLayout.CENTER);
 		root.add(createSendPanel(), BorderLayout.SOUTH);
-		
+
 		// Recalculate mininum / preferred size
 		window.pack();
-		
+
 		// Center
-		
+
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-    int x = (int) ((dimension.getWidth() - window.getWidth()) / 2);
-    int y = (int) ((dimension.getHeight() - window.getHeight()) / 2);
-    window.setLocation(x, y);
-    
-    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-    window.setVisible(true);
-    
+		int x = (int) ((dimension.getWidth() - window.getWidth()) / 2);
+		int y = (int) ((dimension.getHeight() - window.getHeight()) / 2);
+		window.setLocation(x, y);
+
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		window.setVisible(true);
+
 	}
-	
+
 	private JPanel createSettingsPanel(Component[][] settings) {
-		
-		JPanel settingsPanel =	new JPanel(new GridBagLayout());
+
+		JPanel settingsPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
 		for (int i = 0; i < settings.length; i++) {
@@ -258,7 +255,7 @@ public class Main {
 			c.anchor = GridBagConstraints.LINE_END;
 			c.insets = new Insets(0, 0, 0, 10);
 			settingsPanel.add(settings[i][0], c);
-	
+
 			c.weightx = SETTING_FIELD_WIDTH;
 			c.gridx = 1;
 			c.gridy = i;
@@ -267,31 +264,31 @@ public class Main {
 			c.insets = new Insets(0, 0, 0, 10);
 			settingsPanel.add(settings[i][1], c);
 		}
-		
+
 		return settingsPanel;
 	}
-	
+
 	private JComponent createLogPanel() {
 		log = new JTextArea(60, 90);
 		log.setEditable(false);
 		log.setLineWrap(true);
-		
+
 		JScrollPane scrollPane = new JScrollPane(log);
 		scrollPane.setPreferredSize(new Dimension(880, 250));
-		scrollPane
-				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
+		scrollPane.setVerticalScrollBarPolicy(
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
 		return scrollPane;
 	}
-	
+
 	private JComponent createSendPanel() {
 		JPanel sendPanel = new JPanel(new FlowLayout());
-		
+
 		JButton sendButton = new JButton("Send");
 		sendButton.addActionListener(new SendTraceAction());
-		
+
 		sendPanel.add(sendButton);
-		
+
 		return sendPanel;
 	}
 
@@ -306,7 +303,7 @@ public class Main {
 			completed();
 		}
 	}
-	
+
 	private static int rand9() {
 		return (int) ((Math.random() * 9) + 1);
 	}
@@ -314,8 +311,7 @@ public class Main {
 	private void selected() throws Exception {
 		AlternativeTracker.Alternative[] values = AlternativeTracker.Alternative
 				.values();
-		tracker.getAlternative().selected(
-				"alternativeId_" + rand9(),
+		tracker.getAlternative().selected("alternativeId_" + rand9(),
 				"alternativeOptionId_" + rand9(),
 				values[new Random().nextInt(values.length)]);
 	}
@@ -323,21 +319,19 @@ public class Main {
 	private void accessed() throws Exception {
 		AccessibleTracker.Accessible[] values = AccessibleTracker.Accessible
 				.values();
-		tracker.getAccessible().accessed(
-				"accessedId_" + rand9(),
+		tracker.getAccessible().accessed("accessedId_" + rand9(),
 				values[new Random().nextInt(values.length)]);
 	}
 
 	private void completed() throws Exception {
 		CompletableTracker.Completable[] values = CompletableTracker.Completable
 				.values();
-		tracker.getCompletable().completed(
-				"completableId_" + rand9(),
+		tracker.getCompletable().completed("completableId_" + rand9(),
 				values[new Random().nextInt(values.length)]);
 	}
-	
+
 	private class LoginAndStartAction implements ActionListener {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			TrackerAssetSettings settings = new TrackerAssetSettings();
@@ -359,9 +353,9 @@ public class Main {
 			tracker.start(trackingCodeField.getText());
 		}
 	}
-	
+
 	private class SendTraceAction implements ActionListener {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
@@ -388,26 +382,26 @@ public class Main {
 			}
 		}
 	}
-	
+
 	private class EnableCustomPanelAction implements ActionListener {
 
 		private boolean enable;
-		
+
 		public EnableCustomPanelAction() {
 			this.enable = false;
 		}
-		
+
 		public EnableCustomPanelAction(boolean enable) {
 			this.enable = enable;
-		}		
-		
+		}
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			customTraceOptionsPanel.setEnabled(enable);
-			for ( Component c : customTraceOptionsPanel.getComponents() ) {
+			for (Component c : customTraceOptionsPanel.getComponents()) {
 				c.setEnabled(enable);
 			}
 		}
-		
+
 	}
 }

@@ -29,15 +29,14 @@ import java.util.Map;
 /**
  * Static utilities, mostly for validation.
  *
- * Properties for strict-mode and logger control whether
- * validation problems result in exceptions or not, and
- * if they are not considered exceptions, where they are logged.
+ * Properties for strict-mode and logger control whether validation problems
+ * result in exceptions or not, and if they are not considered exceptions, where
+ * they are logged.
  */
 public class TrackerUtils {
 
 	/**
-	 * If true, validation problems thro exceptions. Otherwise,
-	 * they are logged.
+	 * If true, validation problems thro exceptions. Otherwise, they are logged.
 	 */
 	private static boolean strictMode;
 	/**
@@ -51,30 +50,32 @@ public class TrackerUtils {
 	public interface Logger {
 		/**
 		 * Logs a message with a given severity
-		 * @param severity of statement
-		 * @param message to report
+		 * 
+		 * @param severity
+		 *            of statement
+		 * @param message
+		 *            to report
 		 */
 		void log(Severity severity, String message);
 	}
 
 	/**
-	 * An xAPI-standarized set of constants.
-	 * Each of them has a unique, URL-like ID.
+	 * An xAPI-standarized set of constants. Each of them has a unique, URL-like
+	 * ID.
 	 */
 	public interface XApiConstant {
-		
+
 		public static final String ACTIVITY_TYPES_BASE_IRI = "https://w3id.org/xapi/seriousgames/activity-types/";
-		
+
 		public static final String VERBS_BASE_IRI = "https://w3id.org/xapi/seriousgames/verbs/";
-		
+
 		public static final String EXTENSIONS_BASE_IRI = "https://w3id.org/xapi/seriousgames/extensions/";
 
-		
 		/**
 		 * @return the official xAPI id for this constant
 		 */
 		public String getId();
-		
+
 		/**
 		 * @return the simple xAPI id (last part of the IRI) for this constant
 		 */
@@ -82,10 +83,12 @@ public class TrackerUtils {
 	}
 
 	/** disallows instantiation */
-	private TrackerUtils() {}
+	private TrackerUtils() {
+	}
 
 	/**
 	 * Configures all problems to launch exceptions.
+	 * 
 	 * @param strictMode
 	 */
 	public static void setStrictMode(boolean strictMode) {
@@ -94,6 +97,7 @@ public class TrackerUtils {
 
 	/**
 	 * Configures the logging mechanism.
+	 * 
 	 * @param logger
 	 */
 	public static void setLogger(Logger logger) {
@@ -102,22 +106,29 @@ public class TrackerUtils {
 
 	/**
 	 * Log or throw an exception.
-	 * @param message to log (if strict mode not enabled)
-	 * @param strictMessage to throw, wrapped in a
-	 * @param exceptionClass to throw, if required
-	 * @param cause to include in exception, if required. Use null to avoid.
+	 * 
+	 * @param message
+	 *            to log (if strict mode not enabled)
+	 * @param strictMessage
+	 *            to throw, wrapped in a
+	 * @param exceptionClass
+	 *            to throw, if required
+	 * @param cause
+	 *            to include in exception, if required. Use null to avoid.
 	 * @throws TrackerException
 	 */
 	public static void complain(String message, String strictMessage,
-	                     Class<? extends TrackerException> exceptionClass, Throwable cause) {
+			Class<? extends TrackerException> exceptionClass, Throwable cause) {
 		if (strictMode) {
 			TrackerException complaint = null;
 			try {
-				complaint =  exceptionClass.getConstructor(String.class, Throwable.class)
+				complaint = exceptionClass
+						.getConstructor(String.class, Throwable.class)
 						.newInstance(strictMessage, cause);
 			} catch (Exception e) {
-				logger.log(Severity.Error, "Exception reporting exception: missing constructors for "
-						+ exceptionClass.getCanonicalName() + ": " + e);
+				logger.log(Severity.Error,
+						"Exception reporting exception: missing constructors for "
+								+ exceptionClass.getCanonicalName() + ": " + e);
 				e.printStackTrace();
 				throw new TrackerException(strictMessage, cause);
 			}
@@ -129,11 +140,13 @@ public class TrackerUtils {
 
 	/**
 	 * Parses a trace line into a list
-	 * @param trace to parse
+	 * 
+	 * @param trace
+	 *            to parse
 	 * @return list of parts
 	 * @throws TrackerException
 	 */
-	public static List<String> parseCSV(String trace)  {
+	public static List<String> parseCSV(String trace) {
 		List<String> p = new ArrayList<>();
 		boolean escape = false;
 		int start = 0; // start of current field
@@ -177,13 +190,13 @@ public class TrackerUtils {
 	public static boolean notNullEmptyOrNan(Object value) {
 		boolean bad = (value == null)
 				|| (value instanceof String && "".equals(value))
-				|| (value instanceof Float && ((Float)value).isNaN())
-				|| (value instanceof Double && ((Double)value).isNaN());
-		return ! bad;
+				|| (value instanceof Float && ((Float) value).isNaN())
+				|| (value instanceof Double && ((Double) value).isNaN());
+		return !bad;
 	}
 
-	public static boolean check(Object value, String message, String strictMessage,
-			Class<? extends TrackerException> c) {
+	public static boolean check(Object value, String message,
+			String strictMessage, Class<? extends TrackerException> c) {
 		boolean ok = notNullEmptyOrNan(value);
 		if (!ok) {
 			complain(message, strictMessage, c, null);
@@ -191,19 +204,17 @@ public class TrackerUtils {
 		return ok;
 	}
 
-	public static boolean checkIsTrue(boolean complainIfNotTrue,
-	                                 String message, String strictMessage,
-	                                 Class<? extends TrackerException> c) {
-		if ( ! complainIfNotTrue) {
+	public static boolean checkIsTrue(boolean complainIfNotTrue, String message,
+			String strictMessage, Class<? extends TrackerException> c) {
+		if (!complainIfNotTrue) {
 			complain(message, strictMessage, c, null);
 			return false;
 		}
 		return true;
 	}
 
-	public static boolean checkBoolean(String value,
-	                                   String message, String strictMessage,
-	                                   Class<? extends TrackerException> c) {
+	public static boolean checkBoolean(String value, String message,
+			String strictMessage, Class<? extends TrackerException> c) {
 		try {
 			Boolean.parseBoolean(value);
 		} catch (Exception ex) {
@@ -216,9 +227,9 @@ public class TrackerUtils {
 	/**
 	 * Complains if the input is not a valid enum; also returns result, if any.
 	 */
-	public static <E extends Enum<E>> E parseEnumOrComplain(
-			String text, Class<E> enumType, String message, String strictMessage,
-            Class<? extends TrackerException> c) {
+	public static <E extends Enum<E>> E parseEnumOrComplain(String text,
+			Class<E> enumType, String message, String strictMessage,
+			Class<? extends TrackerException> c) {
 		Exception cause = null;
 		try {
 			for (E enumValue : enumType.getEnumConstants()) {
@@ -234,11 +245,11 @@ public class TrackerUtils {
 	}
 
 	/**
-	 * Return a new map of XApiConstant enum-values (lowercase) to ids.
-	 * This should be cached for efficiency
+	 * Return a new map of XApiConstant enum-values (lowercase) to ids. This
+	 * should be cached for efficiency
 	 */
-	public static <T extends Enum<T>&XApiConstant>
-			Map<String, String> buildXApiMap(Class<T> enumType) {
+	public static <T extends Enum<T> & XApiConstant> Map<String, String> buildXApiMap(
+			Class<T> enumType) {
 		Map<String, String> map = new HashMap<>();
 		for (T v : enumType.getEnumConstants()) {
 			// some XApiConstants (such as Extension) have elements without IDs
@@ -249,7 +260,8 @@ public class TrackerUtils {
 		return map;
 	}
 
-	public static <T extends Enum<T> & XApiConstant> Map<String, XApiConstant> buildReverseXApiMap(Class<T> enumType) {
+	public static <T extends Enum<T> & XApiConstant> Map<String, XApiConstant> buildReverseXApiMap(
+			Class<T> enumType) {
 		Map<String, XApiConstant> map = new HashMap<>();
 		for (T v : enumType.getEnumConstants()) {
 			// some XApiConstants (such as Extension) have elements without IDs
@@ -259,9 +271,10 @@ public class TrackerUtils {
 		}
 		return map;
 	}
-	
+
 	/**
-	 * @param string to check
+	 * @param string
+	 *            to check
 	 * @return true iff the string is either null or empty
 	 */
 	public static boolean isNullOrEmpty(String string) {

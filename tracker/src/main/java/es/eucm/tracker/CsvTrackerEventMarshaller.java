@@ -34,12 +34,12 @@ class CsvTrackerEventMarshaller implements TrackerEventMarshaller {
 		buffer.append(",");
 		targetToCsv(buffer, event.getTarget());
 		resultToCsv(buffer, event.getResult());
-		
+
 		return buffer.toString();
 	}
 
 	private void verbToCsv(StringBuilder buffer, TraceVerb verb) {
-	  buffer.append(escapeString(verb.getStringVerb()));
+		buffer.append(escapeString(verb.getStringVerb()));
 	}
 
 	private void targetToCsv(StringBuilder buffer, TraceObject target) {
@@ -98,7 +98,8 @@ class CsvTrackerEventMarshaller implements TrackerEventMarshaller {
 							if (count > 0) {
 								buffer.append("-");
 							}
-							inner.append(e.getKey()).append("=").append(e.getValue().toString().toLowerCase());
+							inner.append(e.getKey()).append("=").append(
+									e.getValue().toString().toLowerCase());
 							count++;
 						}
 					} else {
@@ -112,11 +113,11 @@ class CsvTrackerEventMarshaller implements TrackerEventMarshaller {
 	private String escapeString(String string) {
 		return string.replace(",", "\\,");
 	}
-	
+
 	private String decimalToString(double value) {
 		return Double.toString(value);
 	}
-	
+
 	private String decimalToString(float value) {
 		return Float.toString(value);
 	}

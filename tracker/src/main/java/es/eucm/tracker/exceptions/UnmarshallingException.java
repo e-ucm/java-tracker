@@ -25,7 +25,7 @@ public class UnmarshallingException extends TrackerException {
 	public UnmarshallingException(String message) {
 		super(message);
 	}
-	
+
 	public UnmarshallingException(String message, Throwable cause) {
 		super(message, cause);
 	}

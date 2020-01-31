@@ -36,7 +36,7 @@ import es.eucm.tracker.exceptions.ValueExtensionException;
  * A tracker event.
  */
 public class TrackerEvent implements Comparable<TrackerEvent> {
-	
+
 	public static final TrackerEventIgnoreTimestampComparator TIMESTAMP_IGNORED_COMPARATOR = new TrackerEventIgnoreTimestampComparator();
 
 	private TraceVerb verb;
@@ -46,7 +46,7 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 	public TrackerEvent() {
 		this(Instant.now());
 	}
-	
+
 	public TrackerEvent(Instant timestamp) {
 		this.timeStamp = timestamp;
 		this.result = new TraceResult();
@@ -107,9 +107,11 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.result == null) ? 0 : this.result.hashCode());
+		result = prime * result
+				+ ((this.result == null) ? 0 : this.result.hashCode());
 		result = prime * result + ((target == null) ? 0 : target.hashCode());
-		result = prime * result + ((timeStamp == null) ? 0 : timeStamp.hashCode());
+		result = prime * result
+				+ ((timeStamp == null) ? 0 : timeStamp.hashCode());
 		result = prime * result + ((verb == null) ? 0 : verb.hashCode());
 		return result;
 	}
@@ -149,23 +151,23 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 	@Override
 	public int compareTo(TrackerEvent o) {
 		int result = 0;
-		
+
 		if ((result = this.timeStamp.compareTo(o.timeStamp)) != 0) {
 			return result;
 		}
-		
+
 		if ((result = this.verb.compareTo(o.verb)) != 0) {
 			return result;
 		}
-		
+
 		if ((result = this.target.compareTo(o.target)) != 0) {
 			return result;
 		}
-		
+
 		if ((result = this.result.compareTo(o.result)) != 0) {
 			return result;
-		}		
-		
+		}
+
 		return result;
 	}
 
@@ -182,9 +184,9 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 
 		public void setType(String value) {
 			if (check(value,
-				"xAPI Exception: Target Type is null or empty. Ignoring.",
-				"xAPI Exception: Target Type can't be null or empty.",
-				TargetXApiException.class))
+					"xAPI Exception: Target Type is null or empty. Ignoring.",
+					"xAPI Exception: Target Type can't be null or empty.",
+					TargetXApiException.class))
 				type = value;
 		}
 
@@ -194,25 +196,24 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 
 		public void setID(String value) {
 			if (check(value,
-				"xAPI Exception: Target ID is null or empty. Ignoring.",
-				"xAPI Exception: Target ID can't be null or empty.",
-				TargetXApiException.class))
+					"xAPI Exception: Target ID is null or empty. Ignoring.",
+					"xAPI Exception: Target ID can't be null or empty.",
+					TargetXApiException.class))
 				id = value;
 
 		}
 
 		public TraceObject(XApiConstant type, String targetId) {
-				this(type.getSimpleName(), targetId);
+			this(type.getSimpleName(), targetId);
 		}
-		
-		public TraceObject(String type, String id){
+
+		public TraceObject(String type, String id) {
 			this.setType(type);
 			this.setID(id);
 		}
 
 		public boolean isValid() throws Exception {
-			return notNullEmptyOrNan(getType())
-					&& notNullEmptyOrNan(getID());
+			return notNullEmptyOrNan(getType()) && notNullEmptyOrNan(getID());
 		}
 
 		@Override
@@ -249,11 +250,11 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 		@Override
 		public int compareTo(TraceObject o) {
 			int result = this.id.compareTo(o.id);
-			
+
 			if (result == 0) {
 				result = this.type.compareTo(o.type);
 			}
-			
+
 			return result;
 		}
 	}
@@ -264,9 +265,9 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 	public static class TraceResult implements Comparable<TraceResult> {
 
 		private Boolean success;
-		
+
 		private Boolean completion;
-		
+
 		private Float score;
 
 		private String res;
@@ -274,7 +275,7 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 		private Map<String, Object> extensions = new HashMap<>();
 
 		public Boolean getSuccess() {
-		  return success;
+			return success;
 		}
 
 		public void setSuccess(Boolean value) {
@@ -294,8 +295,7 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 		}
 
 		public void setResponse(String value) {
-			if (check(value,
-					"xAPI extension: response Empty or null. Ignoring",
+			if (check(value, "xAPI extension: response Empty or null. Ignoring",
 					"xAPI extension: response can't be empty or null",
 					ValueExtensionException.class))
 				res = value;
@@ -307,10 +307,9 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 		}
 
 		public void setScore(Float value) {
-			if (check(value,
-						"xAPI extension: score null or NaN. Ignoring",
-						"xAPI extension: score can't be null or NaN.",
-						ValueExtensionException.class))
+			if (check(value, "xAPI extension: score null or NaN. Ignoring",
+					"xAPI extension: score can't be null or NaN.",
+					ValueExtensionException.class))
 				score = value;
 		}
 
@@ -366,9 +365,10 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 			valid &= notNullEmptyOrNan(score);
 
 			if (getExtensions() != null) {
-				for (Map.Entry<String, Object> extension : getExtensions().entrySet()) {
-					valid &= quickCheckExtension(
-							extension.getKey(), extension.getValue());
+				for (Map.Entry<String, Object> extension : getExtensions()
+						.entrySet()) {
+					valid &= quickCheckExtension(extension.getKey(),
+							extension.getValue());
 				}
 			}
 
@@ -379,11 +379,14 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((completion == null) ? 0 : completion.hashCode());
-			result = prime * result + ((extensions == null) ? 0 : extensions.hashCode());
+			result = prime * result
+					+ ((completion == null) ? 0 : completion.hashCode());
+			result = prime * result
+					+ ((extensions == null) ? 0 : extensions.hashCode());
 			result = prime * result + ((res == null) ? 0 : res.hashCode());
 			result = prime * result + ((score == null) ? 0 : score.hashCode());
-			result = prime * result + ((success == null) ? 0 : success.hashCode());
+			result = prime * result
+					+ ((success == null) ? 0 : success.hashCode());
 			return result;
 		}
 
@@ -427,7 +430,7 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 		@Override
 		public int compareTo(TraceResult o) {
 			int result = 0;
-			
+
 			if (success == null && o.success == null) {
 				result = 0;
 			} else if (success == null && o.success != null) {
@@ -437,8 +440,8 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 			} else {
 				result = success.compareTo(o.success);
 			}
-			
-			if (result == 0) {				
+
+			if (result == 0) {
 				if (completion == null && o.completion == null) {
 					result = 0;
 				} else if (completion == null && o.completion != null) {
@@ -447,10 +450,10 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 					return 1;
 				} else {
 					result = completion.compareTo(o.completion);
-				}				
+				}
 			}
-			
-			if (result == 0) {				
+
+			if (result == 0) {
 				if (score == null && o.score == null) {
 					result = 0;
 				} else if (score == null && o.score != null) {
@@ -459,10 +462,10 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 					return 1;
 				} else {
 					result = score.compareTo(o.score);
-				}				
+				}
 			}
-			
-			if (result == 0) {				
+
+			if (result == 0) {
 				if (res == null && o.res == null) {
 					result = 0;
 				} else if (res == null && o.res != null) {
@@ -471,10 +474,10 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 					return 1;
 				} else {
 					result = res.compareTo(o.res);
-				}				
+				}
 			}
-			
-			if (result == 0) {				
+
+			if (result == 0) {
 				if (extensions == null && o.extensions == null) {
 					result = 0;
 				} else if (extensions == null && o.extensions != null) {
@@ -486,61 +489,69 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 					if (result != 0) {
 						return result;
 					}
-					
+
 					List<Map.Entry<String, Object>> orderedEntries = new ArrayList<>();
 					orderedEntries.addAll(extensions.entrySet());
-					orderedEntries.sort(Comparator.comparing((Map.Entry<String, Object> e) -> e.getKey()));
+					orderedEntries.sort(Comparator.comparing(
+							(Map.Entry<String, Object> e) -> e.getKey()));
 
 					List<Map.Entry<String, Object>> oOrderedEntries = new ArrayList<>();
 					oOrderedEntries.addAll(o.extensions.entrySet());
-					oOrderedEntries.sort(Comparator.comparing((Map.Entry<String, Object> e) -> e.getKey()));
-					
-					Iterator<Map.Entry<String, Object>> entriesIterator = orderedEntries.iterator();
-					Iterator<Map.Entry<String, Object>> oEntriesIterator = oOrderedEntries.iterator();
+					oOrderedEntries.sort(Comparator.comparing(
+							(Map.Entry<String, Object> e) -> e.getKey()));
+
+					Iterator<Map.Entry<String, Object>> entriesIterator = orderedEntries
+							.iterator();
+					Iterator<Map.Entry<String, Object>> oEntriesIterator = oOrderedEntries
+							.iterator();
 					Map.Entry<String, Object> entry, oEntry;
-					
+
 					while (result == 0 && entriesIterator.hasNext()) {
 						entry = entriesIterator.next();
 						oEntry = oEntriesIterator.next();
-						if ((result = entry.getKey().compareTo(oEntry.getKey())) != 0) {
+						if ((result = entry.getKey()
+								.compareTo(oEntry.getKey())) != 0) {
 							Object value = entry.getValue();
 							Object oValue = entry.getValue();
-							if (value.getClass().equals(oValue.getClass()) && value instanceof Comparable && oValue instanceof Comparable) {
+							if (value.getClass().equals(oValue.getClass())
+									&& value instanceof Comparable
+									&& oValue instanceof Comparable) {
 								@SuppressWarnings({ "unchecked", "rawtypes" })
-								Comparable<Comparable> c1 = (Comparable<Comparable>)value;
+								Comparable<Comparable> c1 = (Comparable<Comparable>) value;
 								@SuppressWarnings({ "unchecked", "rawtypes" })
-								Comparable<Comparable> c2 = (Comparable<Comparable>)oValue;
+								Comparable<Comparable> c2 = (Comparable<Comparable>) oValue;
 								result = c1.compareTo(c2);
 							} else {
 								result = value.hashCode() - oValue.hashCode();
 							}
 						}
 					}
-				}				
+				}
 			}
-			
+
 			return result;
 		}
 	}
-	
-	public static class TrackerEventIgnoreTimestampComparator implements Comparator<TrackerEvent> {
+
+	public static class TrackerEventIgnoreTimestampComparator
+			implements Comparator<TrackerEvent> {
 		@Override
 		public int compare(TrackerEvent o1, TrackerEvent o2) {
 			int result = 0;
-			
+
 			if ((result = o1.verb.compareTo(o2.verb)) != 0) {
 				return result;
 			}
-			
+
 			if ((result = o1.target.compareTo(o2.target)) != 0) {
 				return result;
 			}
-			
+
 			if ((result = o1.result.compareTo(o2.result)) != 0) {
 				return result;
-			}		
-			
+			}
+
 			return result;
-		}		
+		}
 	}
 }

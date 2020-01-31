@@ -70,20 +70,20 @@ public class TrackerAsset extends BaseAsset {
 
 	/** RegEx format pattern to extract a plain-quoted JSON Value. */
 	private static final String tokenRegex = "\"%s\":\"(.+?)\"";
-	private Pattern jsonAuthToken = Pattern.compile(String.format(tokenRegex,
-			"authToken"));
-	private Pattern jsonPlayerId = Pattern.compile(String.format(tokenRegex,
-			"playerId"));
-	private Pattern jsonSession = Pattern.compile(String.format(tokenRegex,
-			"session"));
-	private Pattern jsonObjectId = Pattern.compile(String.format(tokenRegex,
-			"objectId"));
-	private Pattern jsonToken = Pattern.compile(String.format(tokenRegex,
-			"token"));
-	private Pattern jsonHealth = Pattern.compile(String.format(tokenRegex,
-			"status"));
+	private Pattern jsonAuthToken = Pattern
+			.compile(String.format(tokenRegex, "authToken"));
+	private Pattern jsonPlayerId = Pattern
+			.compile(String.format(tokenRegex, "playerId"));
+	private Pattern jsonSession = Pattern
+			.compile(String.format(tokenRegex, "session"));
+	private Pattern jsonObjectId = Pattern
+			.compile(String.format(tokenRegex, "objectId"));
+	private Pattern jsonToken = Pattern
+			.compile(String.format(tokenRegex, "token"));
+	private Pattern jsonHealth = Pattern
+			.compile(String.format(tokenRegex, "status"));
 
-	/** Queue of TrackerEvents to Send.*/
+	/** Queue of TrackerEvents to Send. */
 	private ConcurrentQueue<TrackerEvent> queue = new ConcurrentQueue<>();
 
 	/** List of traces flushed while the connection was offline */
@@ -134,52 +134,46 @@ public class TrackerAsset extends BaseAsset {
 	 *
 	 * Extensions can be either 'special' or 'common'.
 	 *
-	 * Special extensions are stored separately in xAPI,
-	 * e.g.: result: { score: { raw: score_value_float> }, success:
-	 * success_value_bool, completion: completion_value_bool,
-	 * response: response_value_string ... }
+	 * Special extensions are stored separately in xAPI, e.g.: result: { score:
+	 * { raw: score_value_float> }, success: success_value_bool, completion:
+	 * completion_value_bool, response: response_value_string ... }
 	 *
-	 * Common extensions are stored in the
-	 * result.extensions object (in the xAPI format), e.g.:
-	 * result: { ...
-	 *  extensions: { .../health: value, .../position: value,
-	 * .../progress: value} }
+	 * Common extensions are stored in the result.extensions object (in the xAPI
+	 * format), e.g.: result: { ... extensions: { .../health: value,
+	 * .../position: value, .../progress: value} }
 	 */
 	public enum Extension implements XApiConstant {
 		/*
 		 * Special extensions - no ID assigned
 		 */
-		Score(null, null),
-		Success(null, null),
-		Response(null, null),
-		Completion(null, null),
-		
+		Score(null, null), Success(null, null), Response(null,
+				null), Completion(null, null),
+
 		/*
 		 * Common extensions
 		 */
-		Health(EXTENSIONS_BASE_IRI, "health"),
-		Position(EXTENSIONS_BASE_IRI, "position"),
-		Progress(EXTENSIONS_BASE_IRI, "progress");
-		
+		Health(EXTENSIONS_BASE_IRI, "health"), Position(EXTENSIONS_BASE_IRI,
+				"position"), Progress(EXTENSIONS_BASE_IRI, "progress");
+
 		private String baseIri;
-		
+
 		private String id;
-		
+
 		Extension(String baseIri, String id) {
 			this.baseIri = baseIri;
 			this.id = id;
 		}
-		
+
 		@Override
 		public String getId() {
-			return baseIri+id;
+			return baseIri + id;
 		}
 
 		@Override
 		public String getSimpleName() {
 			return id;
 		}
-		
+
 		public boolean isSpecial() {
 			return id == null;
 		}
@@ -199,7 +193,7 @@ public class TrackerAsset extends BaseAsset {
 		// BEGIN - XXX workaround for BaseAsset#loadSettings(String)
 		settings = new TrackerAssetSettings();
 		// END
-		
+
 		if (loadSettings(settingsFileName)) {
 			// settings loaded
 		} else {
@@ -211,8 +205,10 @@ public class TrackerAsset extends BaseAsset {
 			defaultSettings.setBasePath("/api/");
 			defaultSettings.setUserToken("");
 			defaultSettings.setTrackingCode("");
-			defaultSettings.setStorageType(TrackerAssetSettings.StorageTypes.LOCAL);
-			defaultSettings.setTraceFormat(TrackerAssetSettings.TraceFormats.CSV);
+			defaultSettings
+					.setStorageType(TrackerAssetSettings.StorageTypes.LOCAL);
+			defaultSettings
+					.setTraceFormat(TrackerAssetSettings.TraceFormats.CSV);
 			defaultSettings.setBatchSize(10);
 			setSettings(defaultSettings);
 		}
@@ -241,25 +237,28 @@ public class TrackerAsset extends BaseAsset {
 
 	@Override
 	public void setSettings(ISettings settings) {
-		if (! (settings instanceof TrackerAssetSettings) ) {
-			throw new IllegalArgumentException("settings must be an instance of: "+TrackerAssetSettings.class.getName());
+		if (!(settings instanceof TrackerAssetSettings)) {
+			throw new IllegalArgumentException(
+					"settings must be an instance of: "
+							+ TrackerAssetSettings.class.getName());
 		}
-		
+
 		if (started) {
-			throw new IllegalStateException("Settings must not be changed after the tracker has been started");
+			throw new IllegalStateException(
+					"Settings must not be changed after the tracker has been started");
 		}
-		
-		this.settings = (TrackerAssetSettings)settings;
-		switch(this.settings.getTraceFormat()) {
-			case JSON:
-				this.marshaller = new JsonTrackerEventMarshaller();
-			case XAPI:
-				this.marshaller = new XapiTrackerEventMarshaller();
-				break;
-			case CSV:
-			default:
-				this.marshaller = new CsvTrackerEventMarshaller();
-				break;
+
+		this.settings = (TrackerAssetSettings) settings;
+		switch (this.settings.getTraceFormat()) {
+		case JSON:
+			this.marshaller = new JsonTrackerEventMarshaller();
+		case XAPI:
+			this.marshaller = new XapiTrackerEventMarshaller();
+			break;
+		case CSV:
+		default:
+			this.marshaller = new CsvTrackerEventMarshaller();
+			break;
 		}
 	}
 
@@ -277,8 +276,8 @@ public class TrackerAsset extends BaseAsset {
 				log(Severity.Information, "Health Status=%s", health);
 			}
 		} else {
-			log(Severity.Error, "Request Error: %s-%2$s",
-					response.responseCode, response.responsMessage);
+			log(Severity.Error, "Request Error: %s-%2$s", response.responseCode,
+					response.responsMessage);
 		}
 		return response.GetResultAllowed();
 	}
@@ -307,21 +306,16 @@ public class TrackerAsset extends BaseAsset {
 		Map<String, String> headers = new HashMap<>();
 		headers.put("Content-Type", "application/json");
 		headers.put("Accept", "application/json");
-		RequestResponse response = this
-				.issueRequest(
-						"login",
-						"POST",
-						headers,
-						String.format(
-								"{\"username\":\"%s\",\"password\":\"%2$s\"}",
-								username, password));
+		RequestResponse response = this.issueRequest("login", "POST", headers,
+				String.format("{\"username\":\"%s\",\"password\":\"%2$s\"}",
+						username, password));
 		if (response.GetResultAllowed()) {
 			Matcher m = jsonToken.matcher(response.body);
 			if (m.find()) {
 				settings.setUserToken(m.group(1));
 				if (settings.getUserToken().startsWith("Bearer ")) {
-					settings.setUserToken(settings.getUserToken().substring(
-							"Bearer ".length()));
+					settings.setUserToken(settings.getUserToken()
+							.substring("Bearer ".length()));
 				}
 
 				log(Severity.Information, "Token= %s", settings.getUserToken());
@@ -330,8 +324,8 @@ public class TrackerAsset extends BaseAsset {
 
 		} else {
 			logged = false;
-			log(Severity.Error, "Request Error: %s-%2$s",
-					response.responseCode, response.responsMessage);
+			log(Severity.Error, "Request Error: %s-%2$s", response.responseCode,
+					response.responsMessage);
 		}
 		return logged;
 	}
@@ -374,25 +368,23 @@ public class TrackerAsset extends BaseAsset {
 	}
 
 	/**
-	 * Starts Tracking.
-	 * Requires:
-	 * 1) UserToken (extracted from Login) and
-	 * 2) TrackingCode (Shown at Game on a2 server).
+	 * Starts Tracking. Requires: 1) UserToken (extracted from Login) and 2)
+	 * TrackingCode (Shown at Game on a2 server).
 	 */
 	public void start() {
 		started = true;
 		switch (settings.getStorageType()) {
-			case NET:
-				doStart();
-				break;
-			case LOCAL: {
-				// Allow LocalStorage if a Bridge is implementing IDataStorage.
-				//
-				IDataStorage tmp = getInterface(IDataStorage.class);
-				connected = (tmp != null);
-				active = (tmp != null);
-				break;
-			}
+		case NET:
+			doStart();
+			break;
+		case LOCAL: {
+			// Allow LocalStorage if a Bridge is implementing IDataStorage.
+			//
+			IDataStorage tmp = getInterface(IDataStorage.class);
+			connected = (tmp != null);
+			active = (tmp != null);
+			break;
+		}
 		}
 	}
 
@@ -401,12 +393,12 @@ public class TrackerAsset extends BaseAsset {
 		String body = "";
 		// ! The UserToken might get swapped for a better one during response
 		// ! processing.
-		if (!(settings.getUserToken() == null || settings.getUserToken()
-				.isEmpty()))
+		if (!(settings.getUserToken() == null
+				|| settings.getUserToken().isEmpty()))
 			headers.put("Authorization",
 					String.format("Bearer %s", settings.getUserToken()));
-		else if (!(settings.getPlayerId() == null || settings.getPlayerId()
-				.isEmpty())) {
+		else if (!(settings.getPlayerId() == null
+				|| settings.getPlayerId().isEmpty())) {
 			headers.put("Content-Type", "application/json");
 			headers.put("Accept", "application/json");
 			body = "{\"anonymous\" : \"" + settings.getPlayerId() + "\"}";
@@ -414,7 +406,8 @@ public class TrackerAsset extends BaseAsset {
 
 		RequestResponse response = issueRequest(
 				String.format("proxy/gleaner/collector/start/%s",
-						settings.getTrackingCode()), "POST", headers, body);
+						settings.getTrackingCode()),
+				"POST", headers, body);
 		if (response.GetResultAllowed()) {
 			log(Severity.Information, "");
 			// Extract AuthToken.
@@ -464,8 +457,8 @@ public class TrackerAsset extends BaseAsset {
 			}
 
 		} else {
-			log(Severity.Error, "Request Error: %s-%2$s",
-					response.responseCode, response.responsMessage);
+			log(Severity.Error, "Request Error: %s-%2$s", response.responseCode,
+					response.responsMessage);
 			active = false;
 			connected = false;
 		}
@@ -478,7 +471,7 @@ public class TrackerAsset extends BaseAsset {
 		active = false;
 		connected = false;
 		started = false;
-		actorObject= null;
+		actorObject = null;
 		queue = new ConcurrentQueue<>();
 		tracesPending = new ArrayList<>();
 	}
@@ -520,10 +513,8 @@ public class TrackerAsset extends BaseAsset {
 	 */
 	public void trace(String verb, String targetType, String targetId) {
 		boolean trace = true;
-		trace &= check(verb,
-				"Tracker: Trace verb can't be null, ignoring. ",
-				"Tracker: Trace verb can't be null.",
-				TraceException.class);
+		trace &= check(verb, "Tracker: Trace verb can't be null, ignoring. ",
+				"Tracker: Trace verb can't be null.", TraceException.class);
 		trace &= check(targetType,
 				"Tracker: Trace Target type can't be null, ignoring. ",
 				"Tracker: Trace Target type can't be null.",
@@ -601,15 +592,15 @@ public class TrackerAsset extends BaseAsset {
 
 			RequestSettings request = new RequestSettings();
 			try {
-				String url = String.format(
-						"http%s://%2$s%3$s%4$s/%5$s",
-						settings.isSecure() ? "s" : "",
-						settings.getHost(),
+				String url = String.format("http%s://%2$s%3$s%4$s/%5$s",
+						settings.isSecure() ? "s" : "", settings.getHost(),
 						port == 80 ? "" : String.format(":%d", port),
-						isNullOrEmpty(settings.getBasePath().replaceAll(
-								"[/]+$", "")) ? "" : settings.getBasePath()
-								.replaceAll("[/]+$", ""), path.replaceAll("^/",
-								""));
+						isNullOrEmpty(
+								settings.getBasePath().replaceAll("[/]+$", ""))
+										? ""
+										: settings.getBasePath()
+												.replaceAll("[/]+$", ""),
+						path.replaceAll("^/", ""));
 				request.uri = new URI(url);
 			} catch (URISyntaxException ex) {
 				System.out.println("Invalid URI");
@@ -637,16 +628,18 @@ public class TrackerAsset extends BaseAsset {
 			doStart();
 		}
 
-		if (queue.getCount() > 0 ||
-				! tracesPending.isEmpty() || ! unsentTraces.isEmpty()) {
+		if (queue.getCount() > 0 || !tracesPending.isEmpty()
+				|| !unsentTraces.isEmpty()) {
 
 			// Extract the traces from the queue and remove from the queue
 			List<TrackerEvent> traces = collectTraces();
 			// Check if it is connected now
 			if (active) {
 				if (sendUnloggedTraces()) {
-					String data = processTraces(traces,	settings.getTraceFormat());
-					if ((!sendPendingTraces() || !(queue.getCount() > 0 && sendTraces(data)))
+					String data = processTraces(traces,
+							settings.getTraceFormat());
+					if ((!sendPendingTraces()
+							|| !(queue.getCount() > 0 && sendTraces(data)))
 							&& queue.getCount() > 0) {
 						tracesPending.add(data);
 					}
@@ -659,17 +652,18 @@ public class TrackerAsset extends BaseAsset {
 				IDataStorage storage = getInterface(IDataStorage.class);
 				IAppend appendStorage = getInterface(IAppend.class);
 				if (queue.getCount() > 0) {
-					String rawData = processTraces(traces, TrackerAssetSettings.TraceFormats.CSV);
+					String rawData = processTraces(traces,
+							TrackerAssetSettings.TraceFormats.CSV);
 					if (appendStorage != null) {
-						appendStorage
-								.Append(settings.getBackupFile(), rawData);
+						appendStorage.Append(settings.getBackupFile(), rawData);
 					} else if (storage != null) {
-						String previous = storage.exists(settings
-								.getBackupFile()) ? storage.load(settings
-								.getBackupFile()) : "";
+						String previous = storage
+								.exists(settings.getBackupFile())
+										? storage.load(settings.getBackupFile())
+										: "";
 						if (storage.exists(settings.getBackupFile()))
-							storage.save(settings.getBackupFile(), previous
-									+ rawData);
+							storage.save(settings.getBackupFile(),
+									previous + rawData);
 						else
 							storage.save(settings.getBackupFile(), rawData);
 					}
@@ -689,21 +683,24 @@ public class TrackerAsset extends BaseAsset {
 		return traces;
 	}
 
-	String processTraces(List<TrackerEvent> traces, TrackerAssetSettings.TraceFormats format) {
+	String processTraces(List<TrackerEvent> traces,
+			TrackerAssetSettings.TraceFormats format) {
 		List<String> stringsToSend = new ArrayList<>();
 		for (TrackerEvent item : traces) {
 			stringsToSend.add(this.marshaller.marshal(item, this));
 		}
-		StringBuilder data = new StringBuilder(String.join(","+TrackerEventMarshaller.LINE_SEPARATOR, stringsToSend));
+		StringBuilder data = new StringBuilder(String.join(
+				"," + TrackerEventMarshaller.LINE_SEPARATOR, stringsToSend));
 		switch (format) {
-			case JSON:
-			case XAPI:
-				data.insert(0, "["+TrackerEventMarshaller.LINE_SEPARATOR).append(TrackerEventMarshaller.LINE_SEPARATOR+"]");
-				break;
-			case CSV:
-			default:
-				data.append(TrackerEventMarshaller.LINE_SEPARATOR);
-				break;
+		case JSON:
+		case XAPI:
+			data.insert(0, "[" + TrackerEventMarshaller.LINE_SEPARATOR)
+					.append(TrackerEventMarshaller.LINE_SEPARATOR + "]");
+			break;
+		case CSV:
+		default:
+			data.append(TrackerEventMarshaller.LINE_SEPARATOR);
+			break;
 		}
 		return data.toString();
 	}
@@ -748,11 +745,15 @@ public class TrackerAsset extends BaseAsset {
 			IDataStorage storage = getInterface(IDataStorage.class);
 			IAppend append_storage = getInterface(IAppend.class);
 			if (storage != null) {
-				String previous = storage.exists(settings.getLogFile()) ? storage
-						.load(settings.getLogFile()) : "";
+				String previous = storage.exists(settings.getLogFile())
+						? storage.load(settings.getLogFile())
+						: "";
 				if (previous.length() > 0) {
-					previous = previous.replace(TrackerEventMarshaller.LINE_SEPARATOR+"]", ","+TrackerEventMarshaller.LINE_SEPARATOR);
-					data = data.replace("["+TrackerEventMarshaller.LINE_SEPARATOR, "");
+					previous = previous.replace(
+							TrackerEventMarshaller.LINE_SEPARATOR + "]",
+							"," + TrackerEventMarshaller.LINE_SEPARATOR);
+					data = data.replace(
+							"[" + TrackerEventMarshaller.LINE_SEPARATOR, "");
 				}
 
 				storage.save(settings.getLogFile(), previous + data);
@@ -764,7 +765,8 @@ public class TrackerAsset extends BaseAsset {
 			headers.put("Content-Type", "application/json");
 			headers.put("Authorization",
 					String.format("%s", settings.getUserToken()));
-			log(Severity.Information, TrackerEventMarshaller.LINE_SEPARATOR + data);
+			log(Severity.Information,
+					TrackerEventMarshaller.LINE_SEPARATOR + data);
 			RequestResponse response = issueRequest(
 					"proxy/gleaner/collector/track", "POST", headers, data);
 			if (response.GetResultAllowed()) {
@@ -843,9 +845,8 @@ public class TrackerAsset extends BaseAsset {
 	 *            The z coordinate.
 	 */
 	public void setPosition(float x, float y, float z) {
-		boolean valid =  ! (Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z));
-		if ( ! checkIsTrue(valid,
-				"Tracker: x, y or z cannot be null.",
+		boolean valid = !(Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z));
+		if (!checkIsTrue(valid, "Tracker: x, y or z cannot be null.",
 				"Tracker: x, y or z cannot be null, ignoring.",
 				ValueExtensionException.class)) {
 			return;
@@ -861,10 +862,9 @@ public class TrackerAsset extends BaseAsset {
 	 *            Health.
 	 */
 	public void setHealth(float health) {
-		if (check(health,
-			"Tracker: Health cannot be null, ignoring.",
-			"Tracker: Health cannot be null.",
-			ValueExtensionException.class)) {
+		if (check(health, "Tracker: Health cannot be null, ignoring.",
+				"Tracker: Health cannot be null.",
+				ValueExtensionException.class)) {
 			addExtension(Extension.Health.toString().toLowerCase(), health);
 		}
 	}
@@ -873,8 +873,8 @@ public class TrackerAsset extends BaseAsset {
 	 * Adds a variable to the extensions.
 	 * 
 	 * @param id
-	 *            A string identifier. If adding an official xAPI key,
-	 *            its official identifier should be used.
+	 *            A string identifier. If adding an official xAPI key, its
+	 *            official identifier should be used.
 	 * @param value
 	 *            Value, which may be a boolean, float, string, int, or map
 	 */
@@ -947,18 +947,20 @@ public class TrackerAsset extends BaseAsset {
 	public GameObjectTracker getGameObject() {
 		return gameObjectTracker;
 	}
-	
+
 	private class TraceProcessorBridge implements TraceProcessor {
-		
+
 		/**
 		 * Processes a trace, by storing or sending it.
-		 * @param trace to add
+		 * 
+		 * @param trace
+		 *            to add
 		 */
 		@Override
 		public void process(TrackerEvent trace) {
 			trace(trace);
 		}
-		
+
 		/**
 		 * Sets the progress of the action.
 		 * 
@@ -973,6 +975,6 @@ public class TrackerAsset extends BaseAsset {
 								+ progress + ")");
 
 			setVar(Extension.Progress.toString().toLowerCase(), progress);
-		}		
+		}
 	}
 }

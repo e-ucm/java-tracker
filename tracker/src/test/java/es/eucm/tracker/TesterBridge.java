@@ -40,8 +40,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TesterBridge implements IBridge, ILog, IDataStorage, IAppend,
-		IWebServiceRequest {
+public class TesterBridge
+		implements IBridge, ILog, IDataStorage, IAppend, IWebServiceRequest {
 	private static final String StorageDir = String.format(".{0}TestStorage",
 			'/');
 	private static final Gson gson = new Gson();
@@ -111,19 +111,16 @@ public class TesterBridge implements IBridge, ILog, IDataStorage, IAppend,
 
 		if (connected) {
 			result.responseCode = 200;
-			result.body = gson
-					.toJson(gson
-							.fromJson(
-									"{"
-											+ "\"authToken\": \"5a26cb5ac8b102008b41472b5a30078bc8b102008b4147589108928341\", "
-											+ "\"actor\": { \"account\": { \"homePage\": \"http://a2:3000/\", \"name\": \"Anonymous\"}, \"name\": \"test-animal-name\"}, "
-											+ "\"playerAnimalName\": \"test-animal-name\", "
-											+ "\"playerId\": \"5a30078bc8b102008b41475769103\", "
-											+ "\"objectId\": \"http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b\", "
-											+ "\"session\": 1, "
-											+ "\"firstSessionStarted\": \"2017-12-12T16:44:59.273Z\", "
-											+ "\"currentSessionStarted\": \"2017-12-12T16:44:59.273Z\" "
-											+ "}", HashMap.class));
+			result.body = gson.toJson(gson.fromJson("{"
+					+ "\"authToken\": \"5a26cb5ac8b102008b41472b5a30078bc8b102008b4147589108928341\", "
+					+ "\"actor\": { \"account\": { \"homePage\": \"http://a2:3000/\", \"name\": \"Anonymous\"}, \"name\": \"test-animal-name\"}, "
+					+ "\"playerAnimalName\": \"test-animal-name\", "
+					+ "\"playerId\": \"5a30078bc8b102008b41475769103\", "
+					+ "\"objectId\": \"http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b\", "
+					+ "\"session\": 1, "
+					+ "\"firstSessionStarted\": \"2017-12-12T16:44:59.273Z\", "
+					+ "\"currentSessionStarted\": \"2017-12-12T16:44:59.273Z\" "
+					+ "}", HashMap.class));
 
 			this.Append("netstorage", requestSettings.body);
 		} else {

@@ -73,7 +73,10 @@ public class TrackerSettings {
 	private String userToken;
 	/** id of player */
 	private String playerId;
-	/** analytics bucket for traces; identifies game version + experiment/class/whatever */
+	/**
+	 * analytics bucket for traces; identifies game version +
+	 * experiment/class/whatever
+	 */
 	private String trackingCode;
 
 	/**

@@ -55,7 +55,7 @@ public class TrackerAssetTest {
 
 	private static final Gson gson = new Gson();
 	private static final ArrayList<HashMap<String, Object>> arraymap = new ArrayList<>();
-	
+
 	private static final CsvTrackerEventUnmarshaller CSV_UNMARSHALLER = new CsvTrackerEventUnmarshaller();
 
 	TrackerAssetSettings settings = new TrackerAssetSettings();
@@ -68,12 +68,14 @@ public class TrackerAssetTest {
 		initTracker(format, TrackerAssetSettings.StorageTypes.LOCAL, null);
 	}
 
-	private void initTracker(String format, TrackerAssetSettings.StorageTypes st,
-			TesterBridge bridge) throws Exception {
+	private void initTracker(String format,
+			TrackerAssetSettings.StorageTypes st, TesterBridge bridge)
+			throws Exception {
 		TrackerAsset.getInstance().stop();
 		Path current = Paths.get(System.getProperty("user.dir"));
 
-		settings.setTraceFormat(TrackerAssetSettings.TraceFormats.valueOf(format));
+		settings.setTraceFormat(
+				TrackerAssetSettings.TraceFormats.valueOf(format));
 
 		settings.setStorageType(st);
 		TrackerAsset.getInstance().setSettings(settings);
@@ -325,8 +327,7 @@ public class TrackerAssetTest {
 		}
 		;
 		assertNotNull(exception);
-		
-		
+
 		exception = null;
 
 		initTracker("CSV");
@@ -381,8 +382,8 @@ public class TrackerAssetTest {
 	@Test
 	public void alternativeTraceTest() throws Exception {
 		initTracker("CSV");
-		TrackerAsset.getInstance().getAlternative()
-				.selected("question", "alternative");
+		TrackerAsset.getInstance().getAlternative().selected("question",
+				"alternative");
 		checkCSVTrace("0,selected,alternative,question,response,alternative");
 	}
 
@@ -399,7 +400,8 @@ public class TrackerAssetTest {
 		initTracker("CSV");
 		enqueueTrace02();
 		TrackerAsset.getInstance().flush();
-		checkCSVStoredTrace("0,initialized,game,ObjectID2,response,TheResponse,score,0.123");
+		checkCSVStoredTrace(
+				"0,initialized,game,ObjectID2,response,TheResponse,score,0.123");
 	}
 
 	@Test
@@ -407,7 +409,8 @@ public class TrackerAssetTest {
 		initTracker("CSV");
 		enqueueTrace03();
 		TrackerAsset.getInstance().flush();
-		checkCSVStoredTrace("0,selected,zone,ObjectID3,success,false,completion,true,response,AnotherResponse,score,123.456,extension1,value1,extension2,value2,extension3,3,extension4,4.56");
+		checkCSVStoredTrace(
+				"0,selected,zone,ObjectID3,success,false,completion,true,response,AnotherResponse,score,123.456,extension1,value1,extension2,value2,extension3,3,extension4,4.56");
 	}
 
 	@Test
@@ -448,7 +451,7 @@ public class TrackerAssetTest {
 				"https://w3id.org/xapi/seriousgames/activity-types/serious-game");
 		assertEquals(((Map) tracejson.get("verb")).get("id"),
 				"http://adlnet.gov/expapi/verbs/initialized");
-		assertEquals(((Map<?,?>) tracejson.get("result")).size(), 2);
+		assertEquals(((Map<?, ?>) tracejson.get("result")).size(), 2);
 		assertEquals(((Map) tracejson.get("result")).get("response"),
 				"TheResponse");
 		assertEquals(
@@ -484,23 +487,15 @@ public class TrackerAssetTest {
 		assertEquals(((Map) tracejson.get("result")).get("success"), false);
 		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
 				.entrySet().size(), 4);
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension1"),
-				"value1");
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension2"),
-				"value2");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension1"), "value1");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension2"), "value2");
 		// TODO should be 3, not 3.0
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension3"),
-				3.0);
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension4"),
-				4.56);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension3"), 3.0);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension4"), 4.56);
 	}
 
 	@Test
@@ -559,30 +554,22 @@ public class TrackerAssetTest {
 		assertEquals(((Map) tracejson.get("result")).get("success"), false);
 		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
 				.entrySet().size(), 4);
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension1"),
-				"value1");
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension2"),
-				"value2");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension1"), "value1");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension2"), "value2");
 		// TODO should be 3, not 3.0
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension3"),
-				3.0);
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension4"),
-				4.56);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension3"), 3.0);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension4"), 4.56);
 	}
 
 	@Test
 	public void testAccesible_Csv_01() throws Exception {
 		initTracker("CSV");
-		TrackerAsset.getInstance().getAccessible()
-				.accessed("AccesibleID", AccessibleTracker.Accessible.Cutscene);
+		TrackerAsset.getInstance().getAccessible().accessed("AccesibleID",
+				AccessibleTracker.Accessible.Cutscene);
 		checkCSVTrace("0,accessed,cutscene,AccesibleID");
 	}
 
@@ -590,8 +577,8 @@ public class TrackerAssetTest {
 	public void testAccesible_Csv_02_WithExtensions() throws Exception {
 		initTracker("CSV");
 		TrackerAsset.getInstance().setVar("extension1", "value1");
-		TrackerAsset.getInstance().getAccessible()
-				.skipped("AccesibleID2", AccessibleTracker.Accessible.Screen);
+		TrackerAsset.getInstance().getAccessible().skipped("AccesibleID2",
+				AccessibleTracker.Accessible.Screen);
 		checkCSVTrace("0,skipped,screen,AccesibleID2,extension1,value1");
 	}
 
@@ -599,8 +586,8 @@ public class TrackerAssetTest {
 	public void testAccesible_XApi_01() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
-		TrackerAsset.getInstance().getAccessible()
-				.accessed("AccesibleID", AccessibleTracker.Accessible.Cutscene);
+		TrackerAsset.getInstance().getAccessible().accessed("AccesibleID",
+				AccessibleTracker.Accessible.Cutscene);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
@@ -621,8 +608,8 @@ public class TrackerAssetTest {
 		cleanStorage();
 		initTracker("XAPI");
 		TrackerAsset.getInstance().setVar("extension1", "value1");
-		TrackerAsset.getInstance().getAccessible()
-				.skipped("AccesibleID2", AccessibleTracker.Accessible.Screen);
+		TrackerAsset.getInstance().getAccessible().skipped("AccesibleID2",
+				AccessibleTracker.Accessible.Screen);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
@@ -636,20 +623,15 @@ public class TrackerAssetTest {
 				"https://w3id.org/xapi/seriousgames/activity-types/screen");
 		assertEquals(((Map) tracejson.get("verb")).get("id"),
 				"http://id.tincanapi.com/verb/skipped");
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("extension1"),
-				"value1");
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("extension1"), "value1");
 	}
 
 	@Test
 	public void testAlternative_Csv_01() throws Exception {
 		initTracker("CSV");
-		TrackerAsset
-				.getInstance()
-				.getAlternative()
-				.selected("AlternativeID", "SelectedOption",
-						AlternativeTracker.Alternative.Path);
+		TrackerAsset.getInstance().getAlternative().selected("AlternativeID",
+				"SelectedOption", AlternativeTracker.Alternative.Path);
 		checkCSVTrace("0,selected,path,AlternativeID,response,SelectedOption");
 	}
 
@@ -657,29 +639,25 @@ public class TrackerAssetTest {
 	public void testAlternative_Csv_02_WithExtensions() throws Exception {
 		initTracker("CSV");
 		TrackerAsset.getInstance().setVar("SubCompletableScore", 0.8);
-		TrackerAsset
-				.getInstance()
-				.getAlternative()
-				.unlocked("AlternativeID2", "Answer number 3",
-						AlternativeTracker.Alternative.Question);
-		checkCSVTrace("0,unlocked,question,AlternativeID2,response,Answer number 3,SubCompletableScore,0.8");
+		TrackerAsset.getInstance().getAlternative().unlocked("AlternativeID2",
+				"Answer number 3", AlternativeTracker.Alternative.Question);
+		checkCSVTrace(
+				"0,unlocked,question,AlternativeID2,response,Answer number 3,SubCompletableScore,0.8");
 	}
 
 	public void testAlternative_XApi_01() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
-		TrackerAsset
-				.getInstance()
-				.getAlternative()
-				.selected("AlternativeID", "SelectedOption",
-						AlternativeTracker.Alternative.Path);
+		TrackerAsset.getInstance().getAlternative().selected("AlternativeID",
+				"SelectedOption", AlternativeTracker.Alternative.Path);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 5);
-		assertEquals(((Map) tracejson.get("object")).get("id"), "AlternativeID");
+		assertEquals(((Map) tracejson.get("object")).get("id"),
+				"AlternativeID");
 		assertEquals(
 				((Map) ((Map) tracejson.get("object")).get("definition"))
 						.get("type"),
@@ -695,11 +673,8 @@ public class TrackerAssetTest {
 		cleanStorage();
 		initTracker("XAPI");
 		TrackerAsset.getInstance().setVar("SubCompletableScore", 0.8);
-		TrackerAsset
-				.getInstance()
-				.getAlternative()
-				.unlocked("AlternativeID2", "Answer number 3",
-						AlternativeTracker.Alternative.Question);
+		TrackerAsset.getInstance().getAlternative().unlocked("AlternativeID2",
+				"Answer number 3", AlternativeTracker.Alternative.Question);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
@@ -716,61 +691,49 @@ public class TrackerAssetTest {
 				"https://w3id.org/xapi/seriousgames/verbs/unlocked");
 		assertEquals(((Map) tracejson.get("result")).get("response"),
 				"Answer number 3");
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("SubCompletableScore"),
-				0.8);
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("SubCompletableScore"), 0.8);
 	}
 
 	@Test
 	public void testCompletable_Csv_01() throws Exception {
 		initTracker("CSV");
-		TrackerAsset
-				.getInstance()
-				.getCompletable()
-				.initialized("CompletableID",
-						CompletableTracker.Completable.Quest);
+		TrackerAsset.getInstance().getCompletable().initialized("CompletableID",
+				CompletableTracker.Completable.Quest);
 		checkCSVTrace("0,initialized,quest,CompletableID");
 	}
 
 	@Test
 	public void testCompletable_Csv_02() throws Exception {
 		initTracker("CSV");
-		TrackerAsset
-				.getInstance()
-				.getCompletable()
-				.progressed("CompletableID2",
-						CompletableTracker.Completable.Stage, 0.34f);
+		TrackerAsset.getInstance().getCompletable().progressed("CompletableID2",
+				CompletableTracker.Completable.Stage, 0.34f);
 		checkCSVTrace("0,progressed,stage,CompletableID2,progress,0.34");
 	}
 
 	@Test
 	public void testCompletable_Csv_03() throws Exception {
 		initTracker("CSV");
-		TrackerAsset
-				.getInstance()
-				.getCompletable()
-				.completed("CompletableID3",
-						CompletableTracker.Completable.Race, true, 0.54f);
-		checkCSVTrace("0,completed,race,CompletableID3,success,true,score,0.54");
+		TrackerAsset.getInstance().getCompletable().completed("CompletableID3",
+				CompletableTracker.Completable.Race, true, 0.54f);
+		checkCSVTrace(
+				"0,completed,race,CompletableID3,success,true,score,0.54");
 	}
 
 	@Test
 	public void testCompletable_XApi_01() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
-		TrackerAsset
-				.getInstance()
-				.getCompletable()
-				.initialized("CompletableID",
-						CompletableTracker.Completable.Quest);
+		TrackerAsset.getInstance().getCompletable().initialized("CompletableID",
+				CompletableTracker.Completable.Quest);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
-		assertEquals(((Map) tracejson.get("object")).get("id"), "CompletableID");
+		assertEquals(((Map) tracejson.get("object")).get("id"),
+				"CompletableID");
 		assertEquals(
 				((Map) ((Map) tracejson.get("object")).get("definition"))
 						.get("type"),
@@ -783,11 +746,8 @@ public class TrackerAssetTest {
 	public void testCompletable_XApi_02() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
-		TrackerAsset
-				.getInstance()
-				.getCompletable()
-				.progressed("CompletableID2",
-						CompletableTracker.Completable.Stage, 0.34f);
+		TrackerAsset.getInstance().getCompletable().progressed("CompletableID2",
+				CompletableTracker.Completable.Stage, 0.34f);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
@@ -802,20 +762,16 @@ public class TrackerAssetTest {
 				"https://w3id.org/xapi/seriousgames/activity-types/stage");
 		assertEquals(((Map) tracejson.get("verb")).get("id"),
 				"http://adlnet.gov/expapi/verbs/progressed");
-		assertEquals(
-				((Map) ((Map) tracejson.get("result")).get("extensions"))
-						.get("https://w3id.org/xapi/seriousgames/extensions/progress"),
+		assertEquals(((Map) ((Map) tracejson.get("result")).get("extensions"))
+				.get("https://w3id.org/xapi/seriousgames/extensions/progress"),
 				0.34);
 	}
 
 	public void testCompletable_XApi_03() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
-		TrackerAsset
-				.getInstance()
-				.getCompletable()
-				.completed("CompletableID3",
-						CompletableTracker.Completable.Race, true, 0.54f);
+		TrackerAsset.getInstance().getCompletable().completed("CompletableID3",
+				CompletableTracker.Completable.Race, true, 0.54f);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
@@ -839,21 +795,16 @@ public class TrackerAssetTest {
 	@Test
 	public void testGameObject_Csv_01() throws Exception {
 		initTracker("CSV");
-		TrackerAsset
-				.getInstance()
-				.getGameObject()
-				.interacted("GameObjectID",
-						GameObjectTracker.TrackedGameObject.Npc);
+		TrackerAsset.getInstance().getGameObject().interacted("GameObjectID",
+				GameObjectTracker.TrackedGameObject.Npc);
 		checkCSVTrace("0,interacted,npc,GameObjectID");
 	}
 
 	@Test
 	public void testGameObject_Csv_02() throws Exception {
 		initTracker("CSV");
-		TrackerAsset
-				.getInstance()
-				.getGameObject()
-				.used("GameObjectID2", GameObjectTracker.TrackedGameObject.Item);
+		TrackerAsset.getInstance().getGameObject().used("GameObjectID2",
+				GameObjectTracker.TrackedGameObject.Item);
 		checkCSVTrace("0,used,item,GameObjectID2");
 	}
 
@@ -861,11 +812,8 @@ public class TrackerAssetTest {
 	public void testGameObject_XApi_01() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
-		TrackerAsset
-				.getInstance()
-				.getGameObject()
-				.interacted("GameObjectID",
-						GameObjectTracker.TrackedGameObject.Npc);
+		TrackerAsset.getInstance().getGameObject().interacted("GameObjectID",
+				GameObjectTracker.TrackedGameObject.Npc);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
@@ -878,7 +826,8 @@ public class TrackerAssetTest {
 			throw e;
 		}
 		Map tracejson = (Map) file.get(0);
-		for (Map.Entry<String, Object> e : ((Map<String, Object>)tracejson).entrySet()) {
+		for (Map.Entry<String, Object> e : ((Map<String, Object>) tracejson)
+				.entrySet()) {
 			System.err.println(e.getKey() + " -> " + e.getValue());
 		}
 		assertEquals(tracejson.entrySet().size(), 4);
@@ -895,17 +844,16 @@ public class TrackerAssetTest {
 	public void testGameObject_XApi_02() throws Exception {
 		cleanStorage();
 		initTracker("XAPI");
-		TrackerAsset
-				.getInstance()
-				.getGameObject()
-				.used("GameObjectID2", GameObjectTracker.TrackedGameObject.Item);
+		TrackerAsset.getInstance().getGameObject().used("GameObjectID2",
+				GameObjectTracker.TrackedGameObject.Item);
 		TrackerAsset.getInstance().flush();
 		String text = storage.load(settings.getLogFile());
 
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
-		assertEquals(((Map) tracejson.get("object")).get("id"), "GameObjectID2");
+		assertEquals(((Map) tracejson.get("object")).get("id"),
+				"GameObjectID2");
 		assertEquals(
 				((Map) ((Map) tracejson.get("object")).get("definition"))
 						.get("type"),
@@ -915,15 +863,13 @@ public class TrackerAssetTest {
 	}
 
 	private void enqueueTrace01() throws Exception {
-		TrackerAsset.getInstance().trace("accessed", "gameobject",
-				"ObjectID");
+		TrackerAsset.getInstance().trace("accessed", "gameobject", "ObjectID");
 	}
 
 	private void enqueueTrace02() throws Exception {
 		TrackerAsset.getInstance().setResponse("TheResponse");
 		TrackerAsset.getInstance().setScore(0.123f);
-		TrackerAsset.getInstance().trace("initialized", "game",
-				"ObjectID2");
+		TrackerAsset.getInstance().trace("initialized", "game", "ObjectID2");
 	}
 
 	private void enqueueTrace03() throws Exception {
@@ -945,28 +891,30 @@ public class TrackerAssetTest {
 	}
 
 	private void checkCSVStoredTrace(String... traces) throws Exception {
-		String[] lines = storage.load(settings.getLogFile()).split(TrackerEventMarshaller.LINE_SEPARATOR);
+		String[] lines = storage.load(settings.getLogFile())
+				.split(TrackerEventMarshaller.LINE_SEPARATOR);
 		List<TrackerEvent> actualEvents = new LinkedList<>();
 		for (String l : lines) {
 			actualEvents.add(CSV_UNMARSHALLER.unmarshal(l));
 		}
-		
+
 		List<TrackerEvent> expectedEvents = new LinkedList<>();
 		for (String l : traces) {
 			expectedEvents.add(CSV_UNMARSHALLER.unmarshal(l));
 		}
-		
+
 		assertEquals(expectedEvents.size(), actualEvents.size());
-		
+
 		for (TrackerEvent e1 : expectedEvents) {
 			Iterator<TrackerEvent> it = actualEvents.iterator();
 			boolean found = false;
-			while(!found && it.hasNext()) {
-				found = TrackerEvent.TIMESTAMP_IGNORED_COMPARATOR.compare(e1, it.next()) == 0;
+			while (!found && it.hasNext()) {
+				found = TrackerEvent.TIMESTAMP_IGNORED_COMPARATOR.compare(e1,
+						it.next()) == 0;
 			}
 			assertTrue("Events are different", found);
 		}
-		
+
 	}
 
 	private void checkXAPIStoredTrace(String trace, String file)
@@ -974,7 +922,8 @@ public class TrackerAssetTest {
 		if ((file.equals("")))
 			file = settings.getLogFile();
 
-		String[] lines = storage.load(file).split(TrackerEventMarshaller.LINE_SEPARATOR);
+		String[] lines = storage.load(file)
+				.split(TrackerEventMarshaller.LINE_SEPARATOR);
 		String traceWithoutTimestamp = removeTimestamp(lines[lines.length - 1]);
 		compareCSV(traceWithoutTimestamp, trace);
 	}
@@ -1003,8 +952,7 @@ public class TrackerAssetTest {
 	}
 
 	private void cleanStorage() throws Exception {
-		if (settings != null && storage != null
-				&& settings.getLogFile() != null
+		if (settings != null && storage != null && settings.getLogFile() != null
 				&& storage.exists(settings.getLogFile())) {
 			storage.delete(settings.getLogFile());
 		}
@@ -1022,8 +970,7 @@ public class TrackerAssetTest {
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
-		assertEquals(
-				((Map) tracejson.get("object")).get("id"),
+		assertEquals(((Map) tracejson.get("object")).get("id"),
 				"http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
 		assertEquals(
 				((Map) ((Map) tracejson.get("object")).get("definition"))
@@ -1066,8 +1013,7 @@ public class TrackerAssetTest {
 		ArrayList file = gson.fromJson(text, arraymap.getClass());
 		Map tracejson = (Map) file.get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
-		assertEquals(
-				((Map) tracejson.get("object")).get("id"),
+		assertEquals(((Map) tracejson.get("object")).get("id"),
 				"http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
 		assertEquals(
 				((Map) ((Map) tracejson.get("object")).get("definition"))
@@ -1168,8 +1114,7 @@ public class TrackerAssetTest {
 
 		Map<String, Object> tracejson = (Map) ((ArrayList) file.get(0)).get(0);
 		assertEquals(tracejson.entrySet().size(), 4);
-		assertEquals(
-				((Map) tracejson.get("object")).get("id"),
+		assertEquals(((Map) tracejson.get("object")).get("id"),
 				"http://a2:3000/api/proxy/gleaner/games/5a26cb5ac8b102008b41472a/5a26cb5ac8b102008b41472b/ObjectID");
 		assertEquals(
 				((Map) ((Map) tracejson.get("object")).get("definition"))

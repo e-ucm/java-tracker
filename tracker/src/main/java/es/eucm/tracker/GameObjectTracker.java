@@ -27,20 +27,18 @@ public class GameObjectTracker {
 	}
 
 	public enum TrackedGameObject implements TrackerUtils.XApiConstant {
-		Enemy("enemy"),
-		Npc("non-player-character"),
-		Item("item"),
-		GameObject("game-object");
+		Enemy("enemy"), Npc("non-player-character"), Item("item"), GameObject(
+				"game-object");
 
 		private String id;
-		
+
 		TrackedGameObject(String id) {
 			this.id = id;
 		}
-		
+
 		@Override
 		public String getId() {
-			return ACTIVITY_TYPES_BASE_IRI+id;
+			return ACTIVITY_TYPES_BASE_IRI + id;
 		}
 
 		@Override
@@ -62,8 +60,7 @@ public class GameObjectTracker {
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Interacted));
+			trace.setEvent(new TraceVerb(TraceVerb.Verb.Interacted));
 			trace.setTarget(new TrackerEvent.TraceObject(
 					TrackedGameObject.GameObject.toString().toLowerCase(),
 					gameobjectId));
@@ -85,10 +82,9 @@ public class GameObjectTracker {
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Interacted));
-			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), gameobjectId));
+			trace.setEvent(new TraceVerb(TraceVerb.Verb.Interacted));
+			trace.setTarget(new TrackerEvent.TraceObject(
+					type.toString().toLowerCase(), gameobjectId));
 
 			tracker.process(trace);
 		}
@@ -107,8 +103,7 @@ public class GameObjectTracker {
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Interacted));
+			trace.setEvent(new TraceVerb(TraceVerb.Verb.Interacted));
 			trace.setTarget(new TrackerEvent.TraceObject(
 					TrackedGameObject.GameObject.toString().toLowerCase(),
 					gameobjectId));
@@ -130,10 +125,9 @@ public class GameObjectTracker {
 				TargetXApiException.class)) {
 			TrackerEvent trace = new TrackerEvent();
 
-			trace.setEvent(new TraceVerb(
-					TraceVerb.Verb.Used));
-			trace.setTarget(new TrackerEvent.TraceObject(type
-					.toString().toLowerCase(), gameobjectId));
+			trace.setEvent(new TraceVerb(TraceVerb.Verb.Used));
+			trace.setTarget(new TrackerEvent.TraceObject(
+					type.toString().toLowerCase(), gameobjectId));
 
 			tracker.process(trace);
 		}

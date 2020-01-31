@@ -24,25 +24,19 @@ public class CompletableTracker extends BaseTracker {
 	}
 
 	public enum Completable implements TrackerUtils.XApiConstant {
-		Game("serious-game"),
-		Session("session"),
-		Level("level"),
-		Quest("quest"),
-		Stage("stage"),
-		Combat("combat"),
-		StoryNode("story-node"),
-		Race("race"),
-		Completable("completable");
+		Game("serious-game"), Session("session"), Level("level"), Quest(
+				"quest"), Stage("stage"), Combat("combat"), StoryNode(
+						"story-node"), Race("race"), Completable("completable");
 
 		private String id;
-		
+
 		Completable(String id) {
 			this.id = id;
 		}
-		
+
 		@Override
 		public String getId() {
-			return ACTIVITY_TYPES_BASE_IRI+id;
+			return ACTIVITY_TYPES_BASE_IRI + id;
 		}
 
 		@Override
@@ -58,8 +52,9 @@ public class CompletableTracker extends BaseTracker {
 	 *            Completable identifier.
 	 */
 	public void initialized(String completableId) {
-		tracker.process(generateInitializedTrace(new TraceVerb(
-				TraceVerb.Verb.Initialized), Completable.Completable, completableId));
+		tracker.process(generateInitializedTrace(
+				new TraceVerb(TraceVerb.Verb.Initialized),
+				Completable.Completable, completableId));
 	}
 
 	/**
@@ -71,10 +66,10 @@ public class CompletableTracker extends BaseTracker {
 	 *            Completable type.
 	 */
 	public void initialized(String completableId, Completable type) {
-		tracker.process(generateInitializedTrace(new TraceVerb(
-				TraceVerb.Verb.Initialized), type, completableId));
+		tracker.process(generateInitializedTrace(
+				new TraceVerb(TraceVerb.Verb.Initialized), type,
+				completableId));
 	}
-
 
 	/**
 	 * Player progressed a completable. Type = Completable
@@ -86,8 +81,9 @@ public class CompletableTracker extends BaseTracker {
 	 */
 	public void progressed(String completableId, float value) {
 		tracker.setProgress(value);
-		tracker.process(generateProgressTrace(new TraceVerb(
-				TraceVerb.Verb.Progressed), Completable.Completable, completableId));
+		tracker.process(
+				generateProgressTrace(new TraceVerb(TraceVerb.Verb.Progressed),
+						Completable.Completable, completableId));
 	}
 
 	/**
@@ -100,12 +96,12 @@ public class CompletableTracker extends BaseTracker {
 	 * @param type
 	 *            Completable type.
 	 */
-	public void progressed(String completableId, Completable type, float value) {
+	public void progressed(String completableId, Completable type,
+			float value) {
 		tracker.setProgress(value);
-		tracker.process(generateProgressTrace(new TraceVerb(
-				TraceVerb.Verb.Progressed), type, completableId));
+		tracker.process(generateProgressTrace(
+				new TraceVerb(TraceVerb.Verb.Progressed), type, completableId));
 	}
-
 
 	/**
 	 * Player completed a completable. Type = Completable Success = true Score =
@@ -115,8 +111,9 @@ public class CompletableTracker extends BaseTracker {
 	 *            Completable identifier.
 	 */
 	public void completed(String completableId) {
-		tracker.process(generateSuccessTrace(new TraceVerb(
-				TraceVerb.Verb.Completed), Completable.Completable, completableId, true, 1.0f));
+		tracker.process(
+				generateSuccessTrace(new TraceVerb(TraceVerb.Verb.Completed),
+						Completable.Completable, completableId, true, 1.0f));
 	}
 
 	/**
@@ -128,8 +125,9 @@ public class CompletableTracker extends BaseTracker {
 	 *            Completable type.
 	 */
 	public void completed(String completableId, Completable type) {
-		tracker.process(generateSuccessTrace(new TraceVerb(
-				TraceVerb.Verb.Completed), type, completableId, true, 1.0f));
+		tracker.process(
+				generateSuccessTrace(new TraceVerb(TraceVerb.Verb.Completed),
+						type, completableId, true, 1.0f));
 	}
 
 	/**
@@ -144,8 +142,9 @@ public class CompletableTracker extends BaseTracker {
 	 */
 	public void completed(String completableId, Completable type,
 			boolean success) {
-		tracker.process(generateSuccessTrace(new TraceVerb(
-				TraceVerb.Verb.Completed), type, completableId, success, 1.0f));
+		tracker.process(
+				generateSuccessTrace(new TraceVerb(TraceVerb.Verb.Completed),
+						type, completableId, success, 1.0f));
 	}
 
 	/**
@@ -159,8 +158,9 @@ public class CompletableTracker extends BaseTracker {
 	 *            Completable score.
 	 */
 	public void completed(String completableId, Completable type, float score) {
-		tracker.process(generateSuccessTrace(new TraceVerb(
-				TraceVerb.Verb.Completed), type, completableId, true, score));
+		tracker.process(
+				generateSuccessTrace(new TraceVerb(TraceVerb.Verb.Completed),
+						type, completableId, true, score));
 	}
 
 	/**
@@ -177,7 +177,8 @@ public class CompletableTracker extends BaseTracker {
 	 */
 	public void completed(String completableId, Completable type,
 			boolean success, float score) {
-		tracker.process(generateSuccessTrace(new TraceVerb(
-					TraceVerb.Verb.Completed), type, completableId, success, score));
+		tracker.process(
+				generateSuccessTrace(new TraceVerb(TraceVerb.Verb.Completed),
+						type, completableId, success, score));
 	}
 }

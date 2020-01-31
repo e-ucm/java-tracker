@@ -30,25 +30,31 @@ import es.eucm.tracker.exceptions.TargetXApiException;
 
 class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 
-	protected static Map<String, String> xApiVerbs = TrackerUtils.buildXApiMap(Verb.class);
-	protected static Map<String, String> extensionIds = TrackerUtils.buildXApiMap(TrackerAsset.Extension.class);
+	protected static Map<String, String> xApiVerbs = TrackerUtils
+			.buildXApiMap(Verb.class);
+	protected static Map<String, String> extensionIds = TrackerUtils
+			.buildXApiMap(TrackerAsset.Extension.class);
 	protected static Map<String, String> objectIds;
 
 	protected static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ISO_INSTANT;
 
 	static {
 		objectIds = new HashMap<>();
-		objectIds.putAll(TrackerUtils.buildXApiMap(CompletableTracker.Completable.class));
-		objectIds.putAll(TrackerUtils.buildXApiMap(AccessibleTracker.Accessible.class));
-		objectIds.putAll(TrackerUtils.buildXApiMap(AlternativeTracker.Alternative.class));
-		objectIds.putAll(TrackerUtils.buildXApiMap(GameObjectTracker.TrackedGameObject.class));
+		objectIds.putAll(TrackerUtils
+				.buildXApiMap(CompletableTracker.Completable.class));
+		objectIds.putAll(
+				TrackerUtils.buildXApiMap(AccessibleTracker.Accessible.class));
+		objectIds.putAll(TrackerUtils
+				.buildXApiMap(AlternativeTracker.Alternative.class));
+		objectIds.putAll(TrackerUtils
+				.buildXApiMap(GameObjectTracker.TrackedGameObject.class));
 	}
 
 	@Override
 	public String marshal(TrackerEvent event, TrackerAsset tracker) {
 		return TrackerAsset.gson.toJson(toMap(event, tracker), Map.class);
 	}
-	
+
 	public Map<String, Object> toMap(TrackerEvent event, TrackerAsset tracker) {
 		Map<String, Object> json = new HashMap<>();
 		actorToJson(json, tracker);
@@ -59,7 +65,8 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		return json;
 	}
 
-	protected void actorToJson(Map<String, Object> object, TrackerAsset tracker) {
+	protected void actorToJson(Map<String, Object> object,
+			TrackerAsset tracker) {
 		Map<String, Object> actor = Collections.emptyMap();
 		if (tracker != null) {
 			Map<String, Object> currentActor = tracker.getActorObject();
@@ -69,7 +76,7 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		}
 		object.put(getActorKey(), actor);
 	}
-	
+
 	protected String getActorKey() {
 		return "actor";
 	}
@@ -84,18 +91,21 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 
 		object.put(getVerbKey(), jsonVerb);
 	}
-	
+
 	protected String getVerbKey() {
 		return "verb";
 	}
 
-	protected void targetToJson(TrackerAsset tracker, Map<String, Object> object, TraceObject target) {
+	protected void targetToJson(TrackerAsset tracker,
+			Map<String, Object> object, TraceObject target) {
 		String type = target.getType();
 		if (objectIds.containsKey(type)) {
 			type = objectIds.get(type);
 		} else {
-			String complaint = "Tracker-xAPI: Unknown definition for target type: " + type;
-			complain(complaint, complaint + " - ignored", TargetXApiException.class, null);
+			String complaint = "Tracker-xAPI: Unknown definition for target type: "
+					+ type;
+			complain(complaint, complaint + " - ignored",
+					TargetXApiException.class, null);
 		}
 		Map<String, Object> definition = new HashMap<>();
 		definition.put("type", type);
@@ -103,16 +113,19 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		Map<String, Object> jsonTarget = new HashMap<>();
 		jsonTarget.put("definition", definition);
 		// XXX SMELL FIXME - strongly suspect this logic ->
-		jsonTarget.put("id", ((tracker.getActorObject() != null) ? tracker.getObjectId() : "") + target.getID());
+		jsonTarget.put("id",
+				((tracker.getActorObject() != null) ? tracker.getObjectId()
+						: "") + target.getID());
 
 		object.put(getTargetKey(), jsonTarget);
 	}
-	
+
 	protected String getTargetKey() {
 		return "target";
 	}
 
-	protected void resultToJson(Map<String, Object> object, TraceResult result) {
+	protected void resultToJson(Map<String, Object> object,
+			TraceResult result) {
 		Map<String, Object> jsonResult = new HashMap<>();
 
 		Boolean success = result.getSuccess();
@@ -139,7 +152,8 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 		}
 
 		Map<String, Object> jsonExtensions = new HashMap<>();
-		for (Map.Entry<String, Object> extension : result.getExtensions().entrySet()) {
+		for (Map.Entry<String, Object> extension : result.getExtensions()
+				.entrySet()) {
 			String id = extension.getKey();
 			Object value = extension.getValue();
 			if (extensionIds.containsKey(id)) {
@@ -155,7 +169,7 @@ class JsonTrackerEventMarshaller implements TrackerEventMarshaller {
 			object.put(getResultKey(), jsonResult);
 		}
 	}
-	
+
 	private String getResultKey() {
 		return "result";
 	}

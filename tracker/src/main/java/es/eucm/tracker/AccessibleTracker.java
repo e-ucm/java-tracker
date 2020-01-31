@@ -24,22 +24,19 @@ public class AccessibleTracker extends BaseTracker {
 	}
 
 	public enum Accessible implements TrackerUtils.XApiConstant {
-		
-		Screen("screen"),
-		Area("area"),
-		Zone("zone"),
-		Cutscene("cutscene"),
-		Accessible("accessible");
-		
+
+		Screen("screen"), Area("area"), Zone("zone"), Cutscene(
+				"cutscene"), Accessible("accessible");
+
 		private String id;
-		
+
 		Accessible(String id) {
 			this.id = id;
 		}
-		
+
 		@Override
 		public String getId() {
-			return ACTIVITY_TYPES_BASE_IRI+id;
+			return ACTIVITY_TYPES_BASE_IRI + id;
 		}
 
 		@Override
@@ -55,7 +52,8 @@ public class AccessibleTracker extends BaseTracker {
 	 *            Reachable identifier.
 	 */
 	public void accessed(String reachableId) {
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Accessed), Accessible.Accessible, reachableId));
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Accessed),
+				Accessible.Accessible, reachableId));
 	}
 
 	/**
@@ -67,7 +65,8 @@ public class AccessibleTracker extends BaseTracker {
 	 *            Reachable type.
 	 */
 	public void accessed(String reachableId, Accessible type) {
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Accessed), type, reachableId));
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Accessed),
+				type, reachableId));
 	}
 
 	/**
@@ -77,7 +76,8 @@ public class AccessibleTracker extends BaseTracker {
 	 *            Reachable identifier.
 	 */
 	public void skipped(String reachableId) {
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Skipped), Accessible.Accessible, reachableId));
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Skipped),
+				Accessible.Accessible, reachableId));
 	}
 
 	/**
@@ -89,8 +89,8 @@ public class AccessibleTracker extends BaseTracker {
 	 *            Reachable type.
 	 */
 	public void skipped(String reachableId, Accessible type) {
-		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Skipped), type, reachableId));
+		tracker.process(generateTrace(new TraceVerb(TraceVerb.Verb.Skipped),
+				type, reachableId));
 	}
-
 
 }

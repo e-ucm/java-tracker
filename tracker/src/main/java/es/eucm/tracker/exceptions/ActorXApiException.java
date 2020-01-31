@@ -25,7 +25,7 @@ public class ActorXApiException extends XApiException {
 	public ActorXApiException(String message) {
 		super(message);
 	}
-	
+
 	public ActorXApiException(String message, Throwable cause) {
 		super(message, cause);
 	}

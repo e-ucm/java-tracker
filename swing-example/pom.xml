@@ -67,8 +67,8 @@
 
             <!-- Java formatter -->
             <plugin>
-                <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
-                <artifactId>maven-java-formatter-plugin</artifactId>
+				<groupId>net.revelc.code.formatter</groupId>
+				<artifactId>formatter-maven-plugin</artifactId>
             </plugin>
 
             <!-- Set up the Cobertura Maven plugin in the build section of the project pom.xml -->

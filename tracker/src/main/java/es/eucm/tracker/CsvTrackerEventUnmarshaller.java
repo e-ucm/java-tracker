@@ -30,96 +30,102 @@ public class CsvTrackerEventUnmarshaller implements TrackerEventUnmarshaller {
 
 	static {
 		OBJECT_TYPES = new HashMap<>();
-		OBJECT_TYPES.putAll(TrackerUtils.buildReverseXApiMap(CompletableTracker.Completable.class));
-		OBJECT_TYPES.putAll(TrackerUtils.buildReverseXApiMap(AccessibleTracker.Accessible.class));
-		OBJECT_TYPES.putAll(TrackerUtils.buildReverseXApiMap(AlternativeTracker.Alternative.class));
-		OBJECT_TYPES.putAll(TrackerUtils.buildReverseXApiMap(GameObjectTracker.TrackedGameObject.class));
+		OBJECT_TYPES.putAll(TrackerUtils
+				.buildReverseXApiMap(CompletableTracker.Completable.class));
+		OBJECT_TYPES.putAll(TrackerUtils
+				.buildReverseXApiMap(AccessibleTracker.Accessible.class));
+		OBJECT_TYPES.putAll(TrackerUtils
+				.buildReverseXApiMap(AlternativeTracker.Alternative.class));
+		OBJECT_TYPES.putAll(TrackerUtils.buildReverseXApiMap(
+				GameObjectTracker.TrackedGameObject.class));
 	}
 
-  private static boolean parseBoolean(String s) {
-  	boolean trueValue = ((s != null) && s.equalsIgnoreCase("true"));
-  	boolean falseValue = ((s != null) && s.equalsIgnoreCase("false"));
-  	if ( ! (trueValue || falseValue) ) {
-  		throw new UnmarshallingException("Not a valid boolean: "+s);
-  	}
-    return trueValue;
-  }
-  
-  private static float parseFloat(String s) {
-  	float value = 0.0f;
-  	
-  	try {
-  		value = Float.parseFloat(s);
-  	} catch (NullPointerException | NumberFormatException e) {
-  		throw new UnmarshallingException("Not a valid float: "+s);
-  	} 
-  	
-  	return value;
-  }
-	
+	private static boolean parseBoolean(String s) {
+		boolean trueValue = ((s != null) && s.equalsIgnoreCase("true"));
+		boolean falseValue = ((s != null) && s.equalsIgnoreCase("false"));
+		if (!(trueValue || falseValue)) {
+			throw new UnmarshallingException("Not a valid boolean: " + s);
+		}
+		return trueValue;
+	}
+
+	private static float parseFloat(String s) {
+		float value = 0.0f;
+
+		try {
+			value = Float.parseFloat(s);
+		} catch (NullPointerException | NumberFormatException e) {
+			throw new UnmarshallingException("Not a valid float: " + s);
+		}
+
+		return value;
+	}
+
 	@Override
 	public TrackerEvent unmarshal(String event) {
 		if (event == null) {
 			throw new NullPointerException("event must not be null");
 		}
-		
+
 		if ("".equals(event)) {
 			throw new IllegalArgumentException("event must not be emtpy");
 		}
-		
+
 		String[] components = event.split(",");
 		if (components.length < 4) {
-			throw new UnmarshallingException("At least 4 values are required: <timestamp>,<verb>,<objectType>,<objetID>");
+			throw new UnmarshallingException(
+					"At least 4 values are required: <timestamp>,<verb>,<objectType>,<objetID>");
 		}
-		
-		
+
 		Instant timestamp = null;
 		try {
 			long millis = Long.parseLong(components[0]);
 			if (millis < 0) {
-				throw new UnmarshallingException("timestamp must not be negative: "+components[0]);
+				throw new UnmarshallingException(
+						"timestamp must not be negative: " + components[0]);
 			}
 			timestamp = Instant.ofEpochMilli(millis);
 		} catch (NumberFormatException e) {
 			throw new UnmarshallingException("timestamp is not valid", e);
 		}
-		
+
 		TraceVerb verb = null;
 		try {
 			verb = new TraceVerb(components[1]);
 		} catch (TrackerException e) {
 			throw new UnmarshallingException("Can not parse verb", e);
 		}
-		
+
 		TrackerEvent.TraceObject object = null;
 		XApiConstant objectType = OBJECT_TYPES.get(components[2]);
 		if (objectType == null) {
-			throw new UnmarshallingException("object type is not recognized: "+components[2]);
+			throw new UnmarshallingException(
+					"object type is not recognized: " + components[2]);
 		}
-		
+
 		try {
 			object = new TrackerEvent.TraceObject(objectType, components[3]);
 		} catch (TrackerException e) {
 			throw new UnmarshallingException("Can not parse target object", e);
 		}
-		
+
 		Map<String, Object> extensions = parseExtensions(components, 4);
-		
+
 		TrackerEvent te = new TrackerEvent(timestamp);
 		te.setEvent(verb);
 		te.setTarget(object);
 		if (extensions.size() > 0) {
 			te.getResult().setExtensions(extensions);
 		}
-		
+
 		return te;
 	}
-	
+
 	private Map<String, Object> parseExtensions(String[] values, int startIdx) {
 		Map<String, Object> extensions = new HashMap<>();
-		for (int i = startIdx; i+1 < values.length; i+=2) {
+		for (int i = startIdx; i + 1 < values.length; i += 2) {
 			String id = values[i];
-			String value = values[i+1];
+			String value = values[i + 1];
 			switch (id.toLowerCase()) {
 			case "success":
 			case "completion":
@@ -134,7 +140,7 @@ public class CsvTrackerEventUnmarshaller implements TrackerEventUnmarshaller {
 				break;
 			}
 		}
-		
+
 		return extensions;
 	}
 }
