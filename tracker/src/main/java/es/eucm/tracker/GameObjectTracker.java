@@ -74,6 +74,8 @@ public class GameObjectTracker {
 	 * 
 	 * @param gameobjectId
 	 *            TrackedGameObject identifier.
+	 * @param type
+	 *            type of event.
 	 */
 	public void interacted(String gameobjectId, TrackedGameObject type) {
 		if (TrackerUtils.check(gameobjectId,
@@ -117,6 +119,8 @@ public class GameObjectTracker {
 	 * 
 	 * @param gameobjectId
 	 *            TrackedGameObject identifier.
+	 * @param type
+	 *            type of event.
 	 */
 	public void used(String gameobjectId, TrackedGameObject type) {
 		if (TrackerUtils.check(gameobjectId,

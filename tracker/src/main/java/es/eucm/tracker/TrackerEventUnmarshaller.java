@@ -20,9 +20,12 @@ interface TrackerEventUnmarshaller {
 	/**
 	 * 
 	 * @param event
-	 * @return
+	 *            String representation of the event
+	 * 
+	 * @return an unmarshalled game event.
 	 * 
 	 * @throws es.eucm.tracker.exceptions.UnmarshallingException
+	 *             if there is a problem during the unmarshalling process.
 	 */
 	public TrackerEvent unmarshal(String event);
 }

@@ -135,17 +135,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>3.1.1</version>
-                    <configuration>
-                      <!-- put your configurations here -->
-                    </configuration>
-                    <executions>
-                      <execution>
-                        <phase>package</phase>
-                        <goals>
-                          <goal>shade</goal>
-                        </goals>
-                      </execution>
-                    </executions>
                 </plugin>
  
                 <!-- Set up the LICENSE Header plugin -->
@@ -278,8 +267,61 @@
 							<goals>
 								<goal>sign</goal>
 							</goals>
+							<configuration>
+								<!-- Although there is a <homedir> parameter, seems that there is a problem
+								signing the artifact in windows using a gpg cywin binary because the paths
+								are messed up. -->
+								<!-- mvn -P ossrh deploy -->
+								<!-- Sample maven settings.xml file 
+								<settings>
+									<servers>
+										<server>
+											<id>ossrh</id>
+											<username>USERNAME</username>
+											<password>PASSWORD</password>
+										</server>
+										<server>
+											<id>KEY_ID</id>
+											<passphrase>GPG_PASSPHRASE</passphrase>
+										</server>
+									</servers>
+									<profiles>
+									  <profile>
+									      <id>ossrh</id>
+									      <properties>
+									        <gpg.executable>gpg</gpg.executable>
+									        <gpg.keyname>KEY_ID</gpg.keyname>
+											<gpg.home>PATH_TO_FOLDER_CONTAINING_GPG_RINGS</gpg.home>
+									      </properties>
+									  	</profile>
+									</profiles>
+								</settings>
+								-->
+								<gpgArguments>
+									<arg>--homedir=${gpg.home}</arg>
+								</gpgArguments>
+								<keyname>${gpg.keyname}</keyname>
+								<passphraseServerId>${gpg.keyname}</passphraseServerId>
+							</configuration>
 						</execution>
 					</executions>
+				</plugin>
+				<!--
+				  1. Have a look to the staging repository: https://oss.sonatype.org/
+				  2.
+				    - If looks good: mvn -P ossrh nexus-staging:release
+				    - If not: mvn -P ossrh nexus-staging:drop
+				-->
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.7</version>
+					<extensions>true</extensions>
+					<configuration>
+						<serverId>ossrh</serverId>
+						<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+						<autoReleaseAfterClose>true</autoReleaseAfterClose>
+					</configuration>
 				</plugin>
             </plugins>
         </pluginManagement>

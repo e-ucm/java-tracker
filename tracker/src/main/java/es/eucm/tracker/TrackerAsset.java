@@ -134,13 +134,27 @@ public class TrackerAsset extends BaseAsset {
 	 *
 	 * Extensions can be either 'special' or 'common'.
 	 *
-	 * Special extensions are stored separately in xAPI, e.g.: result: { score:
-	 * { raw: score_value_float> }, success: success_value_bool, completion:
-	 * completion_value_bool, response: response_value_string ... }
-	 *
+	 * Special extensions are stored separately in xAPI, e.g.: <code>
+	 * result: {
+	 *   score: { raw: score_value_float }, 
+	 *   success: success_value_bool, 
+	 *   completion: completion_value_bool,
+	 *   response: response_value_string 
+	 *   ... 
+	 * }
+	 * </code>
+	 * 
 	 * Common extensions are stored in the result.extensions object (in the xAPI
-	 * format), e.g.: result: { ... extensions: { .../health: value,
-	 * .../position: value, .../progress: value} }
+	 * format), e.g.: <code>
+	 * result: {
+	 *   ...
+	 *   extensions: {
+	 *     .../health: value,
+	 *     .../position: value,
+	 *     .../progress: value
+	 *   }
+	 * }
+	 * </code>
 	 */
 	public enum Extension implements XApiConstant {
 		/*
@@ -222,6 +236,8 @@ public class TrackerAsset extends BaseAsset {
 
 	/**
 	 * Retrieves the (unique) instance
+	 * 
+	 * @return the {@link TrackerAsset} instance.
 	 */
 	public static TrackerAsset getInstance() {
 		if (INSTANCE == null) {
@@ -494,6 +510,9 @@ public class TrackerAsset extends BaseAsset {
 
 	/**
 	 * Adds the given value to the Queue.
+	 * 
+	 * @param trace
+	 *            Event to track.
 	 */
 	public void trace(TrackerEvent trace) {
 		if (!started)
@@ -508,8 +527,14 @@ public class TrackerAsset extends BaseAsset {
 	}
 
 	/**
-	 * Adds a trace with verb, target and targeit
+	 * Adds a trace with verb, target and target.
 	 * 
+	 * @param verb
+	 *            Event verb.
+	 * @param targetType
+	 *            Event type.
+	 * @param targetId
+	 *            target's id.
 	 */
 	public void trace(String verb, String targetType, String targetId) {
 		boolean trace = true;

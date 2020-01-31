@@ -90,6 +90,7 @@ public class TrackerUtils {
 	 * Configures all problems to launch exceptions.
 	 * 
 	 * @param strictMode
+	 *            Tracker strictness.
 	 */
 	public static void setStrictMode(boolean strictMode) {
 		TrackerUtils.strictMode = strictMode;
@@ -99,6 +100,7 @@ public class TrackerUtils {
 	 * Configures the logging mechanism.
 	 * 
 	 * @param logger
+	 *            Tracker's logger.
 	 */
 	public static void setLogger(Logger logger) {
 		TrackerUtils.logger = logger;
@@ -116,6 +118,8 @@ public class TrackerUtils {
 	 * @param cause
 	 *            to include in exception, if required. Use null to avoid.
 	 * @throws TrackerException
+	 *             if there is an issue creating an intance of
+	 *             {@code exceptionClass}
 	 */
 	public static void complain(String message, String strictMessage,
 			Class<? extends TrackerException> exceptionClass, Throwable cause) {
@@ -129,7 +133,6 @@ public class TrackerUtils {
 				logger.log(Severity.Error,
 						"Exception reporting exception: missing constructors for "
 								+ exceptionClass.getCanonicalName() + ": " + e);
-				e.printStackTrace();
 				throw new TrackerException(strictMessage, cause);
 			}
 			throw complaint;

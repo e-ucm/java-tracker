@@ -53,9 +53,9 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 	}
 
 	/**
-	 * Gets or sets the event.
+	 * Gets the event's verb.
 	 *
-	 * The event.
+	 * @return the verb.
 	 */
 	public TraceVerb getEvent() {
 		return verb;
@@ -67,9 +67,9 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 	}
 
 	/**
-	 * Gets or sets the Target for the.
+	 * Gets the event's target.
 	 *
-	 * The target.
+	 * @return the target.
 	 */
 	public TraceObject getTarget() {
 		return target;
@@ -80,9 +80,9 @@ public class TrackerEvent implements Comparable<TrackerEvent> {
 	}
 
 	/**
-	 * Gets or sets the Result for the.
+	 * Gets the event's result.
 	 *
-	 * The Result.
+	 * @return the result.
 	 */
 	public TraceResult getResult() {
 		return result;
